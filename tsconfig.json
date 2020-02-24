@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "strict": true,
+    "preserveConstEnums": true,
+    "jsx": "preserve",
+    "noEmit": true,
+    "typeRoots": ["./node_modules/@types", "types"],
+    "baseUrl": ".",
+    "paths": {
+      "react-loosely-lazy": ["src"],
+      "react-loosely-lazy/server": ["src/server"]
+    }
+  },
+  "include": ["examples/**/*"]
+}
