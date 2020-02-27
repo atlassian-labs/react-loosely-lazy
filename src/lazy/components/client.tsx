@@ -13,17 +13,22 @@ export const createComponentClient = ({
   deferred,
   resolveHash,
 }: any) => {
-  const Resolved = tryRequire(resolveId);
-  if (Resolved) deferred.resolve({ default: Resolved });
+  let isResolved = Boolean(tryRequire(resolveId));
+  if (!isResolved) {
+    deferred.promise.then((m: any) => {
+      isResolved = m.default;
+    });
+  }
   const ResolvedLazy = React.lazy(() => deferred.promise);
 
   return (props: any) => {
+    if (isResolved) return <ResolvedLazy {...props} />;
+
     const { setFallback } = useContext(LazySuspenseContext);
     const { subscribe, getCurrent } = useContext(LazyPhaseContext);
     const isOwnPhase = getCurrent() >= defer;
 
     useMemo(() => {
-      if (Resolved) return;
       if (isOwnPhase) {
         deferred.start().then(() => setFallback(null));
       } else {
@@ -36,19 +41,16 @@ export const createComponentClient = ({
     }, [isOwnPhase, setFallback, subscribe]);
 
     useMemo(() => {
-      if (Resolved) return;
-      const content = COLLECTED.get(resolveHash);
-      if (content) {
-        // override Suspense fallback with magic input
-        const component =
-          SETTINGS.CURRENT_MODE === MODE.RENDER ? (
-            <PlaceholderFallbackRender id={resolveHash} content={content} />
-          ) : (
-            <PlaceholderFallbackHydrate id={resolveHash} content={content} />
-          );
-        setFallback(component);
-        COLLECTED.delete(resolveHash);
-      }
+      const content = (COLLECTED.get(resolveHash) || []).shift();
+      if (!content) return;
+      // override Suspense fallback with magic input
+      const component =
+        SETTINGS.CURRENT_MODE === MODE.RENDER ? (
+          <PlaceholderFallbackRender id={resolveHash} content={content} />
+        ) : (
+          <PlaceholderFallbackHydrate id={resolveHash} content={content} />
+        );
+      setFallback(component);
     }, [setFallback]);
 
     return <ResolvedLazy {...props} />;

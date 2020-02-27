@@ -7,11 +7,15 @@ export const collect = () => {
   for (let i = 0, j = markers.length; i < j; i += 1) {
     const el = markers[i] as any;
     const { lazyBegin } = el.dataset || {};
-    COLLECTED.set(
-      lazyBegin,
+    const value =
       SETTINGS.CURRENT_MODE === MODE.RENDER
         ? cloneElements(markers[i], lazyBegin)
-        : refElements(markers[i], lazyBegin)
-    );
+        : refElements(markers[i], lazyBegin);
+
+    if (COLLECTED.has(lazyBegin)) {
+      COLLECTED.get(lazyBegin).push(value);
+    } else {
+      COLLECTED.set(lazyBegin, [value]);
+    }
   }
 };

@@ -7,14 +7,11 @@ export const createComponentServer = ({ ssr, resolveId, resolveHash }: any) => (
 ) => {
   const Resolved = ssr ? tryRequire(resolveId) : null;
   const { fallback } = useContext(LazySuspenseContext);
-  return Resolved ? (
+  return (
     <>
       <input type="hidden" data-lazy-begin={resolveHash} />
-      <Resolved {...props} />
+      {Resolved ? <Resolved {...props} /> : fallback}
       <input type="hidden" data-lazy-end={resolveHash} />
     </>
-  ) : (
-    // No SSR so just render fallback
-    fallback
   );
 };

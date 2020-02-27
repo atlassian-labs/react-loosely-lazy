@@ -6,7 +6,7 @@ export const PlaceholderFallbackHydrate = ({ id, content }: any) => {
       <input type="hidden" data-lazy-begin={id} />
       {content.map((el: HTMLElement, i: number) =>
         el.tagName
-          ? React.createElement(el.tagName.toLocaleLowerCase(), {
+          ? React.createElement(el.tagName.toLowerCase(), {
               key: String(i),
               dangerouslySetInnerHTML: { __html: '' },
               suppressHydrationWarning: true,

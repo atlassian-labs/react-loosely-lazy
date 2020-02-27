@@ -44,6 +44,10 @@ function buildComponents() {
     id: () => (require as any).resolveWeak('./components/wait-no-ssr'),
     ssr: false,
   });
+  Async.ComponentDynamic = lazy(() => import('./components/dynamic'), {
+    id: () => (require as any).resolveWeak('./components/dynamic'),
+    ssr: false,
+  });
 }
 
 const Fallback = ({ id }: any) => (
@@ -53,16 +57,21 @@ const Fallback = ({ id }: any) => (
 /**
  * Main App
  */
-const App = () => {
+const App = ({ mode }: any) => {
   const [status, setStatus] = useState('SSR');
+  console.log(`----- ${mode} | ${status} ------`);
   useEffect(() => {
     setStatus('INTERACTIVE');
     setTimeout(() => setStatus('LAZY'), 2000);
+    setTimeout(() => setStatus('DYNAMIC'), 4000);
   }, []);
 
   return (
     <div>
-      <h1>Render example</h1>
+      <h1>{window.location.hash || 'hydration'} example</h1>
+      <a href="#render">Switch to render</a>
+      {' | '}
+      <a href="#hydration">Switch to hydration</a>
       <h3>Status: {status}</h3>
       <main>
         <LazySuspense fallback={<Fallback id="WithSSR" />}>
@@ -83,27 +92,41 @@ const App = () => {
             <Async.ComponentWaitNoSSR />
           </LazySuspense>
         </LazyWait>
+        <p>Dynamic</p>
+        {status === 'DYNAMIC' && (
+          <>
+            <LazySuspense fallback={<Fallback id="Dynamic" />}>
+              <Async.ComponentDynamic />
+            </LazySuspense>
+            <br />
+            <LazySuspense fallback={<Fallback id="CachedWithSSR" />}>
+              <Async.ComponentWithSSR />
+            </LazySuspense>
+          </>
+        )}
       </main>
     </div>
   );
 };
 
 const container = document.querySelector('#root');
+const isRender = window.location.hash.includes('render');
+const mode = isRender ? MODE.RENDER : MODE.HYDRATE;
 
 if (container) {
   buildComponents();
   setTimeout(() => {
     // simulate server env
-    LooselyLazyServer.init(MODE.RENDER);
-    const ssr = ReactDOMServer.renderToString(<App />);
-    container.innerHTML = ssr;
+    LooselyLazyServer.init(mode);
+    const ssr = ReactDOMServer.renderToString(<App mode="SERVER" />);
+    container.innerHTML = isRender ? `<div>${ssr}</div>` : ssr;
   }, 100);
 }
 
 setTimeout(() => {
   SETTINGS.IS_SERVER = false;
   // client env behaviour
-  LooselyLazyClient.init(MODE.RENDER);
+  LooselyLazyClient.init(mode);
   buildComponents();
-  ReactDOM.render(<App />, container);
+  ReactDOM[isRender ? 'render' : 'hydrate'](<App mode="CLIENT" />, container);
 }, 2000);

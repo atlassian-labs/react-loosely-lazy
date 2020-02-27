@@ -28,21 +28,24 @@ export const LazyWait = ({ until, children }: LazyWaitProps) => {
   const { getCurrent, setCurrent } = useContext(LazyPhaseContext);
   const waitUntil = typeof until === 'number' ? until : DEFER.PHASE_TRIGGER;
   const isOwnPhase = usePhaseSubscription(waitUntil);
-  const phase = isOwnPhase || until === true ? getCurrent(true) : -9;
+  const phaseRef = useRef(0);
+  phaseRef.current = isOwnPhase || until === true ? getCurrent(true) : -9;
 
   // notify all children of phase change
   const { current: listeners } = useRef<any>([]);
   useMemo(() => {
-    listeners.forEach((listener: any) => listener(phase));
-  }, [listeners, phase]);
+    listeners.forEach((listener: any) => listener(phaseRef.current));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listeners, phaseRef.current]);
 
   const api = useMemo(
     () => ({
       subscribe: createSubscribe(listeners),
-      getCurrent: (global?: boolean) => (global ? getCurrent(global) : phase),
+      getCurrent: (global?: boolean) =>
+        global ? getCurrent(global) : phaseRef.current,
       setCurrent,
     }),
-    [getCurrent, listeners, phase, setCurrent]
+    [getCurrent, listeners, setCurrent]
   );
 
   return (

@@ -8,20 +8,36 @@ export class LazySuspense extends Component<any, any> {
     fallback: this.props.fallback,
     // Used on client to replace fallback with magic input
     setFallback: (f: any) => {
+      if (this.hydrationFallback === f) return;
       this.hydrationFallback = f;
+      this.useSibling = Boolean(f);
+      // Shedule an update so we force switch from the sibling tree
+      // back to the suspense boundary
+      this.forceUpdate();
     },
   };
 
   hydrationFallback = null;
+  useSibling = false;
+  mounted = false;
 
-  DynamicFallback = ({ children }: any) => {
-    return children(this.hydrationFallback || this.props.fallback);
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  DynamicFallback = ({ children, sibling }: any) => {
+    if (sibling) {
+      return children(this.useSibling ? this.hydrationFallback : null);
+    }
+    return children(this.useSibling ? null : this.props.fallback);
   };
 
-  renderFallback() {
+  renderFallback(v: boolean) {
     // Use render prop component to allow switch to hydration fallback
     return (
-      <this.DynamicFallback>{(fallback: any) => fallback}</this.DynamicFallback>
+      <this.DynamicFallback sibling={v}>
+        {(fallback: any) => fallback}
+      </this.DynamicFallback>
     );
   }
 
@@ -36,9 +52,10 @@ export class LazySuspense extends Component<any, any> {
   renderClient() {
     return (
       <LazySuspenseContext.Provider value={this.state}>
-        <Suspense fallback={this.renderFallback()}>
+        <Suspense fallback={this.renderFallback(false)}>
           {this.props.children}
         </Suspense>
+        {(!this.mounted || this.useSibling) && this.renderFallback(true)}
       </LazySuspenseContext.Provider>
     );
   }
