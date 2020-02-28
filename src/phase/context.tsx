@@ -1,4 +1,4 @@
-import { createContext } from 'react';
+import { createContext, useContext } from 'react';
 import { createSubscribe } from './utils';
 
 const LISTENERS: any[] = [];
@@ -10,6 +10,8 @@ export const LazyPhaseContext = createContext({
   getCurrent: (global?: boolean) => CURRENT_PHASE,
   setCurrent: (value: number) => {
     CURRENT_PHASE = value;
-    LISTENERS.forEach((listener: any) => listener(value));
+    LISTENERS.slice(0).forEach((listener: any) => listener(value));
   },
 });
+
+export const useLazyPhase = () => useContext(LazyPhaseContext);

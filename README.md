@@ -22,18 +22,82 @@ npm i react-loosely-lazy
 yarn add react-loosely-lazy
 ```
 
-#### Creating a Subscriber
+#### Basic use case: SSR + loading at bootstrap time
 
 ```js
-// async.js
-import { lazy } from 'react-loosely-lazy';
+import { lazy, LazySuspense } from 'react-loosely-lazy';
+
+const AsyncMyComponent = lazy(() => import('./MyComponent'));
+
+const App = () => (
+  <LazySuspense fallback="...">
+    <AsyncMyComponent />
+  </LazySuspense>
+);
 ```
 
-```js
-// app.js
-import { AsyncButton } from './components/async';
+#### No SSR use case: Fallback on SSR + loading at bootstrap time
 
-const CounterApp = () => {};
+```js
+import { lazy, LazySuspense } from 'react-loosely-lazy';
+
+const AsyncMyComponent = lazy(() => import('./MyComponent'), {
+  ssr: false,
+});
+
+const App = () => (
+  <LazySuspense fallback={<MyComponentSkeleton />}>
+    <AsyncMyComponent />
+  </LazySuspense>
+);
+```
+
+#### Phase loading use case: SSR + specific phase loading
+
+```js
+import { lazy, useLazyPhase, LazySuspense } from 'react-loosely-lazy';
+
+const AsyncMyComponent = lazy(() => import('./MyComponent'), {
+  defer: DEFER.PHASE_INTERACTIVE,
+});
+
+const App = () => {
+  const { setCurrent } = useLazyPhase();
+  // eg start loading MyComponent after the app is mounted
+  useEffect(() => {
+    setCurrent(DEFER.PHASE_INTERACTIVE);
+  }, [setCurrent]);
+  return (
+    <LazySuspense fallback="...">
+      <AsyncMyComponent />
+    </LazySuspense>
+  );
+};
+```
+
+#### Trigger loading use case: No SSR + loading on user iteraction
+
+```js
+import { lazy, LazyWait, LazySuspense } from 'react-loosely-lazy';
+
+const AsyncMyComponent = lazy(() => import('./MyComponent'), {
+  ssr: false,
+});
+
+const App = () => {
+  const [shouldLoad, setLoad] = useState(false);
+
+  return (
+    <>
+      <button onClick={() => setLoad(true)}>Load</button>
+      <LazyWait until={shouldLoad}>
+        <LazySuspense fallback={shouldLoad ? <MyComponentSkeleton /> : null}>
+          <AsyncMyComponent />
+        </LazySuspense>
+      </LazyWait>
+    </>
+  );
+};
 ```
 
 ## Documentation

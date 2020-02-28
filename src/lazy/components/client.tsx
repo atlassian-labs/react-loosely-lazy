@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useEffect } from 'react';
 import { LazySuspenseContext } from '../../suspense';
 import { LazyPhaseContext } from '../../phase';
 import { tryRequire } from '../../utils';
@@ -12,6 +12,7 @@ export const createComponentClient = ({
   defer,
   deferred,
   resolveHash,
+  ssr,
 }: any) => {
   let isResolved = Boolean(tryRequire(resolveId));
   if (!isResolved) {
@@ -43,7 +44,7 @@ export const createComponentClient = ({
     useMemo(() => {
       const content = (COLLECTED.get(resolveHash) || []).shift();
       if (!content) return;
-      // override Suspense fallback with magic input
+      // override Suspense fallback with magic input wrappers
       const component =
         SETTINGS.CURRENT_MODE === MODE.RENDER ? (
           <PlaceholderFallbackRender id={resolveHash} content={content} />
@@ -52,6 +53,15 @@ export const createComponentClient = ({
         );
       setFallback(component);
     }, [setFallback]);
+
+    if (!ssr) {
+      // if not SSR we can replace stale placeholder with suspense
+      // as soon as the component mounts, so fallback becomes live
+      // but we do not trigger hydration warnings
+      useEffect(() => {
+        setFallback(null);
+      }, [setFallback]);
+    }
 
     return <ResolvedLazy {...props} />;
   };

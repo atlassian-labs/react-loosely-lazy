@@ -9,8 +9,10 @@ import '@babel/polyfill';
 import LooselyLazyServer from 'react-loosely-lazy/server';
 import LooselyLazyClient, {
   lazy,
+  useLazyPhase,
   LazySuspense,
   LazyWait,
+  DEFER,
   MODE,
   SETTINGS,
 } from 'react-loosely-lazy';
@@ -34,6 +36,18 @@ function buildComponents() {
     id: () => (require as any).resolveWeak('./components/no-ssr'),
     ssr: false,
   });
+  Async.ComponentDeferWithSSR = lazy(
+    () => import('./components/defer-with-ssr'),
+    {
+      id: () => (require as any).resolveWeak('./components/defer-with-ssr'),
+      defer: DEFER.PHASE_INTERACTIVE,
+    }
+  );
+  Async.ComponentDeferNoSSR = lazy(() => import('./components/defer-no-ssr'), {
+    id: () => (require as any).resolveWeak('./components/defer-no-ssr'),
+    defer: DEFER.PHASE_INTERACTIVE,
+    ssr: false,
+  });
   Async.ComponentWaitWithSSR = lazy(
     () => import('./components/wait-with-ssr'),
     {
@@ -46,7 +60,6 @@ function buildComponents() {
   });
   Async.ComponentDynamic = lazy(() => import('./components/dynamic'), {
     id: () => (require as any).resolveWeak('./components/dynamic'),
-    ssr: false,
   });
 }
 
@@ -54,17 +67,76 @@ const Fallback = ({ id }: any) => (
   <div style={{ borderBottom: '2px dotted #E1E' }}>{`<Fallback${id} />`}</div>
 );
 
+const BootstrapComponents = React.memo(() => (
+  <>
+    <LazySuspense fallback={<Fallback id="WithSSR" />}>
+      <Async.ComponentWithSSR />
+    </LazySuspense>
+    <br />
+    <LazySuspense fallback={<Fallback id="NoSSR" />}>
+      <Async.ComponentNoSSR />
+    </LazySuspense>
+  </>
+));
+
+const InteractiveComponents = React.memo(() => (
+  <>
+    <LazySuspense fallback={<Fallback id="DeferWithSSR" />}>
+      <Async.ComponentDeferWithSSR />
+    </LazySuspense>
+    <br />
+    <LazySuspense fallback={<Fallback id="DeferNoSSR" />}>
+      <Async.ComponentDeferNoSSR />
+    </LazySuspense>
+  </>
+));
+
+const LazyComponents = React.memo(({ status }: any) => (
+  <>
+    <LazyWait until={status === 'LAZY'}>
+      <LazySuspense fallback={<Fallback id="WaitWithSSR" />}>
+        <Async.ComponentWaitWithSSR />
+      </LazySuspense>
+      <br />
+      <LazySuspense
+        fallback={
+          status === 'LAZY' ? <Fallback id={`WaitNoSSR-${status}`} /> : <br />
+        }
+      >
+        <Async.ComponentWaitNoSSR />
+      </LazySuspense>
+    </LazyWait>
+  </>
+));
+
+const DynamicComponents = React.memo(() => (
+  <>
+    <LazySuspense fallback={<Fallback id="Dynamic" />}>
+      <Async.ComponentDynamic />
+    </LazySuspense>
+    <br />
+    <LazySuspense fallback={<Fallback id="CachedWithSSR" />}>
+      <Async.ComponentWithSSR />
+    </LazySuspense>
+  </>
+));
+
 /**
  * Main App
  */
 const App = ({ mode }: any) => {
   const [status, setStatus] = useState('SSR');
+  const { setCurrent } = useLazyPhase();
   console.log(`----- ${mode} | ${status} ------`);
   useEffect(() => {
-    setStatus('INTERACTIVE');
-    setTimeout(() => setStatus('LAZY'), 2000);
-    setTimeout(() => setStatus('DYNAMIC'), 4000);
-  }, []);
+    setStatus('BOOTSTRAP');
+    setTimeout(() => {
+      setCurrent(DEFER.PHASE_INTERACTIVE);
+      setStatus('INTERACTIVE');
+    }, 2000);
+    setTimeout(() => setStatus('LAZY'), 4000);
+    setTimeout(() => setStatus('DYNAMIC'), 6000);
+  }, [setCurrent]);
 
   return (
     <div>
@@ -74,36 +146,15 @@ const App = ({ mode }: any) => {
       <a href="#hydration">Switch to hydration</a>
       <h3>Status: {status}</h3>
       <main>
-        <LazySuspense fallback={<Fallback id="WithSSR" />}>
-          <Async.ComponentWithSSR />
-        </LazySuspense>
+        <BootstrapComponents />
         <br />
-        <LazySuspense fallback={<Fallback id="NoSSR" />}>
-          <Async.ComponentNoSSR />
-        </LazySuspense>
+        <p>Statically deferred</p>
+        <InteractiveComponents />
         <br />
         <p>LazyWait</p>
-        <LazyWait until={status === 'LAZY'}>
-          <LazySuspense fallback={<Fallback id="WaitWithSSR" />}>
-            <Async.ComponentWaitWithSSR />
-          </LazySuspense>
-          <br />
-          <LazySuspense fallback={<Fallback id="WaitNoSSR" />}>
-            <Async.ComponentWaitNoSSR />
-          </LazySuspense>
-        </LazyWait>
+        <LazyComponents status={status} />
         <p>Dynamic</p>
-        {status === 'DYNAMIC' && (
-          <>
-            <LazySuspense fallback={<Fallback id="Dynamic" />}>
-              <Async.ComponentDynamic />
-            </LazySuspense>
-            <br />
-            <LazySuspense fallback={<Fallback id="CachedWithSSR" />}>
-              <Async.ComponentWithSSR />
-            </LazySuspense>
-          </>
-        )}
+        {status === 'DYNAMIC' && <DynamicComponents />}
       </main>
     </div>
   );
@@ -128,5 +179,5 @@ setTimeout(() => {
   // client env behaviour
   LooselyLazyClient.init(mode);
   buildComponents();
-  ReactDOM[isRender ? 'render' : 'hydrate'](<App mode="CLIENT" />, container);
+  ReactDOM.render(<App mode="CLIENT" />, container);
 }, 2000);

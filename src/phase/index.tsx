@@ -1,2 +1,2 @@
 export { LazyWait } from './component';
-export { LazyPhaseContext } from './context';
+export { useLazyPhase, LazyPhaseContext } from './context';

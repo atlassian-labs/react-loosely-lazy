@@ -34,7 +34,7 @@ export const LazyWait = ({ until, children }: LazyWaitProps) => {
   // notify all children of phase change
   const { current: listeners } = useRef<any>([]);
   useMemo(() => {
-    listeners.forEach((listener: any) => listener(phaseRef.current));
+    listeners.slice(0).forEach((listener: any) => listener(phaseRef.current));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listeners, phaseRef.current]);
 

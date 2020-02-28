@@ -2,7 +2,7 @@ import React from 'react';
 
 let hasThrown = false;
 
-const ComponentNoSSR = () => {
+const ComponentDeferNoSSR = () => {
   if (!hasThrown) {
     hasThrown = true;
     throw new Promise(r => setTimeout(r, 1000));
@@ -15,4 +15,4 @@ const ComponentNoSSR = () => {
   );
 };
 
-export default ComponentNoSSR;
+export default ComponentDeferNoSSR;
