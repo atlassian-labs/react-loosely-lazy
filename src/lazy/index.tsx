@@ -23,14 +23,19 @@ type Options = {
   id?: () => string;
 };
 
-const createDeferred = (loader: Loader) => {
+const createDeferred = (loader: Loader, sync: boolean) => {
   let resolve: any;
+  let result: any;
   const promise = new Promise<ImportDefaultComponent>(r => {
-    resolve = r;
+    resolve = (m: any) => {
+      result = m;
+      r(m);
+    };
   });
   // TODO: handle error & reject
   const start = () => loader().then(resolve);
-  return { promise, resolve, start };
+  if (sync) start();
+  return { promise, result, start };
 };
 
 export const lazy = (
@@ -44,16 +49,17 @@ export const lazy = (
 ) => {
   const resolveId = id();
   const resolveHash = hash(resolveId);
-  const deferred = createDeferred(loader);
-  if (SETTINGS.IS_SERVER && ssr) deferred.start();
+  const deferred = createDeferred(loader, SETTINGS.IS_SERVER && ssr);
 
   const LazyComponent: any = SETTINGS.IS_SERVER
     ? createComponentServer({
         ssr,
+        deferred,
         resolveId,
         resolveHash,
       })
     : createComponentClient({
+        ssr,
         defer,
         deferred,
         resolveId,

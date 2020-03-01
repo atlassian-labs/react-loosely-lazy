@@ -16,8 +16,8 @@ export const createComponentClient = ({
 }: any) => {
   let isResolved = Boolean(tryRequire(resolveId));
   if (!isResolved) {
-    deferred.promise.then((m: any) => {
-      isResolved = m.default;
+    deferred.promise.then(() => {
+      isResolved = true;
     });
   }
   const ResolvedLazy = React.lazy(() => deferred.promise);

@@ -1,4 +1,9 @@
-import Enzyme from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
+import { format } from 'util';
+import '@testing-library/jest-dom/extend-expect';
 
-Enzyme.configure({ adapter: new Adapter() });
+const error = console.error;
+
+console.error = function(...args) {
+  error(...args);
+  throw new Error(format(...args));
+};

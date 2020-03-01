@@ -1,11 +1,16 @@
 import React, { useContext } from 'react';
-import { tryRequire } from '../../utils';
+import { tryRequire, getExport } from '../../utils';
 import { LazySuspenseContext } from '../../suspense/context';
 
-export const createComponentServer = ({ ssr, resolveId, resolveHash }: any) => (
-  props: any
-) => {
-  const Resolved = ssr ? tryRequire(resolveId) : null;
+export const createComponentServer = ({
+  ssr,
+  deferred,
+  resolveId,
+  resolveHash,
+}: any) => (props: any) => {
+  const Resolved = ssr
+    ? tryRequire(resolveId) || getExport(deferred.result)
+    : null;
   const { fallback } = useContext(LazySuspenseContext);
   return (
     <>
