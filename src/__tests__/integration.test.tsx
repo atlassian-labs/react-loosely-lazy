@@ -4,24 +4,24 @@ import { render, act } from '@testing-library/react';
 
 import LooselyLazy, {
   lazy,
+  lazyForDisplay,
   LazySuspense,
   useLazyPhase,
-  DEFER,
   SETTINGS,
   MODE,
 } from '..';
 import { createMockImport, nextTick } from './utils';
 
-const createApp = ({ server, ssr, hydrate, priority = undefined }) => {
+const createApp = ({ server, ssr, hydrate, phase = undefined }) => {
   SETTINGS.IS_SERVER = server;
   const Child = jest.fn(() => <p className="p">Content</p>);
   const Fallback = jest.fn(() => <i>Fallback</i>) as any;
   const { mockImport, resolveImport } = createMockImport(Child, ssr && server);
 
-  const AsyncComponent = lazy(() => mockImport, {
+  const lazyFn = phase === 'DISPLAY' ? lazyForDisplay : lazy;
+  const AsyncComponent = lazyFn(() => mockImport, {
     id: () => './my-component',
     ssr,
-    defer: priority,
   });
 
   LooselyLazy.init(hydrate ? MODE.HYDRATE : MODE.RENDER);
@@ -176,10 +176,12 @@ describe('render without priority', () => {
   });
 });
 
-describe('with static priority', () => {
-  const Wrapper = ({ children, phase = DEFER.PHASE_IMMEDIATE }: any) => {
-    const { setCurrent } = useLazyPhase();
-    useEffect(() => setCurrent(phase), [phase, setCurrent]);
+describe('with static phase', () => {
+  const Wrapper = ({ children, phase }: any) => {
+    const { setPhaseDisplay } = useLazyPhase();
+    useEffect(() => {
+      if (phase === 'DISPLAY') setPhaseDisplay();
+    }, [phase, setPhaseDisplay]);
     return children;
   };
 
@@ -192,7 +194,7 @@ describe('with static priority', () => {
         server: true,
         ssr,
         hydrate,
-        priority: DEFER.PHASE_INTERACTIVE,
+        phase: 'DISPLAY',
       });
 
       document.body.innerHTML = `<div>${ReactDOMServer.renderToString(
@@ -207,7 +209,7 @@ describe('with static priority', () => {
         server: false,
         ssr,
         hydrate,
-        priority: DEFER.PHASE_INTERACTIVE,
+        phase: 'DISPLAY',
       });
       const { rerender } = render(
         <Wrapper>
@@ -226,7 +228,7 @@ describe('with static priority', () => {
       expect(document.body).toContainHTML('<p class="p">Content</p>');
 
       rerender(
-        <Wrapper phase={DEFER.PHASE_INTERACTIVE}>
+        <Wrapper phase="DISPLAY">
           <ClientApp />
         </Wrapper>
       );
@@ -247,7 +249,7 @@ describe('with static priority', () => {
         server: true,
         ssr,
         hydrate,
-        priority: DEFER.PHASE_INTERACTIVE,
+        phase: 'DISPLAY',
       });
 
       document.body.innerHTML = `<div>${ReactDOMServer.renderToString(
@@ -262,7 +264,7 @@ describe('with static priority', () => {
         server: false,
         ssr,
         hydrate,
-        priority: DEFER.PHASE_INTERACTIVE,
+        phase: 'DISPLAY',
       });
       const { rerender } = render(
         <Wrapper>
@@ -284,7 +286,7 @@ describe('with static priority', () => {
       expect(document.body).not.toContainHTML('<input');
 
       rerender(
-        <Wrapper phase={DEFER.PHASE_INTERACTIVE}>
+        <Wrapper phase="DISPLAY">
           <ClientApp />
         </Wrapper>
       );

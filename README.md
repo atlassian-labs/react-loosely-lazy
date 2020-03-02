@@ -55,18 +55,16 @@ const App = () => (
 #### Phase loading use case: SSR + specific phase loading
 
 ```js
-import { lazy, useLazyPhase, LazySuspense } from 'react-loosely-lazy';
+import { lazyForDisplay, useLazyPhase, LazySuspense } from 'react-loosely-lazy';
 
-const AsyncMyComponent = lazy(() => import('./MyComponent'), {
-  defer: DEFER.PHASE_INTERACTIVE,
-});
+const AsyncMyComponent = lazyForDisplay(() => import('./MyComponent'));
 
 const App = () => {
-  const { setCurrent } = useLazyPhase();
+  const { setPhaseDisplay } = useLazyPhase();
   // eg start loading MyComponent after the app is mounted
   useEffect(() => {
-    setCurrent(DEFER.PHASE_INTERACTIVE);
-  }, [setCurrent]);
+    setPhaseDisplay();
+  }, [setPhaseDisplay]);
   return (
     <LazySuspense fallback="...">
       <AsyncMyComponent />
@@ -75,14 +73,12 @@ const App = () => {
 };
 ```
 
-#### Trigger loading use case: No SSR + loading on user iteraction
+#### Trigger loading use case: No SSR & loading on user iteraction
 
 ```js
 import { lazy, LazyWait, LazySuspense } from 'react-loosely-lazy';
 
-const AsyncMyComponent = lazy(() => import('./MyComponent'), {
-  ssr: false,
-});
+const AsyncMyComponent = lazyForInteraction(() => import('./MyComponent'));
 
 const App = () => {
   const [shouldLoad, setLoad] = useState(false);
