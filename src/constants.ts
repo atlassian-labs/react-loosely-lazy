@@ -3,11 +3,10 @@ export const MODE = {
   HYDRATE: 'HYDRATE' as const,
 };
 
-export const DEFER = {
-  PHASE_IMMEDIATE: 0,
-  PHASE_INTERACTIVE: 10,
-  PHASE_IDLE: 20,
-  PHASE_TRIGGER: 999,
+export const PHASE = {
+  BOOTSTRAP: 0,
+  DISPLAY: 1,
+  INTERACTION: 2,
 };
 
 export const COLLECTED = new Map();

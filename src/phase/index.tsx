@@ -5,3 +5,4 @@ export {
   setCurrent,
   LISTENERS,
 } from './context';
+export { usePhaseSubscription } from './controller';

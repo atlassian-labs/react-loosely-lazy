@@ -1,9 +1,9 @@
 import React, { useContext, useMemo, useEffect } from 'react';
+
+import { COLLECTED, SETTINGS, MODE } from '../../constants';
 import { LazySuspenseContext } from '../../suspense';
-import { LazyPhaseContext } from '../../phase';
+import { usePhaseSubscription } from '../../phase';
 import { tryRequire } from '../../utils';
-import { COLLECTED, SETTINGS } from '../../constants';
-import { MODE } from '../..';
 import { PlaceholderFallbackRender } from '../placeholders/render';
 import { PlaceholderFallbackHydrate } from '../placeholders/hydrate';
 
@@ -26,20 +26,11 @@ export const createComponentClient = ({
     if (isResolved) return <ResolvedLazy {...props} />;
 
     const { setFallback } = useContext(LazySuspenseContext);
-    const { subscribe, getCurrent } = useContext(LazyPhaseContext);
-    const isOwnPhase = getCurrent() >= defer;
+    const isOwnPhase = usePhaseSubscription(defer);
 
     useMemo(() => {
-      if (isOwnPhase) {
-        deferred.start().then(() => setFallback(null));
-      } else {
-        const unsubscribe = subscribe((v: number) => {
-          if (v < defer) return;
-          deferred.start().then(() => setFallback(null));
-          unsubscribe();
-        });
-      }
-    }, [isOwnPhase, setFallback, subscribe]);
+      if (isOwnPhase) deferred.start().then(() => setFallback(null));
+    }, [isOwnPhase, setFallback]);
 
     useMemo(() => {
       const content = (COLLECTED.get(resolveHash) || []).shift();

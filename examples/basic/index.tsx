@@ -9,10 +9,11 @@ import '@babel/polyfill';
 import LooselyLazyServer from 'react-loosely-lazy/server';
 import LooselyLazyClient, {
   lazy,
+  lazyForDisplay,
+  lazyForInteraction,
   useLazyPhase,
   LazySuspense,
   LazyWait,
-  DEFER,
   MODE,
   SETTINGS,
 } from 'react-loosely-lazy';
@@ -36,18 +37,18 @@ function buildComponents() {
     id: () => (require as any).resolveWeak('./components/no-ssr'),
     ssr: false,
   });
-  Async.ComponentDeferWithSSR = lazy(
+  Async.ComponentDeferWithSSR = lazyForDisplay(
     () => import('./components/defer-with-ssr'),
     {
       id: () => (require as any).resolveWeak('./components/defer-with-ssr'),
-      defer: DEFER.PHASE_INTERACTIVE,
     }
   );
-  Async.ComponentDeferNoSSR = lazy(() => import('./components/defer-no-ssr'), {
-    id: () => (require as any).resolveWeak('./components/defer-no-ssr'),
-    defer: DEFER.PHASE_INTERACTIVE,
-    ssr: false,
-  });
+  Async.ComponentDeferNoSSR = lazyForInteraction(
+    () => import('./components/defer-no-ssr'),
+    {
+      id: () => (require as any).resolveWeak('./components/defer-no-ssr'),
+    }
+  );
   Async.ComponentWaitWithSSR = lazy(
     () => import('./components/wait-with-ssr'),
     {
@@ -126,17 +127,18 @@ const DynamicComponents = React.memo(() => (
  */
 const App = ({ mode }: any) => {
   const [status, setStatus] = useState('SSR');
-  const { setCurrent } = useLazyPhase();
+  const { setPhaseDisplay, setPhaseInteraction } = useLazyPhase();
   console.log(`----- ${mode} | ${status} ------`);
   useEffect(() => {
     setStatus('BOOTSTRAP');
     setTimeout(() => {
-      setCurrent(DEFER.PHASE_INTERACTIVE);
-      setStatus('INTERACTIVE');
+      setPhaseDisplay();
+      setPhaseInteraction();
+      setStatus('DISPLAY');
     }, 2000);
     setTimeout(() => setStatus('LAZY'), 4000);
     setTimeout(() => setStatus('DYNAMIC'), 6000);
-  }, [setCurrent]);
+  }, [setPhaseDisplay, setPhaseInteraction]);
 
   return (
     <div>

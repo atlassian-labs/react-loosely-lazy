@@ -1,5 +1,5 @@
 import React from 'react';
-import { DEFER, SETTINGS } from '../constants';
+import { PHASE, SETTINGS } from '../constants';
 
 import { hash, tryRequire, displayNameFromId } from '../utils';
 import { createComponentServer } from './components/server';
@@ -11,9 +11,6 @@ type ImportDefaultComponent = {
 type Loader = () => Promise<ImportDefaultComponent>;
 
 type Options = {
-  // component name to help debug
-  displayName?: string;
-
   // Should be rendered on SSR
   // if false renders fallback on SSR
   ssr?: boolean;
@@ -40,12 +37,7 @@ const createDeferred = (loader: Loader, sync: boolean) => {
 
 export const lazy = (
   loader: Loader,
-  {
-    displayName,
-    ssr = true,
-    id = () => '',
-    defer = DEFER.PHASE_IMMEDIATE,
-  }: Options = {}
+  { ssr = true, defer = PHASE.BOOTSTRAP, id = () => '' }: Options = {}
 ) => {
   const resolveId = id();
   const resolveHash = hash(resolveId);
@@ -66,8 +58,7 @@ export const lazy = (
         resolveHash,
       });
 
-  LazyComponent.displayName = `Lazy(${displayName ||
-    displayNameFromId(resolveId)})`;
+  LazyComponent.displayName = `Lazy(${displayNameFromId(resolveId)})`;
 
   LazyComponent.prefetch = () => {
     if (tryRequire(resolveId)) return;
@@ -83,3 +74,17 @@ export const lazy = (
 
   return LazyComponent;
 };
+
+export const lazyForDisplay = (loader: Loader, opts?: any) =>
+  lazy(loader, {
+    ssr: true,
+    defer: PHASE.DISPLAY,
+    ...(opts || {}),
+  });
+
+export const lazyForInteraction = (loader: Loader, opts?: any) =>
+  lazy(loader, {
+    ssr: false,
+    defer: PHASE.INTERACTION,
+    ...(opts || {}),
+  });
