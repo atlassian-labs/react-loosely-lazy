@@ -181,10 +181,10 @@ describe('render without priority', () => {
 
 describe('with static phase', () => {
   const Wrapper = ({ children, phase }: any) => {
-    const { setPhaseCritical } = useLazyPhase();
+    const { setPhaseAfterCritical } = useLazyPhase();
     useEffect(() => {
-      if (phase === PHASE.CRITICAL) setPhaseCritical();
-    }, [phase, setPhaseCritical]);
+      if (phase === PHASE.AFTER_CRITICAL) setPhaseAfterCritical();
+    }, [phase, setPhaseAfterCritical]);
     return children;
   };
 

@@ -15,7 +15,7 @@ export const LazyPhaseContext = createContext({
   subscribe: createSubscribe(LISTENERS),
   currentPhase: () => CURRENT_PHASE,
   api: {
-    setPhaseCritical: () => setCurrent(PHASE.CRITICAL),
+    setPhaseAfterCritical: () => setCurrent(PHASE.AFTER_CRITICAL),
     setPhaseOnDemand: () => setCurrent(PHASE.ON_DEMAND),
     resetPhase: () => setCurrent(PHASE.CRITICAL),
   },
