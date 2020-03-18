@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 declare const __webpack_require__: (id: string) => any;
 declare const __webpack_modules__: { [key: string]: any };
 
@@ -13,6 +14,7 @@ export const tryRequire = (id: string) => {
   ) {
     try {
       return getExport(__webpack_require__(id));
+      // eslint-disable-next-line no-empty
     } catch {}
   }
   return null;
