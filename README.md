@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=flat-square"></a>
-  <a href="CONTRIBUTING"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square"></a>
+  <a href="CONTRIBUTING.MD"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square"></a>
 </p>
 <!-- UNCOMMENT ONCE WE HAVE 	THESE, CONVERT TO A TAGS AND MOVE INTO P TAG ABOVE -->
 <!--[![npm](https://img.shields.io/npm/v/react-loosely-lazy.svg)](https://www.npmjs.com/package/react-loosely-lazy)-->
@@ -10,8 +10,7 @@
 <!--[![CircleCI](https://circleci.com/gh/atlassian/react-loosely-lazy.svg?style=shield&circle-token=xxx)](https://circleci.com/gh/atlassian/react-loosely-lazy)-->
 <!--[![codecov](https://codecov.io/gh/atlassian/react-loosely-lazy/branch/master/graph/badge.svg)](https://codecov.io/gh/atlassian/react-loosely-lazy)-->
 
-
-A future focused async component loading library for React. Comes packed with loading phases to enable fine-grained performance optimisations. 
+A future focused async component loading library for React. Comes packed with loading phases to enable fine-grained performance optimisations.
 
 ## Why?
 
@@ -29,8 +28,7 @@ React Loosely Lazy solves both of these problems with a server side compatible A
 - Preloading support
 - Works with both `React.render()` and `React.hydrate()`
 
-## Usage 
-
+## Usage
 
 ```js
 import { lazyForCritical, LazySuspense } from 'react-loosely-lazy';
@@ -74,7 +72,7 @@ import { lazyAfterCritical, LazySuspense } from 'react-loosely-lazy';
 
 const AsyncMyComponent = lazyAfterCritical(() => import('./MyComponent'), {
   ssr: false,
-})
+});
 const App = () => (
   <LazySuspense fallback={<MyComponentSkeleton />}>
     <AsyncMyComponent />
@@ -85,7 +83,11 @@ const App = () => (
 ### Phase loading use case: SSR + specific phase loading
 
 ```js
-import { lazyAfterCritical, useLazyPhase, LazySuspense } from 'react-loosely-lazy';
+import {
+  lazyAfterCritical,
+  useLazyPhase,
+  LazySuspense,
+} from 'react-loosely-lazy';
 
 const AsyncMyComponent = lazyAfterCritical(() => import('./MyComponent'));
 
@@ -95,10 +97,10 @@ const App = () => {
   useEffect(() => {
     setPhaseAfterCritical();
   }, [setPhaseAfterCritical]);
-  
+
   return (
     <LazySuspense fallback="...">
-      	<AsyncMyComponent />
+      <AsyncMyComponent />
     </LazySuspense>
   );
 };
@@ -131,10 +133,9 @@ const App = () => {
 
 See `react-loosely-lazy` in action: run `npm run start` and then go and check: `http://localhost:8080/`
 
-
 ## Contributing
 
-Thank you for considering a contribution to `react-loosely-lazy`! Before doing so, please make sure to read our [contribution guidelines](CONTRIBUTING). 
+Thank you for considering a contribution to `react-loosely-lazy`! Before doing so, please make sure to read our [contribution guidelines](CONTRIBUTING.md).
 
 ## Development
 
@@ -145,6 +146,5 @@ Also, make sure you run `npm run preversion` before creating you PR so you will 
 
 Copyright (c) 2020 Atlassian and others.
 Apache 2.0 licensed, see [LICENSE](LICENSE) file.
-
 
 [![With ❤️ from Atlassian](https://raw.githubusercontent.com/atlassian-internal/oss-assets/master/banner-cheers-light.png)](https://www.atlassian.com)
