@@ -16,7 +16,7 @@
     "url": "git+https://git@github.com/albertogasparin/react-loosely-lazy.git"
   },
   "author": "Alberto Gasparin",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/albertogasparin/react-loosely-lazy/issues"
   },
