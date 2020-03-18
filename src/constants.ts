@@ -4,9 +4,9 @@ export const MODE = {
 };
 
 export const PHASE = {
-  BOOTSTRAP: 0,
-  DISPLAY: 1,
-  INTERACTION: 2,
+  CRITICAL: 0,
+  AFTER_CRITICAL: 1,
+  ON_DEMAND: 2,
 };
 
 export const COLLECTED = new Map();

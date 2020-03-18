@@ -11,7 +11,7 @@ type LazyWaitProps = {
 export const LazyWait = ({ until, children }: LazyWaitProps) => {
   const { api: ctxApi } = useContext(LazyPhaseContext);
   const phaseRef = useRef(-1);
-  phaseRef.current = until ? PHASE.INTERACTION : -1;
+  phaseRef.current = until ? PHASE.ON_DEMAND : -1;
 
   // notify all children of phase change
   const { current: listeners } = useRef<any>([]);

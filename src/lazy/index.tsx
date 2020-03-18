@@ -35,9 +35,9 @@ const createDeferred = (loader: Loader, sync: boolean) => {
   return { promise, result, start };
 };
 
-export const lazy = (
+const lazy = (
   loader: Loader,
-  { ssr = true, defer = PHASE.BOOTSTRAP, id = () => '' }: Options = {}
+  { ssr = true, defer = PHASE.CRITICAL, id = () => '' }: Options = {}
 ) => {
   const resolveId = id();
   const resolveHash = hash(resolveId);
@@ -75,16 +75,18 @@ export const lazy = (
   return LazyComponent;
 };
 
-export const lazyForDisplay = (loader: Loader, opts?: any) =>
+export const lazyForCritical = lazy;
+
+export const lazyAfterCritical = (loader: Loader, opts?: any) =>
   lazy(loader, {
     ssr: true,
-    defer: PHASE.DISPLAY,
+    defer: PHASE.AFTER_CRITICAL,
     ...(opts || {}),
   });
 
-export const lazyForInteraction = (loader: Loader, opts?: any) =>
+export const lazyOnDemand = (loader: Loader, opts?: any) =>
   lazy(loader, {
     ssr: false,
-    defer: PHASE.INTERACTION,
+    defer: PHASE.ON_DEMAND,
     ...(opts || {}),
   });

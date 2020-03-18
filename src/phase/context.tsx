@@ -4,7 +4,7 @@ import { PHASE } from '../constants';
 import { createSubscribe } from './utils';
 
 export const LISTENERS: any[] = [];
-let CURRENT_PHASE = PHASE.BOOTSTRAP;
+let CURRENT_PHASE = PHASE.CRITICAL;
 
 export const setCurrent = (value: number) => {
   CURRENT_PHASE = value;
@@ -15,9 +15,9 @@ export const LazyPhaseContext = createContext({
   subscribe: createSubscribe(LISTENERS),
   currentPhase: () => CURRENT_PHASE,
   api: {
-    setPhaseDisplay: () => setCurrent(PHASE.DISPLAY),
-    setPhaseInteraction: () => setCurrent(PHASE.INTERACTION),
-    resetPhase: () => setCurrent(PHASE.BOOTSTRAP),
+    setPhaseCritical: () => setCurrent(PHASE.CRITICAL),
+    setPhaseOnDemand: () => setCurrent(PHASE.ON_DEMAND),
+    resetPhase: () => setCurrent(PHASE.CRITICAL),
   },
 });
 

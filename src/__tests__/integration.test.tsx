@@ -3,28 +3,31 @@ import ReactDOMServer from 'react-dom/server';
 import { render, act } from '@testing-library/react';
 
 import LooselyLazy, {
-  lazy,
-  lazyForDisplay,
+  lazyForCritical,
+  lazyAfterCritical,
   LazySuspense,
   useLazyPhase,
   SETTINGS,
   MODE,
 } from '..';
+import { PHASE } from '../constants';
 import { createMockImport, nextTick } from './utils';
 
 const createApp = ({ server, ssr, hydrate, phase = undefined }) => {
   SETTINGS.IS_SERVER = server;
+
   const Child = jest.fn(() => <p className="p">Content</p>);
   const Fallback = jest.fn(() => <i>Fallback</i>) as any;
   const { mockImport, resolveImport } = createMockImport(Child, ssr && server);
-
-  const lazyFn = phase === 'DISPLAY' ? lazyForDisplay : lazy;
+  const lazyFn =
+    phase === PHASE.AFTER_CRITICAL ? lazyAfterCritical : lazyForCritical;
   const AsyncComponent = lazyFn(() => mockImport, {
     id: () => './my-component',
     ssr,
   });
 
   LooselyLazy.init(hydrate ? MODE.HYDRATE : MODE.RENDER);
+
   const App = () => (
     <LazySuspense fallback={<Fallback />}>
       <AsyncComponent />
@@ -178,10 +181,10 @@ describe('render without priority', () => {
 
 describe('with static phase', () => {
   const Wrapper = ({ children, phase }: any) => {
-    const { setPhaseDisplay } = useLazyPhase();
+    const { setPhaseCritical } = useLazyPhase();
     useEffect(() => {
-      if (phase === 'DISPLAY') setPhaseDisplay();
-    }, [phase, setPhaseDisplay]);
+      if (phase === PHASE.CRITICAL) setPhaseCritical();
+    }, [phase, setPhaseCritical]);
     return children;
   };
 
@@ -189,12 +192,11 @@ describe('with static phase', () => {
     it('should render content in SSR, persist SSR output while loading, and finally replace', async () => {
       const hydrate = true;
       const ssr = true;
-
       const { App: ServerApp } = createApp({
         server: true,
         ssr,
         hydrate,
-        phase: 'DISPLAY',
+        phase: PHASE.AFTER_CRITICAL,
       });
 
       document.body.innerHTML = `<div>${ReactDOMServer.renderToString(
@@ -209,7 +211,7 @@ describe('with static phase', () => {
         server: false,
         ssr,
         hydrate,
-        phase: 'DISPLAY',
+        phase: PHASE.AFTER_CRITICAL,
       });
       const { rerender } = render(
         <Wrapper>
@@ -228,7 +230,7 @@ describe('with static phase', () => {
       expect(document.body).toContainHTML('<p class="p">Content</p>');
 
       rerender(
-        <Wrapper phase="DISPLAY">
+        <Wrapper phase={PHASE.AFTER_CRITICAL}>
           <ClientApp />
         </Wrapper>
       );
@@ -249,7 +251,7 @@ describe('with static phase', () => {
         server: true,
         ssr,
         hydrate,
-        phase: 'DISPLAY',
+        phase: PHASE.AFTER_CRITICAL,
       });
 
       document.body.innerHTML = `<div>${ReactDOMServer.renderToString(
@@ -264,7 +266,7 @@ describe('with static phase', () => {
         server: false,
         ssr,
         hydrate,
-        phase: 'DISPLAY',
+        phase: PHASE.AFTER_CRITICAL,
       });
       const { rerender } = render(
         <Wrapper>
@@ -286,7 +288,7 @@ describe('with static phase', () => {
       expect(document.body).not.toContainHTML('<input');
 
       rerender(
-        <Wrapper phase="DISPLAY">
+        <Wrapper phase={PHASE.AFTER_CRITICAL}>
           <ClientApp />
         </Wrapper>
       );
