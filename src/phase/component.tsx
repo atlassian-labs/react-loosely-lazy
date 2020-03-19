@@ -11,10 +11,12 @@ type LazyWaitProps = {
 export const LazyWait = ({ until, children }: LazyWaitProps) => {
   const { api: ctxApi } = useContext(LazyPhaseContext);
   const phaseRef = useRef(-1);
-  phaseRef.current = until ? PHASE.ON_DEMAND : -1;
+
+  phaseRef.current = until ? PHASE.LAZY : -1;
 
   // notify all children of phase change
   const { current: listeners } = useRef<any>([]);
+
   useMemo(() => {
     listeners.slice(0).forEach((listener: any) => listener(phaseRef.current));
     // eslint-disable-next-line react-hooks/exhaustive-deps

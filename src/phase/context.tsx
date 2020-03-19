@@ -1,10 +1,10 @@
 import { createContext, useContext } from 'react';
 
-import { PHASE } from '../constants';
+import { PHASE, PHASE_LAZY_DELAY } from '../constants';
 import { createSubscribe } from './utils';
 
 export const LISTENERS: any[] = [];
-let CURRENT_PHASE = PHASE.CRITICAL;
+let CURRENT_PHASE = PHASE.PAINT;
 
 export const setCurrent = (value: number) => {
   CURRENT_PHASE = value;
@@ -15,9 +15,11 @@ export const LazyPhaseContext = createContext({
   subscribe: createSubscribe(LISTENERS),
   currentPhase: () => CURRENT_PHASE,
   api: {
-    setPhaseAfterCritical: () => setCurrent(PHASE.AFTER_CRITICAL),
-    setPhaseOnDemand: () => setCurrent(PHASE.ON_DEMAND),
-    resetPhase: () => setCurrent(PHASE.CRITICAL),
+    startNextPhase: () => {
+      setCurrent(PHASE.AFTER_PAINT);
+      setTimeout(() => setCurrent(PHASE.LAZY), PHASE_LAZY_DELAY);
+    },
+    resetPhase: () => setCurrent(PHASE.PAINT),
   },
 });
 

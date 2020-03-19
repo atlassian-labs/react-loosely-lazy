@@ -3,8 +3,8 @@ import ReactDOMServer from 'react-dom/server';
 import { render, act } from '@testing-library/react';
 
 import LooselyLazy, {
-  lazyForCritical,
-  lazyAfterCritical,
+  lazyForPaint,
+  lazyForAfterPaint,
   LazySuspense,
   useLazyPhase,
   SETTINGS,
@@ -19,8 +19,7 @@ const createApp = ({ server, ssr, hydrate, phase = undefined }) => {
   const Child = jest.fn(() => <p className="p">Content</p>);
   const Fallback = jest.fn(() => <i>Fallback</i>) as any;
   const { mockImport, resolveImport } = createMockImport(Child, ssr && server);
-  const lazyFn =
-    phase === PHASE.AFTER_CRITICAL ? lazyAfterCritical : lazyForCritical;
+  const lazyFn = phase === PHASE.AFTER_PAINT ? lazyForAfterPaint : lazyForPaint;
   const AsyncComponent = lazyFn(() => mockImport, {
     id: () => './my-component',
     ssr,
@@ -181,10 +180,10 @@ describe('render without priority', () => {
 
 describe('with static phase', () => {
   const Wrapper = ({ children, phase }: any) => {
-    const { setPhaseAfterCritical } = useLazyPhase();
+    const { startNextPhase } = useLazyPhase();
     useEffect(() => {
-      if (phase === PHASE.AFTER_CRITICAL) setPhaseAfterCritical();
-    }, [phase, setPhaseAfterCritical]);
+      if (phase === PHASE.AFTER_PAINT) startNextPhase();
+    }, [phase, startNextPhase]);
 
     return children;
   };
@@ -197,7 +196,7 @@ describe('with static phase', () => {
         server: true,
         ssr,
         hydrate,
-        phase: PHASE.AFTER_CRITICAL,
+        phase: PHASE.AFTER_PAINT,
       });
 
       document.body.innerHTML = `<div>${ReactDOMServer.renderToString(
@@ -212,7 +211,7 @@ describe('with static phase', () => {
         server: false,
         ssr,
         hydrate,
-        phase: PHASE.AFTER_CRITICAL,
+        phase: PHASE.AFTER_PAINT,
       });
       const { rerender } = render(
         <Wrapper>
@@ -231,7 +230,7 @@ describe('with static phase', () => {
       expect(document.body).toContainHTML('<p class="p">Content</p>');
 
       rerender(
-        <Wrapper phase={PHASE.AFTER_CRITICAL}>
+        <Wrapper phase={PHASE.AFTER_PAINT}>
           <ClientApp />
         </Wrapper>
       );
@@ -252,7 +251,7 @@ describe('with static phase', () => {
         server: true,
         ssr,
         hydrate,
-        phase: PHASE.AFTER_CRITICAL,
+        phase: PHASE.AFTER_PAINT,
       });
 
       document.body.innerHTML = `<div>${ReactDOMServer.renderToString(
@@ -267,7 +266,7 @@ describe('with static phase', () => {
         server: false,
         ssr,
         hydrate,
-        phase: PHASE.AFTER_CRITICAL,
+        phase: PHASE.AFTER_PAINT,
       });
       const { rerender } = render(
         <Wrapper>
@@ -289,7 +288,7 @@ describe('with static phase', () => {
       expect(document.body).not.toContainHTML('<input');
 
       rerender(
-        <Wrapper phase={PHASE.AFTER_CRITICAL}>
+        <Wrapper phase={PHASE.AFTER_PAINT}>
           <ClientApp />
         </Wrapper>
       );

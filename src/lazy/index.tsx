@@ -36,9 +36,9 @@ const createDeferred = (loader: Loader, sync: boolean) => {
   return { promise, result, start };
 };
 
-const lazy = (
+const lazyProxy = (
   loader: Loader,
-  { ssr = true, defer = PHASE.CRITICAL, id = () => '' }: Options = {}
+  { ssr = true, defer = PHASE.PAINT, id = () => '' }: Options = {}
 ) => {
   const resolveId = id();
   const resolveHash = hash(resolveId);
@@ -76,18 +76,23 @@ const lazy = (
   return LazyComponent;
 };
 
-export const lazyForCritical = lazy;
-
-export const lazyAfterCritical = (loader: Loader, opts?: any) =>
-  lazy(loader, {
+export const lazyForPaint = (loader: Loader, opts?: any) =>
+  lazyProxy(loader, {
     ssr: true,
-    defer: PHASE.AFTER_CRITICAL,
+    defer: PHASE.PAINT,
     ...(opts || {}),
   });
 
-export const lazyOnDemand = (loader: Loader, opts?: any) =>
-  lazy(loader, {
+export const lazyForAfterPaint = (loader: Loader, opts?: any) =>
+  lazyProxy(loader, {
+    ssr: true,
+    defer: PHASE.AFTER_PAINT,
+    ...(opts || {}),
+  });
+
+export const lazy = (loader: Loader, opts?: any) =>
+  lazyProxy(loader, {
     ssr: false,
-    defer: PHASE.ON_DEMAND,
+    defer: PHASE.LAZY,
     ...(opts || {}),
   });

@@ -4,10 +4,12 @@ export const MODE = {
 };
 
 export const PHASE = {
-  CRITICAL: 0,
-  AFTER_CRITICAL: 1,
-  ON_DEMAND: 2,
+  PAINT: 0,
+  AFTER_PAINT: 1,
+  LAZY: 2,
 };
+
+export const PHASE_LAZY_DELAY = 50;
 
 export const COLLECTED = new Map();
 
