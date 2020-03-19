@@ -15,6 +15,7 @@ const usePlaceholderRender = (resolveId: string, content: any) => {
           parentNode.insertBefore(node, (element as any).nextSibling)
         );
     }
+
     return () => {
       ssrDomNodes.forEach((node: any) => node.parentNode.removeChild(node));
       ssrDomNodes.length = 0;
@@ -27,5 +28,6 @@ const usePlaceholderRender = (resolveId: string, content: any) => {
 
 export const PlaceholderFallbackRender = ({ id, content }: any) => {
   const placeholderRef = usePlaceholderRender(id, content);
+
   return <input type="hidden" data-lazy-begin={id} ref={placeholderRef} />;
 };

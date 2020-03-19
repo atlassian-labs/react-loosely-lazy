@@ -32,6 +32,7 @@ const createDeferred = (loader: Loader, sync: boolean) => {
   // TODO: handle error & reject
   const start = () => loader().then(resolve);
   if (sync) start();
+
   return { promise, result, start };
 };
 

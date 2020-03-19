@@ -185,6 +185,7 @@ describe('with static phase', () => {
     useEffect(() => {
       if (phase === PHASE.AFTER_CRITICAL) setPhaseAfterCritical();
     }, [phase, setPhaseAfterCritical]);
+
     return children;
   };
 

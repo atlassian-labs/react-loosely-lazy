@@ -23,5 +23,6 @@ export const LazyPhaseContext = createContext({
 
 export const useLazyPhase = () => {
   const v = useContext(LazyPhaseContext);
+
   return v.api;
 };
