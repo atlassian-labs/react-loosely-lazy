@@ -8,9 +8,9 @@ import '@babel/polyfill';
 
 import LooselyLazyServer from 'react-loosely-lazy/server';
 import LooselyLazyClient, {
-  lazy,
-  lazyForDisplay,
-  lazyForInteraction,
+  lazyForCritical,
+  lazyAfterCritical,
+  lazyOnDemand,
   useLazyPhase,
   LazySuspense,
   LazyWait,
@@ -30,38 +30,47 @@ function buildComponents() {
       delete __webpack_modules__[id];
     });
   // force components reset faking server/client
-  Async.ComponentWithSSR = lazy(() => import('./components/with-ssr'), {
-    id: () => (require as any).resolveWeak('./components/with-ssr'),
-  });
-  Async.ComponentNoSSR = lazy(() => import('./components/no-ssr'), {
+  Async.ComponentWithSSR = lazyForCritical(
+    () => import('./components/with-ssr'),
+    {
+      id: () => (require as any).resolveWeak('./components/with-ssr'),
+    }
+  );
+  Async.ComponentNoSSR = lazyForCritical(() => import('./components/no-ssr'), {
     id: () => (require as any).resolveWeak('./components/no-ssr'),
     ssr: false,
   });
-  Async.ComponentDeferWithSSR = lazyForDisplay(
+  Async.ComponentDeferWithSSR = lazyAfterCritical(
     () => import('./components/defer-with-ssr'),
     {
       id: () => (require as any).resolveWeak('./components/defer-with-ssr'),
     }
   );
-  Async.ComponentDeferNoSSR = lazyForInteraction(
+  Async.ComponentDeferNoSSR = lazyOnDemand(
     () => import('./components/defer-no-ssr'),
     {
       id: () => (require as any).resolveWeak('./components/defer-no-ssr'),
     }
   );
-  Async.ComponentWaitWithSSR = lazy(
+  Async.ComponentWaitWithSSR = lazyForCritical(
     () => import('./components/wait-with-ssr'),
     {
       id: () => (require as any).resolveWeak('./components/wait-with-ssr'),
     }
   );
-  Async.ComponentWaitNoSSR = lazy(() => import('./components/wait-no-ssr'), {
-    id: () => (require as any).resolveWeak('./components/wait-no-ssr'),
-    ssr: false,
-  });
-  Async.ComponentDynamic = lazy(() => import('./components/dynamic'), {
-    id: () => (require as any).resolveWeak('./components/dynamic'),
-  });
+  Async.ComponentWaitNoSSR = lazyForCritical(
+    () => import('./components/wait-no-ssr'),
+    {
+      id: () => (require as any).resolveWeak('./components/wait-no-ssr'),
+      ssr: false,
+    }
+  );
+  Async.ComponentDynamic = lazyForCritical(
+    () => import('./components/dynamic'),
+    {
+      id: () => (require as any).resolveWeak('./components/dynamic'),
+    }
+  );
 }
 
 const Fallback = ({ id }: any) => (
@@ -127,18 +136,18 @@ const DynamicComponents = React.memo(() => (
  */
 const App = ({ mode }: any) => {
   const [status, setStatus] = useState('SSR');
-  const { setPhaseDisplay, setPhaseInteraction } = useLazyPhase();
+  const { setPhaseAfterCritical, setPhaseOnDemand } = useLazyPhase();
   console.log(`----- ${mode} | ${status} ------`);
   useEffect(() => {
-    setStatus('BOOTSTRAP');
+    setStatus('CRITICAL');
     setTimeout(() => {
-      setPhaseDisplay();
-      setPhaseInteraction();
-      setStatus('DISPLAY');
+      setPhaseAfterCritical();
+      setPhaseOnDemand();
+      setStatus('AFTER CRITICAL');
     }, 2000);
-    setTimeout(() => setStatus('LAZY'), 4000);
-    setTimeout(() => setStatus('DYNAMIC'), 6000);
-  }, [setPhaseDisplay, setPhaseInteraction]);
+    setTimeout(() => setStatus('WAIT A LIL BIT...'), 4000);
+    setTimeout(() => setStatus('ON DEMAND'), 6000);
+  }, [setPhaseAfterCritical, setPhaseOnDemand]);
 
   return (
     <div>
@@ -156,7 +165,7 @@ const App = ({ mode }: any) => {
         <p>LazyWait</p>
         <LazyComponents status={status} />
         <p>Dynamic</p>
-        {status === 'DYNAMIC' && <DynamicComponents />}
+        {status === 'ON DEMAND' && <DynamicComponents />}
       </main>
     </div>
   );

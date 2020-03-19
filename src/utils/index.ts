@@ -17,6 +17,7 @@ export const tryRequire = (id: string) => {
       // eslint-disable-next-line no-empty
     } catch {}
   }
+
   return null;
 };
 
@@ -25,5 +26,6 @@ export const displayNameFromId = (id: string) => {
     .split('/')
     .slice(-3)
     .join('/');
+
   return fName || 'Component';
 };
