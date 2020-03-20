@@ -70,9 +70,9 @@ const App = () => (
 ### No SSR use case: Fallback on SSR + async loading the component on the client
 
 ```js
-import { lazyForAfterPaint, LazySuspense } from 'react-loosely-lazy';
+import { lazyAfterPaint, LazySuspense } from 'react-loosely-lazy';
 
-const AsyncMyComponent = lazyForAfterPaint(() => import('./MyComponent'), {
+const AsyncMyComponent = lazyAfterPaint(() => import('./MyComponent'), {
   ssr: false,
 })
 const App = () => (
@@ -85,9 +85,9 @@ const App = () => (
 ### Phase loading use case: SSR + specific phase loading
 
 ```js
-import { lazyForAfterPaint, useLazyPhase, LazySuspense } from 'react-loosely-lazy';
+import { lazyAfterPaint, useLazyPhase, LazySuspense } from 'react-loosely-lazy';
 
-const AsyncMyComponent = lazyForAfterPaint(() => import('./MyComponent'));
+const AsyncMyComponent = lazyAfterPaint(() => import('./MyComponent'));
 
 const App = () => {
   const { startNextPhase } = useLazyPhase();
