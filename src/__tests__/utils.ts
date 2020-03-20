@@ -8,6 +8,7 @@ export const createMockImport = (value: any, sync: boolean) => {
 
   const resolveImport = async () => {
     resolve({ default: value });
+
     // let react re-render
     return nextTick();
   };

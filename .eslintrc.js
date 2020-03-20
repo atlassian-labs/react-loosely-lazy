@@ -35,6 +35,7 @@ module.exports = {
     'linebreak-style': ['off'],
     quotes: ['off'],
     semi: ['off'],
+    'newline-before-return': ['error'],
     'prettier/prettier': ['warn'],
     'react/no-direct-mutation-state': ['off'],
     'react/display-name': ['off'],

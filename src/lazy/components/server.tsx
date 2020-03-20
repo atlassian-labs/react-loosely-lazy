@@ -12,6 +12,7 @@ export const createComponentServer = ({
     ? tryRequire(resolveId) || getExport(deferred.result)
     : null;
   const { fallback } = useContext(LazySuspenseContext);
+
   return (
     <>
       <input type="hidden" data-lazy-begin={resolveHash} />

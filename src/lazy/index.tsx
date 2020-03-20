@@ -32,12 +32,13 @@ const createDeferred = (loader: Loader, sync: boolean) => {
   // TODO: handle error & reject
   const start = () => loader().then(resolve);
   if (sync) start();
+
   return { promise, result, start };
 };
 
-export const lazy = (
+const lazyProxy = (
   loader: Loader,
-  { ssr = true, defer = PHASE.BOOTSTRAP, id = () => '' }: Options = {}
+  { ssr = true, defer = PHASE.PAINT, id = () => '' }: Options = {}
 ) => {
   const resolveId = id();
   const resolveHash = hash(resolveId);
@@ -75,16 +76,23 @@ export const lazy = (
   return LazyComponent;
 };
 
-export const lazyForDisplay = (loader: Loader, opts?: any) =>
-  lazy(loader, {
+export const lazyForPaint = (loader: Loader, opts?: any) =>
+  lazyProxy(loader, {
     ssr: true,
-    defer: PHASE.DISPLAY,
+    defer: PHASE.PAINT,
     ...(opts || {}),
   });
 
-export const lazyForInteraction = (loader: Loader, opts?: any) =>
-  lazy(loader, {
+export const lazyAfterPaint = (loader: Loader, opts?: any) =>
+  lazyProxy(loader, {
+    ssr: true,
+    defer: PHASE.AFTER_PAINT,
+    ...(opts || {}),
+  });
+
+export const lazy = (loader: Loader, opts?: any) =>
+  lazyProxy(loader, {
     ssr: false,
-    defer: PHASE.INTERACTION,
+    defer: PHASE.LAZY,
     ...(opts || {}),
   });

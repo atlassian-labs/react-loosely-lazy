@@ -29,6 +29,7 @@ export class LazySuspense extends Component<any, any> {
     if (sibling) {
       return children(this.useSibling ? this.hydrationFallback : null);
     }
+
     return children(this.useSibling ? null : this.props.fallback);
   };
 

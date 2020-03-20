@@ -6,6 +6,7 @@ const ComponentDeferWithSSR = () => {
     setInteractive(true);
   }, [setInteractive]);
   const color = isInteractive ? '#E1E' : '#DDD';
+
   return (
     <div style={{ borderBottom: `2px solid ${color}` }}>
       {`<ComponentWaitWithSSR />`}

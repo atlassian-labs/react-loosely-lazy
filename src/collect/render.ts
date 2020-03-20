@@ -6,5 +6,6 @@ export const cloneElements = (fromEl: any, id: string) => {
     // cloneNode is 50% faster than outerHTML/textContent
     fragment.appendChild(el.cloneNode(true));
   }
+
   return Array.from(fragment.childNodes);
 };
