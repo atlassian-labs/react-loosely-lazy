@@ -4,7 +4,7 @@ import { render, act } from '@testing-library/react';
 
 import LooselyLazy, {
   lazyForPaint,
-  lazyForAfterPaint,
+  lazyAfterPaint,
   LazySuspense,
   useLazyPhase,
   SETTINGS,
@@ -19,7 +19,7 @@ const createApp = ({ server, ssr, hydrate, phase = undefined }) => {
   const Child = jest.fn(() => <p className="p">Content</p>);
   const Fallback = jest.fn(() => <i>Fallback</i>) as any;
   const { mockImport, resolveImport } = createMockImport(Child, ssr && server);
-  const lazyFn = phase === PHASE.AFTER_PAINT ? lazyForAfterPaint : lazyForPaint;
+  const lazyFn = phase === PHASE.AFTER_PAINT ? lazyAfterPaint : lazyForPaint;
   const AsyncComponent = lazyFn(() => mockImport, {
     id: () => './my-component',
     ssr,

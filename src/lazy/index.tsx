@@ -83,7 +83,7 @@ export const lazyForPaint = (loader: Loader, opts?: any) =>
     ...(opts || {}),
   });
 
-export const lazyForAfterPaint = (loader: Loader, opts?: any) =>
+export const lazyAfterPaint = (loader: Loader, opts?: any) =>
   lazyProxy(loader, {
     ssr: true,
     defer: PHASE.AFTER_PAINT,

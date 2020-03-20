@@ -9,7 +9,7 @@ import '@babel/polyfill';
 import LooselyLazyServer from 'react-loosely-lazy/server';
 import LooselyLazyClient, {
   lazyForPaint,
-  lazyForAfterPaint,
+  lazyAfterPaint,
   lazy,
   useLazyPhase,
   LazySuspense,
@@ -37,7 +37,7 @@ function buildComponents() {
     id: () => (require as any).resolveWeak('./components/no-ssr'),
     ssr: false,
   });
-  Async.ComponentDeferWithSSR = lazyForAfterPaint(
+  Async.ComponentDeferWithSSR = lazyAfterPaint(
     () => import('./components/defer-with-ssr'),
     {
       id: () => (require as any).resolveWeak('./components/defer-with-ssr'),
