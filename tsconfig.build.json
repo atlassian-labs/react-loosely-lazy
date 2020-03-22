@@ -16,5 +16,5 @@
       "react-loosely-lazy/server": ["src/server"]
     }
   },
-  "include": ["examples/**/*"]
+  "exclude": ["examples/**/*", "src/__tests__/**/*"]
 }
