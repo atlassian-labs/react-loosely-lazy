@@ -1,0 +1,43 @@
+// @flow
+
+import type { Node, ComponentType } from 'react';
+
+export type MODE = {|
+  RENDER: string,
+  HYDRATE: string,
+|};
+
+export type SETTINGS = {
+  CURRENT_MODE: $ElementType<MODE, 'RENDER'> | $ElementType<MODE, 'HYDRATE'>,
+};
+
+export type LooselyLazy = {|
+  init: (mode: $ElementType<SETTINGS, 'CURRENT_MODE'>) => void,
+|};
+
+type ImportDefaultComponent = {
+  default: ComponentType<any>,
+};
+
+export type Loader = () => Promise<ImportDefaultComponent>;
+
+type LazyComponent = any;
+
+export type lazyForPaint = () => (loader: Loader, opts?: any) => LazyComponent;
+
+export type lazyAfterPaint = () => (
+  loader: Loader,
+  opts?: any
+) => LazyComponent;
+
+export type lazy = () => (loader: Loader, opts?: any) => LazyComponent;
+
+export type LazyWait = (props: {
+  until: boolean,
+  children: Node,
+}) => Node;
+
+export type useLazyPhase = () => {
+  startNextPhase: () => void,
+  resetPhase: () => void,
+};

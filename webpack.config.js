@@ -21,6 +21,7 @@ const generateExampleEntries = function() {
 
   return exampleDirs.reduce((entry, dir) => {
     entry['./' + basename(dir) + '/bundle'] = `${dir}/index`;
+
     return entry;
   }, {});
 };

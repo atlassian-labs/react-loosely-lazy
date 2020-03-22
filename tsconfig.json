@@ -2,12 +2,13 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "esnext",
+    "declaration": true,
+    "outDir": "lib",
     "esModuleInterop": true,
     "moduleResolution": "node",
     "strict": true,
     "preserveConstEnums": true,
     "jsx": "preserve",
-    "noEmit": true,
     "typeRoots": ["./node_modules/@types", "types"],
     "baseUrl": ".",
     "paths": {
