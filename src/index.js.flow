@@ -2,42 +2,47 @@
 
 import type { Node, ComponentType } from 'react';
 
-export type MODE = {|
-  RENDER: string,
-  HYDRATE: string,
+declare export var MODE: {| RENDER: string, HYDRATE: string |};
+
+declare export var SETTINGS: {|
+  CURRENT_MODE: typeof MODE.RENDER | typeof MODE.HYDRATE,
 |};
 
-export type SETTINGS = {
-  CURRENT_MODE: $ElementType<MODE, 'RENDER'> | $ElementType<MODE, 'HYDRATE'>,
-};
-
-export type LooselyLazy = {|
-  init: (mode: $ElementType<SETTINGS, 'CURRENT_MODE'>) => void,
+declare export var LooselyLazy: {|
+  init: (mode: typeof SETTINGS.CURRENT_MODE) => void,
 |};
 
 type ImportDefaultComponent = {
   default: ComponentType<any>,
 };
 
-export type Loader = () => Promise<ImportDefaultComponent>;
+declare export function Loader(): Promise<ImportDefaultComponent>;
 
 type LazyComponent = any;
 
-export type lazyForPaint = () => (loader: Loader, opts?: any) => LazyComponent;
+declare export function LazySuspense(props: {|
+  children: Node,
+  fallback: Node,
+|}): Node;
 
-export type lazyAfterPaint = () => (
-  loader: Loader,
+declare export function lazyForPaint(
+  loader: typeof Loader,
   opts?: any
-) => LazyComponent;
+): LazyComponent;
 
-export type lazy = () => (loader: Loader, opts?: any) => LazyComponent;
+declare export function lazyAfterPaint(
+  loader: typeof Loader,
+  opts?: any
+): LazyComponent;
 
-export type LazyWait = (props: {
+declare export function lazy(loader: typeof Loader, opts?: any): LazyComponent;
+
+declare export function LazyWait(props: {|
   until: boolean,
   children: Node,
-}) => Node;
+|}): Node;
 
-export type useLazyPhase = () => {
+declare export function useLazyPhase(): {|
   startNextPhase: () => void,
   resetPhase: () => void,
-};
+|};
