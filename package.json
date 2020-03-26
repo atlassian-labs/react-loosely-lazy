@@ -30,7 +30,7 @@
     "build:types-esm": "tsc --emitDeclarationOnly --project tsconfig.build.json --outDir lib/esm && cp src/index.js.flow lib/esm && cp src/server/index.js.flow lib/esm/server/index.js.flow",
     "build:cjs": "babel src --out-dir lib/cjs --extensions \".ts,.tsx\" --source-maps inline --ignore src/__tests__ --presets @babel/env",
     "build:esm": "babel src --out-dir lib/esm --extensions \".ts,.tsx\" --source-maps inline --ignore src/__tests__",
-    "build:server": "mkdir lib/server && cp -a lib/cjs/server/. lib/server/",
+    "build:server": "rm -rf server && mkdir server && cp -a lib/cjs/server/. ./server/",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint --ext .ts,.tsx,.js src/ && eslint --ext .ts,.tsx,.js examples/",
