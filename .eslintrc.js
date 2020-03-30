@@ -46,7 +46,12 @@ module.exports = {
   overrides: [
     {
       // Flow specific rules
-      files: ['src/index.js.flow', '*/*flow.js', 'examples/*-flow/*/*.js'],
+      files: [
+        'src/index.js.flow',
+        'src/server/index.js.flow',
+        '*/*flow.js',
+        'examples/*-flow/*/*.js',
+      ],
       extends: ['plugin:flowtype/recommended'],
       plugins: ['flowtype'],
       rules: {

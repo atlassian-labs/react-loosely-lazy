@@ -8,7 +8,7 @@
     "React lazy",
     "lazy loading"
   ],
-  "types": "./types/index.d.ts",
+  "types": "lib/cjs/index.d.ts",
   "main": "lib/cjs/index.js",
   "module": "lib/esm/index.js",
   "repository": {
@@ -24,12 +24,13 @@
   "scripts": {
     "types": "tsc --noEmit && flow --max-warnings=0",
     "types:watch": "npm run type-check -- --watch",
-    "build": "npm run build:clean && npm run build:types-cjs && npm run build:types-esm && npm run build:cjs && npm run build:esm",
+    "build": "npm run build:clean && npm run build:types-cjs && npm run build:types-esm && npm run build:cjs && npm run build:esm && npm run build:server",
     "build:clean": "rm -rf ./lib",
-    "build:types-cjs": "tsc --emitDeclarationOnly --project tsconfig.build.json --outDir lib/cjs && cp src/index.js.flow lib/cjs",
-    "build:types-esm": "tsc --emitDeclarationOnly --project tsconfig.build.json --outDir lib/esm && cp src/index.js.flow lib/esm",
+    "build:types-cjs": "tsc --emitDeclarationOnly --project tsconfig.build.json --outDir lib/cjs && cp src/index.js.flow lib/cjs && cp src/server/index.js.flow lib/cjs/server/index.js.flow",
+    "build:types-esm": "tsc --emitDeclarationOnly --project tsconfig.build.json --outDir lib/esm && cp src/index.js.flow lib/esm && cp src/server/index.js.flow lib/esm/server/index.js.flow",
     "build:cjs": "babel src --out-dir lib/cjs --extensions \".ts,.tsx\" --source-maps inline --ignore src/__tests__ --presets @babel/env",
     "build:esm": "babel src --out-dir lib/esm --extensions \".ts,.tsx\" --source-maps inline --ignore src/__tests__",
+    "build:server": "rm -rf server && mkdir server && cp -a lib/cjs/server/. ./server/",
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint --ext .ts,.tsx,.js src/ && eslint --ext .ts,.tsx,.js examples/",

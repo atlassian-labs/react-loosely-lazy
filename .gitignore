@@ -1,5 +1,6 @@
 node_modules
 lib
+server
 coverage
 yarn.lock   
 

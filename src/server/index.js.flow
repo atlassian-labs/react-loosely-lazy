@@ -1,0 +1,13 @@
+// @flow
+
+var MODE: {| RENDER: string, HYDRATE: string |};
+
+var SETTINGS: {|
+  CURRENT_MODE: typeof MODE.RENDER | typeof MODE.HYDRATE,
+|};
+
+declare var LooselyLazyServer: {|
+  init: (mode: typeof SETTINGS.CURRENT_MODE) => void,
+|};
+
+declare export default typeof LooselyLazyServer;

@@ -12,6 +12,8 @@ declare export var LooselyLazy: {|
   init: (mode: typeof SETTINGS.CURRENT_MODE) => void,
 |};
 
+declare export default typeof LooselyLazy;
+
 type ImportDefaultComponent = {
   default: ComponentType<any>,
 };
