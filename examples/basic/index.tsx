@@ -6,7 +6,7 @@ import ReactDOMServer from 'react-dom/server';
 
 import '@babel/polyfill';
 
-import LooselyLazyServer from 'src/server';
+import LooselyLazyServer from 'react-loosely-lazy/server';
 import LooselyLazyClient, {
   lazyForPaint,
   lazyAfterPaint,
