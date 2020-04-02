@@ -17,6 +17,7 @@ type Settings = {
   CURRENT_MODE: typeof MODE.HYDRATE | typeof MODE.RENDER;
   IS_SERVER: boolean;
 };
+
 export const SETTINGS: Settings = {
   CURRENT_MODE: MODE.HYDRATE,
   IS_SERVER: false,

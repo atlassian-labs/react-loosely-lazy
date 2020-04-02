@@ -76,23 +76,26 @@ const lazyProxy = (
   return LazyComponent;
 };
 
+const DEFAULT_OPTIONS = {
+  lazyForPaint: { ssr: true, defer: PHASE.PAINT },
+  lazyAfterPaint: { ssr: true, defer: PHASE.AFTER_PAINT },
+  lazy: { ssr: false, defer: PHASE.LAZY },
+};
+
 export const lazyForPaint = (loader: Loader, opts?: any) =>
   lazyProxy(loader, {
-    ssr: true,
-    defer: PHASE.PAINT,
+    ...DEFAULT_OPTIONS.lazyForPaint,
     ...(opts || {}),
   });
 
 export const lazyAfterPaint = (loader: Loader, opts?: any) =>
   lazyProxy(loader, {
-    ssr: true,
-    defer: PHASE.AFTER_PAINT,
+    ...DEFAULT_OPTIONS.lazyAfterPaint,
     ...(opts || {}),
   });
 
 export const lazy = (loader: Loader, opts?: any) =>
   lazyProxy(loader, {
-    ssr: false,
-    defer: PHASE.LAZY,
+    ...DEFAULT_OPTIONS.lazy,
     ...(opts || {}),
   });
