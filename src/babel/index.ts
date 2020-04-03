@@ -6,7 +6,6 @@ import * as BabelTypes from '@babel/types';
 const PACKAGE_NAME = 'react-loosely-lazy';
 const IDENTIFIER_KEY = 'id';
 const LAZY_METHODS = ['lazyForPaint', 'lazyAfterPaint', 'lazy'];
-const OPTIONS_AFTER_IDENTIFIER = 'defer';
 
 export default function({
   types: t,
@@ -100,9 +99,9 @@ export default function({
               .node.value;
 
             // adds the id property to options
-            lazyOptionsPropertiesMap[OPTIONS_AFTER_IDENTIFIER].insertAfter(
+            lazyOptions.node.properties.push(
               t.objectProperty(
-                t.identifier(IDENTIFIER_KEY),
+                t.identifier('id'),
                 t.arrowFunctionExpression(
                   [],
                   t.callExpression(
@@ -117,7 +116,7 @@ export default function({
             );
 
             // adds the module property to options
-            lazyOptionsPropertiesMap[OPTIONS_AFTER_IDENTIFIER].insertAfter(
+            lazyOptions.node.properties.push(
               t.objectProperty(
                 t.identifier('module'),
                 t.stringLiteral(importSpecifier)
@@ -125,7 +124,7 @@ export default function({
             );
 
             // transforms imports to requires if we are going to SSR
-            // @ts-ignore Types say that the type value doesn't exist on ObjectProperty but it does?
+            // @ts-ignore
             if (lazyOptionsPropertiesMap.ssr.node.value.value) {
               const lazyImportOverride = template`{const resolved = require(${t.stringLiteral(
                 importSpecifier
