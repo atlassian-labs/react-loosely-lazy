@@ -133,7 +133,7 @@ See `react-loosely-lazy` in action: run `npm run start` and then go and check: `
 
 ## Contributing
 
-Thank you for considering a contribution to `react-loosely-lazy`! Before doing so, please make sure to read our [contribution guidelines](CONTRIBUTING). 
+Thank you for considering a contribution to `react-loosely-lazy`! Before doing so, please make sure to read our [contribution guidelines](CONTRIBUTING.md). 
 
 ## Development
 
