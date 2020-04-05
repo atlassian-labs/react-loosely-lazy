@@ -76,7 +76,9 @@ const lazyProxy = (
   return LazyComponent;
 };
 
-const DEFAULT_OPTIONS = {
+export const DEFAULT_OPTIONS: {
+  [key: string]: { ssr: boolean; defer: number };
+} = {
   lazyForPaint: { ssr: true, defer: PHASE.PAINT },
   lazyAfterPaint: { ssr: true, defer: PHASE.AFTER_PAINT },
   lazy: { ssr: false, defer: PHASE.LAZY },

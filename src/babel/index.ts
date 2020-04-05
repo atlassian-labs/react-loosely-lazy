@@ -2,7 +2,7 @@
 
 import { NodePath, PluginObj } from '@babel/core';
 import * as BabelTypes from '@babel/types';
-
+import { DEFAULT_OPTIONS } from '../lazy';
 const PACKAGE_NAME = 'react-loosely-lazy';
 const IDENTIFIER_KEY = 'id';
 const LAZY_METHODS = ['lazyForPaint', 'lazyAfterPaint', 'lazy'];
@@ -29,6 +29,8 @@ export default function({
           .filter(binding => binding);
 
         bindings.forEach((binding: any) => {
+          const lazyMethodName = binding.identifier.name;
+
           binding.referencePaths.forEach((refPath: any) => {
             let callExpression = refPath.parentPath;
 
@@ -57,6 +59,20 @@ export default function({
               return;
             }
 
+            let lazyImportPath = null;
+
+            lazyImport.traverse({
+              Import(importPath: NodePath<BabelTypes.ImportDeclaration>) {
+                lazyImportPath = importPath.parentPath;
+              },
+            });
+
+            if (!lazyImportPath) {
+              return;
+            }
+
+            const importSpecifier = (lazyImportPath as any).get('arguments')[0]
+              .node.value;
             const lazyOptionsProperties = lazyOptions.get('properties');
             const lazyOptionsPropertiesMap: {
               [key: string]: NodePath<
@@ -83,20 +99,15 @@ export default function({
               return;
             }
 
-            let lazyImportPath = null;
-
-            lazyImport.traverse({
-              Import(importPath: NodePath<BabelTypes.ImportDeclaration>) {
-                lazyImportPath = importPath.parentPath;
-              },
-            });
-
-            if (!lazyImportPath) {
-              return;
+            // ensures the ssr property is inherited from the method's default even if not supplied
+            if (typeof lazyOptionsPropertiesMap.ssr === 'undefined') {
+              lazyOptions.node.properties.push(
+                t.objectProperty(
+                  t.identifier('ssr'),
+                  t.booleanLiteral(DEFAULT_OPTIONS[lazyMethodName].ssr)
+                )
+              );
             }
-
-            const importSpecifier = (lazyImportPath as any).get('arguments')[0]
-              .node.value;
 
             // adds the id property to options
             lazyOptions.node.properties.push(
