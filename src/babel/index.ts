@@ -61,7 +61,13 @@ export default function({
             }
 
             const lazyImport = args[0];
-            const lazyOptions = args[1];
+            let lazyOptions = args[1];
+
+            // ensures that options exist even if not passed
+            if (!lazyOptions || !lazyOptions.isObjectExpression()) {
+              callExpression.node.arguments.push(t.objectExpression([]));
+              lazyOptions = callExpression.get('arguments')[1];
+            }
 
             if (!lazyImport.isFunction()) {
               return;

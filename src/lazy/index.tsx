@@ -1,7 +1,12 @@
 import React from 'react';
-import { PHASE, SETTINGS } from '../constants';
+import { PHASE } from '../constants';
 
-import { hash, tryRequire, displayNameFromId } from '../utils';
+import {
+  hash,
+  tryRequire,
+  displayNameFromId,
+  isNodeEnvironment,
+} from '../utils';
 import { createComponentServer } from './components/server';
 import { createComponentClient } from './components/client';
 
@@ -40,11 +45,12 @@ const lazyProxy = (
   loader: Loader,
   { ssr = true, defer = PHASE.PAINT, id = () => '' }: Options = {}
 ) => {
+  const isServer = isNodeEnvironment();
   const resolveId = id();
   const resolveHash = hash(resolveId);
-  const deferred = createDeferred(loader, SETTINGS.IS_SERVER && ssr);
+  const deferred = createDeferred(loader, isServer && ssr);
 
-  const LazyComponent: any = SETTINGS.IS_SERVER
+  const LazyComponent: any = isServer
     ? createComponentServer({
         ssr,
         deferred,

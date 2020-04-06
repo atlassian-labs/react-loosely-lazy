@@ -1,6 +1,7 @@
 import { SETTINGS } from './constants';
 import { collect } from './collect';
 import { LISTENERS, setCurrent } from './phase';
+import { isNodeEnvironment } from './utils';
 
 export const LooselyLazy = {
   init: (mode: 'HYDRATE' | 'RENDER') => {
@@ -8,7 +9,7 @@ export const LooselyLazy = {
     setCurrent(0);
     LISTENERS.length = 0;
 
-    if (!SETTINGS.IS_SERVER) {
+    if (!isNodeEnvironment()) {
       collect();
     }
   },

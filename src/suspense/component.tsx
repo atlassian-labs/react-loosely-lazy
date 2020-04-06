@@ -1,5 +1,5 @@
 import React, { Component, Suspense } from 'react';
-import { SETTINGS } from '../constants';
+import { isNodeEnvironment } from '../utils';
 import { LazySuspenseContext } from './context';
 
 export class LazySuspense extends Component<any, any> {
@@ -62,6 +62,6 @@ export class LazySuspense extends Component<any, any> {
   }
 
   render() {
-    return SETTINGS.IS_SERVER ? this.renderServer() : this.renderClient();
+    return isNodeEnvironment() ? this.renderServer() : this.renderClient();
   }
 }

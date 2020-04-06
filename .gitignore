@@ -6,4 +6,5 @@ coverage
 yarn.lock   
 
 # misc
+local-scripts/
 .vscode

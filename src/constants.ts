@@ -1,3 +1,5 @@
+import { isNodeEnvironment } from './utils';
+
 export const MODE = {
   RENDER: 'RENDER' as const,
   HYDRATE: 'HYDRATE' as const,
@@ -20,5 +22,5 @@ type Settings = {
 
 export const SETTINGS: Settings = {
   CURRENT_MODE: MODE.HYDRATE,
-  IS_SERVER: false,
+  IS_SERVER: isNodeEnvironment(),
 };
