@@ -2,10 +2,18 @@
 
 import { NodePath, PluginObj } from '@babel/core';
 import * as BabelTypes from '@babel/types';
-import { DEFAULT_OPTIONS } from '../lazy';
+// import { DEFAULT_OPTIONS } from '../lazy';
 const PACKAGE_NAME = 'react-loosely-lazy';
 const IDENTIFIER_KEY = 'id';
 const LAZY_METHODS = ['lazyForPaint', 'lazyAfterPaint', 'lazy'];
+
+const DEFAULT_OPTIONS: {
+  [key: string]: { ssr: boolean; defer: number };
+} = {
+  lazyForPaint: { ssr: true, defer: 0 },
+  lazyAfterPaint: { ssr: true, defer: 1 },
+  lazy: { ssr: false, defer: 2 },
+};
 
 export default function({
   types: t,
@@ -134,9 +142,12 @@ export default function({
               )
             );
 
+            const ssrOptionIndex = lazyOptions.node.properties.findIndex(
+              (property: any) => property.key.name === 'ssr'
+            );
+
             // transforms imports to requires if we are going to SSR
-            // @ts-ignore
-            if (lazyOptionsPropertiesMap.ssr.node.value.value) {
+            if (lazyOptions.node.properties[ssrOptionIndex].value.value) {
               const lazyImportOverride = template`{const resolved = require(${t.stringLiteral(
                 importSpecifier
               )});const then = (fn) => fn(resolved);return {...resolved, then }}`;
