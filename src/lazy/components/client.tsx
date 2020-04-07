@@ -34,6 +34,7 @@ export const createComponentClient = ({
 
     useMemo(() => {
       const content = (COLLECTED.get(resolveHash) || []).shift();
+
       if (!content) return;
       // override Suspense fallback with magic input wrappers
       const component =

@@ -2,9 +2,9 @@
 
 import { NodePath, PluginObj } from '@babel/core';
 import * as BabelTypes from '@babel/types';
-// import { DEFAULT_OPTIONS } from '../lazy';
 const PACKAGE_NAME = 'react-loosely-lazy';
-const IDENTIFIER_KEY = 'id';
+const BUNDLER_CACHE_ID_KEY = 'cacheId';
+const MODULE_ID_KEY = 'moduleId';
 const LAZY_METHODS = ['lazyForPaint', 'lazyAfterPaint', 'lazy'];
 
 const DEFAULT_OPTIONS: {
@@ -107,7 +107,7 @@ export default function({
             if (
               Object.prototype.isPrototypeOf.call(
                 lazyOptionsPropertiesMap,
-                IDENTIFIER_KEY
+                BUNDLER_CACHE_ID_KEY
               )
             ) {
               return;
@@ -126,7 +126,7 @@ export default function({
             // adds the id property to options
             lazyOptions.node.properties.push(
               t.objectProperty(
-                t.identifier('id'),
+                t.identifier(BUNDLER_CACHE_ID_KEY),
                 t.arrowFunctionExpression(
                   [],
                   t.callExpression(
@@ -140,10 +140,10 @@ export default function({
               )
             );
 
-            // adds the module property to options
+            // adds the moduleId property to options
             lazyOptions.node.properties.push(
               t.objectProperty(
-                t.identifier('module'),
+                t.identifier(MODULE_ID_KEY),
                 t.stringLiteral(importSpecifier)
               )
             );

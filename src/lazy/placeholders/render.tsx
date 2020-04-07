@@ -18,7 +18,7 @@ const usePlaceholderRender = (resolveId: string, content: any) => {
 
     return () => {
       ssrDomNodes.forEach((node: any) => node.parentNode.removeChild(node));
-      ssrDomNodes.length = 0;
+      // ssrDomNodes.length = 0;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrationRef.current, ssrDomNodes]);

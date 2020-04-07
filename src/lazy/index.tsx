@@ -22,7 +22,9 @@ type Options = {
 
   defer?: number;
 
-  id?: () => string;
+  cacheId?: () => string;
+
+  moduleId?: string;
 };
 
 const createDeferred = (loader: Loader, sync: boolean) => {
@@ -43,11 +45,16 @@ const createDeferred = (loader: Loader, sync: boolean) => {
 
 const lazyProxy = (
   loader: Loader,
-  { ssr = true, defer = PHASE.PAINT, id = () => '' }: Options = {}
+  {
+    ssr = true,
+    defer = PHASE.PAINT,
+    cacheId = () => '',
+    moduleId = '',
+  }: Options = {}
 ) => {
   const isServer = isNodeEnvironment();
-  const resolveId = id();
-  const resolveHash = hash(resolveId);
+  const resolveId = cacheId();
+  const resolveHash = hash(moduleId);
   const deferred = createDeferred(loader, isServer && ssr);
 
   const LazyComponent: any = isServer
