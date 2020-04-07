@@ -22,7 +22,7 @@ type Options = {
 
   defer?: number;
 
-  cacheId?: () => string;
+  getCacheId?: () => string;
 
   moduleId?: string;
 };
@@ -48,34 +48,34 @@ const lazyProxy = (
   {
     ssr = true,
     defer = PHASE.PAINT,
-    cacheId = () => '',
+    getCacheId = () => '',
     moduleId = '',
   }: Options = {}
 ) => {
   const isServer = isNodeEnvironment();
-  const resolveId = cacheId();
-  const resolveHash = hash(moduleId);
+  const cacheId = getCacheId();
+  const dataLazyId = hash(moduleId);
   const deferred = createDeferred(loader, isServer && ssr);
 
   const LazyComponent: any = isServer
     ? createComponentServer({
         ssr,
         deferred,
-        resolveId,
-        resolveHash,
+        cacheId,
+        dataLazyId,
       })
     : createComponentClient({
         ssr,
         defer,
         deferred,
-        resolveId,
-        resolveHash,
+        cacheId,
+        dataLazyId,
       });
 
-  LazyComponent.displayName = `Lazy(${displayNameFromId(resolveId)})`;
+  LazyComponent.displayName = `Lazy(${displayNameFromId(moduleId)})`;
 
   LazyComponent.prefetch = () => {
-    if (tryRequire(resolveId)) return;
+    if (tryRequire(cacheId)) return;
     const head = document.querySelector('head');
     if (!head) return;
     const link = document.createElement('link');

@@ -3,7 +3,7 @@
 import { NodePath, PluginObj } from '@babel/core';
 import * as BabelTypes from '@babel/types';
 const PACKAGE_NAME = 'react-loosely-lazy';
-const BUNDLER_CACHE_ID_KEY = 'cacheId';
+const BUNDLER_CACHE_ID_KEY = 'getCacheId';
 const MODULE_ID_KEY = 'moduleId';
 const LAZY_METHODS = ['lazyForPaint', 'lazyAfterPaint', 'lazy'];
 

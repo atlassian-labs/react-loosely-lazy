@@ -8,22 +8,25 @@ import { PlaceholderFallbackRender } from '../placeholders/render';
 import { PlaceholderFallbackHydrate } from '../placeholders/hydrate';
 
 export const createComponentClient = ({
-  resolveId,
+  cacheId,
   defer,
   deferred,
-  resolveHash,
+  dataLazyId,
   ssr,
 }: any) => {
-  let isResolved = Boolean(tryRequire(resolveId));
-  if (!isResolved) {
+  let isCached = Boolean(tryRequire(cacheId));
+
+  if (!isCached) {
     deferred.promise.then(() => {
-      isResolved = true;
+      isCached = true;
     });
   }
-  const ResolvedLazy = React.lazy(() => deferred.promise);
+  const CachedLazy = React.lazy(() => deferred.promise);
 
   return (props: any) => {
-    if (isResolved) return <ResolvedLazy {...props} />;
+    if (isCached) {
+      return <CachedLazy {...props} />;
+    }
 
     const { setFallback } = useContext(LazySuspenseContext);
     const isOwnPhase = usePhaseSubscription(defer);
@@ -33,15 +36,15 @@ export const createComponentClient = ({
     }, [isOwnPhase, setFallback]);
 
     useMemo(() => {
-      const content = (COLLECTED.get(resolveHash) || []).shift();
+      const content = (COLLECTED.get(dataLazyId) || []).shift();
 
       if (!content) return;
       // override Suspense fallback with magic input wrappers
       const component =
         SETTINGS.CURRENT_MODE === MODE.RENDER ? (
-          <PlaceholderFallbackRender id={resolveHash} content={content} />
+          <PlaceholderFallbackRender id={dataLazyId} content={content} />
         ) : (
-          <PlaceholderFallbackHydrate id={resolveHash} content={content} />
+          <PlaceholderFallbackHydrate id={dataLazyId} content={content} />
         );
       setFallback(component);
     }, [setFallback]);
@@ -55,6 +58,6 @@ export const createComponentClient = ({
       }, [setFallback]);
     }
 
-    return <ResolvedLazy {...props} />;
+    return <CachedLazy {...props} />;
   };
 };
