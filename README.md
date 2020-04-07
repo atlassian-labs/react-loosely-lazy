@@ -28,8 +28,11 @@ React Loosely Lazy solves both of these problems with a server side compatible A
 - Customisable deferred loading and phases definition
 - Preloading support
 - Works with both `React.render()` and `React.hydrate()`
+- Babel plugin that works on both client and server to ensure cleaner code and synchornous imports in Node
 
 ## Usage 
+
+### In your app
 
 
 ```js
@@ -42,6 +45,46 @@ const App = () => (
     <AsyncMyComponent />
   </LazySuspense>
 );
+```
+
+### In your webpack config
+
+#### Server 
+
+```
+module: {
+  rules: [{
+    test: /\.js$/,
+    use: [
+      {
+        loader: 'babel-loader',
+        options: {
+            presets: [...yourPresets],
+            plugins: [...yourOtherPlugins, ['react-loosely-lazy/babel-plugin']],
+        },
+      },
+    ]
+  }]
+}
+```
+
+#### Client 
+
+```
+module: {
+  rules: [{
+    test: /\.js$/,
+    use: [
+      {
+        loader: 'babel-loader',
+        options: {
+            presets: [...yourPresets],
+            plugins: [...yourOtherPlugins, ['react-loosely-lazy/babel-plugin', { client: true }]],
+        },
+      },
+    ]
+  }]
+}
 ```
 
 ## Installation

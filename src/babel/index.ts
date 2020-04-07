@@ -24,7 +24,11 @@ export default function({
 }): PluginObj {
   return {
     visitor: {
-      ImportDeclaration(path: NodePath<BabelTypes.ImportDeclaration>) {
+      ImportDeclaration(
+        path: NodePath<BabelTypes.ImportDeclaration>,
+        state: { opts?: { client?: boolean } }
+      ) {
+        const { client } = state.opts || {};
         const source = path.node.source.value;
 
         if (source !== PACKAGE_NAME) {
@@ -63,7 +67,7 @@ export default function({
             const lazyImport = args[0];
             let lazyOptions = args[1];
 
-            // ensures that options exist even if not passed
+            // ensures that options exist even if not passed explicitly
             if (!lazyOptions || !lazyOptions.isObjectExpression()) {
               callExpression.node.arguments.push(t.objectExpression([]));
               lazyOptions = callExpression.get('arguments')[1];
@@ -147,6 +151,11 @@ export default function({
                 t.stringLiteral(importSpecifier)
               )
             );
+
+            // there is no require on the
+            if (client) {
+              return;
+            }
 
             const ssrOptionIndex = lazyOptions.node.properties.findIndex(
               (property: any) => property.key.name === 'ssr'
