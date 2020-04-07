@@ -45,6 +45,10 @@ module.exports = {
 
   overrides: [
     {
+      files: ['src/__tests__/**/*'],
+      env: { node: true },
+    },
+    {
       // Flow specific rules
       files: [
         'src/index.js.flow',

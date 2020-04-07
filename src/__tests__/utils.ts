@@ -1,7 +1,9 @@
 export const createMockImport = (value: any, sync: boolean) => {
-  let resolve;
+  let resolve: { (arg0: { default: any }): void; (value?: unknown): void };
   const mockImport = sync
-    ? ({ then: fn => fn({ default: value }) } as any)
+    ? ({
+        then: (fn: (arg0: { default: any }) => any) => fn({ default: value }),
+      } as any)
     : new Promise(r => {
         resolve = r;
       });
@@ -10,7 +12,9 @@ export const createMockImport = (value: any, sync: boolean) => {
     resolve({ default: value });
 
     // let react re-render
-    return nextTick();
+    await nextTick();
+
+    return undefined;
   };
 
   return { mockImport, resolveImport };
