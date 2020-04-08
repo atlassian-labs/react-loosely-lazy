@@ -27,7 +27,7 @@ React Loosely Lazy solves both of these problems with a server side compatible A
 - Customisable deferred loading and phases definition
 - Preloading support
 - Works with both `React.render()` and `React.hydrate()`
-- Babel plugin that works on both client and server to ensure cleaner code and synchornous imports in Node
+- Babel plugin that works on both client and server to ensure cleaner code and synchronous imports in Node
 
 ## Usage
 
@@ -175,7 +175,7 @@ See `react-loosely-lazy` in action: run `npm run start` and then go and check: `
 
 ## Contributing
 
-Thank you for considering a contribution to `react-loosely-lazy`! Before doing so, please make sure to read our [contribution guidelines](CONTRIBUTING).
+Thank you for considering a contribution to `react-loosely-lazy`! Before doing so, please make sure to read our [contribution guidelines](CONTRIBUTING.md).
 
 ## Development
 

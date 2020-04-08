@@ -8,43 +8,39 @@
     "React lazy",
     "lazy loading"
   ],
-  "types": "lib/cjs/index.d.ts",
-  "main": "lib/cjs/index.js",
-  "module": "lib/esm/index.js",
+  "homepage": "https://github.com/atlassian-labs/react-loosely-lazy#readme",
+  "bugs": {
+    "url": "https://github.com/atlassian-labs/react-loosely-lazy/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://git@github.com/atlassian-labs/react-loosely-lazy.git"
   },
-  "author": "Alberto Gasparin",
   "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/atlassian-labs/react-loosely-lazy/issues"
-  },
-  "homepage": "https://github.com/atlassian-labs/react-loosely-lazy#readme",
+  "author": "Alberto Gasparin",
+  "main": "lib/cjs/index.js",
+  "module": "lib/esm/index.js",
+  "types": "lib/cjs/index.d.ts",
   "scripts": {
-    "types:check": "tsc --noEmit && flow --max-warnings=0",
-    "types:watch": "npm run types:check -- --watch",
     "build": "npm run build:clean && npm run build:types-cjs && npm run build:types-esm && npm run build:cjs && npm run build:esm && npm run build:babel-plugin",
+    "build:babel-plugin": "rm -rf babel-plugin && mkdir babel-plugin && cp -a lib/cjs/babel/. ./babel-plugin/",
+    "build:cjs": "babel src --out-dir lib/cjs --extensions \".ts,.tsx\" --source-maps inline --ignore src/__tests__ --presets @babel/env",
     "build:clean": "rm -rf ./lib",
+    "build:esm": "babel src --out-dir lib/esm --extensions \".ts,.tsx\" --source-maps inline --ignore src/__tests__",
     "build:types-cjs": "tsc --emitDeclarationOnly --project tsconfig.build.json --outDir lib/cjs && cp src/index.js.flow lib/cjs",
     "build:types-esm": "tsc --emitDeclarationOnly --project tsconfig.build.json --outDir lib/esm && cp src/index.js.flow lib/esm",
-    "build:cjs": "babel src --out-dir lib/cjs --extensions \".ts,.tsx\" --source-maps inline --ignore src/__tests__ --presets @babel/env",
-    "build:esm": "babel src --out-dir lib/esm --extensions \".ts,.tsx\" --source-maps inline --ignore src/__tests__",
-    "build:babel-plugin": "rm -rf babel-plugin && mkdir babel-plugin && cp -a lib/cjs/babel/. ./babel-plugin/",
-    "test": "jest",
-    "test:watch": "jest --watch",
+    "docs": "npx docsify-cli serve docs",
     "lint": "eslint --ext .ts,.tsx,.js src/ && eslint --ext .ts,.tsx,.js examples/",
     "lint:fix": "eslint --ext .ts,.tsx,.js src/ --fix && eslint --ext .ts,.tsx,.js examples/ --fix",
-    "preversion": "npm run lint -s && npm run types -s && npm run test -s",
     "prepack": "npm run preversion -s && npm run build -s",
-    "docs": "npx docsify-cli serve docs",
-    "start": "webpack-dev-server"
+    "start": "webpack-dev-server",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "types:check": "tsc --noEmit && flow --max-warnings=0",
+    "types:watch": "tsc --noEmit --watch",
+    "preversion": "npm run lint -s && npm run types -s && npm run test -s"
   },
   "dependencies": {},
-  "peerDependencies": {
-    "prop-types": "^15.0.0",
-    "react": "^16.8.0"
-  },
   "devDependencies": {
     "@babel/cli": "^7.5.5",
     "@babel/core": "^7.5.5",
@@ -91,5 +87,9 @@
     "webpack": "^4.39.2",
     "webpack-cli": "^3.3.6",
     "webpack-dev-server": "^3.8.0"
+  },
+  "peerDependencies": {
+    "prop-types": "^15.0.0",
+    "react": "^16.8.0"
   }
 }

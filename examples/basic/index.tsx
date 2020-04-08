@@ -174,7 +174,7 @@ const mode = isRender ? MODE.RENDER : MODE.HYDRATE;
 if (container) {
   buildComponents();
   setTimeout(() => {
-    // simulate server env
+    // @ts-ignore - this will no longer work but were simulating server env behaviour
     SETTINGS.IS_SERVER = true;
     LooselyLazy.init(mode);
     const ssr = ReactDOMServer.renderToString(<App mode="SERVER" />);
@@ -183,7 +183,7 @@ if (container) {
 }
 
 setTimeout(() => {
-  // client env behaviour
+  // @ts-ignore - this will no longer work but were simulating client env behaviour
   SETTINGS.IS_SERVER = false;
   LooselyLazy.init(mode);
   buildComponents();
