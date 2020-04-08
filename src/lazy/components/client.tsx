@@ -21,11 +21,11 @@ export const createComponentClient = ({
       isCached = true;
     });
   }
-  const CachedLazy = React.lazy(() => deferred.promise);
+  const ResolvedLazy = React.lazy(() => deferred.promise);
 
   return (props: any) => {
     if (isCached) {
-      return <CachedLazy {...props} />;
+      return <ResolvedLazy {...props} />;
     }
 
     const { setFallback } = useContext(LazySuspenseContext);
@@ -58,6 +58,6 @@ export const createComponentClient = ({
       }, [setFallback]);
     }
 
-    return <CachedLazy {...props} />;
+    return <ResolvedLazy {...props} />;
   };
 };
