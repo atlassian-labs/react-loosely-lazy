@@ -152,7 +152,7 @@ export default function ({
               )
             );
 
-            // there is no require on the
+            // there is no require on the client
             if (client) {
               return;
             }
