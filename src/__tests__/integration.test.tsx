@@ -7,14 +7,29 @@ import LooselyLazy, {
   lazyAfterPaint,
   LazySuspense,
   useLazyPhase,
-  SETTINGS,
   MODE,
 } from '..';
 import { PHASE } from '../constants';
 import { createMockImport, nextTick } from './utils';
+import { isNodeEnvironment } from '../utils';
 
-const createApp = ({ server, ssr, hydrate, phase = undefined }) => {
-  SETTINGS.IS_SERVER = server;
+jest.mock('../utils', () => ({
+  ...jest.requireActual('../utils'),
+  isNodeEnvironment: jest.fn(),
+}));
+
+const createApp = ({
+  server,
+  ssr,
+  hydrate,
+  phase = undefined,
+}: {
+  server: boolean;
+  ssr: boolean;
+  hydrate: boolean;
+  phase?: number;
+}) => {
+  (isNodeEnvironment as any).mockImplementation(() => server);
 
   const Child = jest.fn(() => <p className="p">Content</p>);
   const Fallback = jest.fn(() => <i>Fallback</i>) as any;

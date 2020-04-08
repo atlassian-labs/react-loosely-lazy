@@ -1,7 +1,12 @@
 import React from 'react';
-import { PHASE, SETTINGS } from '../constants';
+import { PHASE } from '../constants';
 
-import { hash, tryRequire, displayNameFromId } from '../utils';
+import {
+  hash,
+  tryRequire,
+  displayNameFromId,
+  isNodeEnvironment,
+} from '../utils';
 import { createComponentServer } from './components/server';
 import { createComponentClient } from './components/client';
 
@@ -17,7 +22,9 @@ type Options = {
 
   defer?: number;
 
-  id?: () => string;
+  getCacheId?: () => string;
+
+  moduleId?: string;
 };
 
 const createDeferred = (loader: Loader, sync: boolean) => {
@@ -38,31 +45,37 @@ const createDeferred = (loader: Loader, sync: boolean) => {
 
 const lazyProxy = (
   loader: Loader,
-  { ssr = true, defer = PHASE.PAINT, id = () => '' }: Options = {}
+  {
+    ssr = true,
+    defer = PHASE.PAINT,
+    getCacheId = () => '',
+    moduleId = '',
+  }: Options = {}
 ) => {
-  const resolveId = id();
-  const resolveHash = hash(resolveId);
-  const deferred = createDeferred(loader, SETTINGS.IS_SERVER && ssr);
+  const isServer = isNodeEnvironment();
+  const cacheId = getCacheId();
+  const dataLazyId = hash(moduleId);
+  const deferred = createDeferred(loader, isServer && ssr);
 
-  const LazyComponent: any = SETTINGS.IS_SERVER
+  const LazyComponent: any = isServer
     ? createComponentServer({
         ssr,
         deferred,
-        resolveId,
-        resolveHash,
+        cacheId,
+        dataLazyId,
       })
     : createComponentClient({
         ssr,
         defer,
         deferred,
-        resolveId,
-        resolveHash,
+        cacheId,
+        dataLazyId,
       });
 
-  LazyComponent.displayName = `Lazy(${displayNameFromId(resolveId)})`;
+  LazyComponent.displayName = `Lazy(${displayNameFromId(moduleId)})`;
 
   LazyComponent.prefetch = () => {
-    if (tryRequire(resolveId)) return;
+    if (tryRequire(cacheId)) return;
     const head = document.querySelector('head');
     if (!head) return;
     const link = document.createElement('link');
@@ -76,23 +89,28 @@ const lazyProxy = (
   return LazyComponent;
 };
 
+export const DEFAULT_OPTIONS: {
+  [key: string]: { ssr: boolean; defer: number };
+} = {
+  lazyForPaint: { ssr: true, defer: PHASE.PAINT },
+  lazyAfterPaint: { ssr: true, defer: PHASE.AFTER_PAINT },
+  lazy: { ssr: false, defer: PHASE.LAZY },
+};
+
 export const lazyForPaint = (loader: Loader, opts?: any) =>
   lazyProxy(loader, {
-    ssr: true,
-    defer: PHASE.PAINT,
+    ...DEFAULT_OPTIONS.lazyForPaint,
     ...(opts || {}),
   });
 
 export const lazyAfterPaint = (loader: Loader, opts?: any) =>
   lazyProxy(loader, {
-    ssr: true,
-    defer: PHASE.AFTER_PAINT,
+    ...DEFAULT_OPTIONS.lazyAfterPaint,
     ...(opts || {}),
   });
 
 export const lazy = (loader: Loader, opts?: any) =>
   lazyProxy(loader, {
-    ssr: false,
-    defer: PHASE.LAZY,
+    ...DEFAULT_OPTIONS.lazy,
     ...(opts || {}),
   });

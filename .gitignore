@@ -1,8 +1,10 @@
 node_modules
 lib
 server
+babel-plugin
 coverage
 yarn.lock   
 
 # misc
+local-scripts/
 .vscode

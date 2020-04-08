@@ -5,19 +5,19 @@ import { LazySuspenseContext } from '../../suspense/context';
 export const createComponentServer = ({
   ssr,
   deferred,
-  resolveId,
-  resolveHash,
+  cacheId,
+  dataLazyId,
 }: any) => (props: any) => {
   const Resolved = ssr
-    ? tryRequire(resolveId) || getExport(deferred.result)
+    ? tryRequire(cacheId) || getExport(deferred.result)
     : null;
   const { fallback } = useContext(LazySuspenseContext);
 
   return (
     <>
-      <input type="hidden" data-lazy-begin={resolveHash} />
+      <input type="hidden" data-lazy-begin={dataLazyId} />
       {Resolved ? <Resolved {...props} /> : fallback}
-      <input type="hidden" data-lazy-end={resolveHash} />
+      <input type="hidden" data-lazy-end={dataLazyId} />
     </>
   );
 };

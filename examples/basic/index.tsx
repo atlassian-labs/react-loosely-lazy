@@ -1,3 +1,10 @@
+/**
+ * NOTE:
+ * These examples are currently not working as intended.
+ * This has been the case since the change from using SETTINGS.IS_SERVER to isNodeEnvironment happened.
+ * To do this properly we will need to create a full app with a server and a client that calls it.
+ */
+
 /* eslint-disable no-undef, @typescript-eslint/camelcase, @typescript-eslint/ban-ts-ignore */
 
 import React, { useState, useEffect } from 'react';
@@ -6,8 +13,7 @@ import ReactDOMServer from 'react-dom/server';
 
 import '@babel/polyfill';
 
-import LooselyLazyServer from 'react-loosely-lazy/server';
-import LooselyLazyClient, {
+import LooselyLazy, {
   lazyForPaint,
   lazyAfterPaint,
   lazy,
@@ -168,17 +174,18 @@ const mode = isRender ? MODE.RENDER : MODE.HYDRATE;
 if (container) {
   buildComponents();
   setTimeout(() => {
-    // simulate server env
-    LooselyLazyServer.init(mode);
+    // @ts-ignore - this will no longer work but were simulating server env behaviour
+    SETTINGS.IS_SERVER = true;
+    LooselyLazy.init(mode);
     const ssr = ReactDOMServer.renderToString(<App mode="SERVER" />);
     container.innerHTML = isRender ? `<div>${ssr}</div>` : ssr;
   }, 100);
 }
 
 setTimeout(() => {
+  // @ts-ignore - this will no longer work but were simulating client env behaviour
   SETTINGS.IS_SERVER = false;
-  // client env behaviour
-  LooselyLazyClient.init(mode);
+  LooselyLazy.init(mode);
   buildComponents();
   ReactDOM.render(<App mode="CLIENT" />, container);
 }, 2000);
