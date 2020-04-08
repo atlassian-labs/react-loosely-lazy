@@ -38,7 +38,7 @@
     "test:watch": "jest --watch",
     "types:check": "tsc --noEmit && flow --max-warnings=0",
     "types:watch": "tsc --noEmit --watch",
-    "preversion": "npm run lint -s && npm run types -s && npm run test -s"
+    "preversion": "npm run lint -s && npm run types:check -s && npm run test -s"
   },
   "dependencies": {},
   "devDependencies": {
