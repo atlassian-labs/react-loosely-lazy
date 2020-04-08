@@ -22,10 +22,7 @@ export const tryRequire = (id: string) => {
 };
 
 export const displayNameFromId = (id: string) => {
-  const fName = id
-    .split('/')
-    .slice(-3)
-    .join('/');
+  const fName = id.split('/').slice(-3).join('/');
 
   return fName || 'Component';
 };

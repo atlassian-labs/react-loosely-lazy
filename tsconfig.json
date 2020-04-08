@@ -13,7 +13,6 @@
     "baseUrl": ".",
     "paths": {
       "react-loosely-lazy": ["src"],
-      "react-loosely-lazy/server": ["src/server"],
       "react-loosely-lazy/babel-plugin": ["src/babel"]
     }
   },

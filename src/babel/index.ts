@@ -15,7 +15,7 @@ const DEFAULT_OPTIONS: {
   lazy: { ssr: false, defer: 2 },
 };
 
-export default function({
+export default function ({
   types: t,
   template,
 }: {

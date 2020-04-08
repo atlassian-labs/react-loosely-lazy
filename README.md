@@ -10,8 +10,7 @@
 <!--[![CircleCI](https://circleci.com/gh/atlassian/react-loosely-lazy.svg?style=shield&circle-token=xxx)](https://circleci.com/gh/atlassian/react-loosely-lazy)-->
 <!--[![codecov](https://codecov.io/gh/atlassian/react-loosely-lazy/branch/master/graph/badge.svg)](https://codecov.io/gh/atlassian/react-loosely-lazy)-->
 
-
-A future focused async component loading library for React. Comes packed with loading phases to enable fine-grained performance optimisations. 
+A future focused async component loading library for React. Comes packed with loading phases to enable fine-grained performance optimisations.
 
 ## Why?
 
@@ -30,10 +29,9 @@ React Loosely Lazy solves both of these problems with a server side compatible A
 - Works with both `React.render()` and `React.hydrate()`
 - Babel plugin that works on both client and server to ensure cleaner code and synchornous imports in Node
 
-## Usage 
+## Usage
 
 ### In your app
-
 
 ```js
 import { lazyForPaint, LazySuspense } from 'react-loosely-lazy';
@@ -49,7 +47,7 @@ const App = () => (
 
 ### In your webpack config
 
-#### Server 
+#### Server
 
 ```
 module: {
@@ -68,7 +66,7 @@ module: {
 }
 ```
 
-#### Client 
+#### Client
 
 ```
 module: {
@@ -117,7 +115,7 @@ import { lazyAfterPaint, LazySuspense } from 'react-loosely-lazy';
 
 const AsyncMyComponent = lazyAfterPaint(() => import('./MyComponent'), {
   ssr: false,
-})
+});
 const App = () => (
   <LazySuspense fallback={<MyComponentSkeleton />}>
     <AsyncMyComponent />
@@ -138,10 +136,10 @@ const App = () => {
   useEffect(() => {
     startNextPhase();
   }, [startNextPhase]);
-  
+
   return (
     <LazySuspense fallback="...">
-      	<AsyncMyComponent />
+      <AsyncMyComponent />
     </LazySuspense>
   );
 };
@@ -169,14 +167,15 @@ const App = () => {
 };
 ```
 
-## Examples
+## Examples (currently broken)
+
+> Note: The examples are currently not working as intended so it's best not to use them for now. We will be fixing these shortly!
 
 See `react-loosely-lazy` in action: run `npm run start` and then go and check: `http://localhost:8080/`
 
-
 ## Contributing
 
-Thank you for considering a contribution to `react-loosely-lazy`! Before doing so, please make sure to read our [contribution guidelines](CONTRIBUTING). 
+Thank you for considering a contribution to `react-loosely-lazy`! Before doing so, please make sure to read our [contribution guidelines](CONTRIBUTING).
 
 ## Development
 
@@ -187,6 +186,5 @@ Also, make sure you run `npm run preversion` before creating you PR so you will 
 
 Copyright (c) 2020 Atlassian and others.
 Apache 2.0 licensed, see [LICENSE](LICENSE) file.
-
 
 [![With ❤️ from Atlassian](https://raw.githubusercontent.com/atlassian-internal/oss-assets/master/banner-cheers-light.png)](https://www.atlassian.com)
