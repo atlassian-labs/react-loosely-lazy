@@ -8,3 +8,4 @@ yarn.lock
 # misc
 local-scripts/
 .vscode
+src/__tests__/__fixtures__/webpack/output

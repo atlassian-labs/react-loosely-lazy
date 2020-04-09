@@ -48,6 +48,7 @@ module.exports = {
       files: ['src/__tests__/**/*'],
       env: { node: true },
     },
+
     {
       // Flow specific rules
       files: [
@@ -85,6 +86,13 @@ module.exports = {
       files: ['*.test.{js,ts,tsx}'],
       env: {
         jest: true,
+      },
+    },
+    {
+      files: ['src/webpack/**/*'],
+      env: { node: true },
+      rules: {
+        '@typescript-eslint/no-var-requires': 'off',
       },
     },
   ],
