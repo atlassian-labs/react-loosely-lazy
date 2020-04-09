@@ -2,6 +2,7 @@ node_modules
 lib
 server
 babel-plugin
+webpack-plugin
 coverage
 yarn.lock   
 

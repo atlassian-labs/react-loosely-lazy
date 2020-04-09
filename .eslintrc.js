@@ -91,9 +91,6 @@ module.exports = {
     {
       files: ['src/webpack/**/*'],
       env: { node: true },
-      rules: {
-        '@typescript-eslint/no-var-requires': 'off',
-      },
     },
   ],
 };
