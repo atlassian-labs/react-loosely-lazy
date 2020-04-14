@@ -9,11 +9,11 @@ type ModuleExtended = webpackCompilation.Module & {
   rawRequest?: string;
 };
 
-type Manifest = { [key: string]: { [key: string]: any } };
+type Manifest = { [key: string]: Bundle };
 
 type Bundle = {
-  id: number | string;
-  name: string;
+  id: number | string | null;
+  name: string | null;
   file: string;
   publicPath: string;
 };
@@ -43,20 +43,17 @@ function buildManifest(compiler: Compiler, compilation: Compilation) {
           currentModule = module.rootModule;
         }
 
-        if (currentModule.rawRequest && !manifest[currentModule.rawRequest]) {
-          manifest[currentModule.rawRequest] = [];
-        }
-
         if (
           currentModule.rawRequest &&
-          Array.isArray(manifest[currentModule.rawRequest])
+          !manifest[currentModule.rawRequest] &&
+          !file.endsWith('.map')
         ) {
-          manifest[currentModule.rawRequest].push({
+          manifest[currentModule.rawRequest] = {
             id,
             name,
             file,
             publicPath,
-          });
+          };
         }
       });
     });
@@ -91,15 +88,7 @@ export class ReactLooselyLazyPlugin {
   }
 }
 
-export function getBundleFiles(
-  manifest: { [key: string]: any },
+export const getBundleFiles = (
+  manifest: { [key: string]: Bundle },
   moduleIds: string[]
-) {
-  return moduleIds
-    .reduce((bundles: Bundle[], moduleId: string) => {
-      return bundles.concat(manifest[moduleId]);
-    }, [])
-    .filter(bundle => bundle)
-    .filter(bundle => !bundle.file.endsWith('.map'))
-    .map(bundle => bundle.file);
-}
+) => moduleIds.map(id => manifest[id].file);
