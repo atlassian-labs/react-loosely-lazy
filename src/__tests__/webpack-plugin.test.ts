@@ -44,7 +44,6 @@ const config = {
 };
 
 describe('plugin functionality', () => {
-  let manifest;
   const expectedManifest = {
     react: [
       {
@@ -131,8 +130,9 @@ describe('plugin functionality', () => {
   it('should create the manifest', done => {
     webpack(config, function (err, stats) {
       const asset = stats.compilation.assets[manifestFilename];
-      manifest = JSON.parse(asset.source());
+      const manifest = JSON.parse(asset.source());
 
+      expect(err).toBeNull();
       expect(manifest).toEqual(expectedManifest);
 
       done();

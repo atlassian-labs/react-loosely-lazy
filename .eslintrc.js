@@ -42,13 +42,11 @@ module.exports = {
     'react-hooks/rules-of-hooks': ['error'],
     'react-hooks/exhaustive-deps': ['warn'],
   },
-
   overrides: [
     {
       files: ['src/__tests__/**/*'],
       env: { node: true },
     },
-
     {
       // Flow specific rules
       files: [

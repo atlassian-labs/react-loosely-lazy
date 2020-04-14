@@ -2,12 +2,15 @@ import url from 'url';
 import { Compiler, compilation as webpackCompilation, Module } from 'webpack';
 
 type Compilation = webpackCompilation.Compilation;
+
 type ModuleExtended = webpackCompilation.Module & {
   libIdent?: (params: { context: any }) => string;
   rootModule?: webpackCompilation.Module;
   rawRequest?: string;
 };
+
 type Manifest = { [key: string]: { [key: string]: any } };
+
 type Bundle = {
   id: number | string;
   name: string;
@@ -16,7 +19,7 @@ type Bundle = {
 };
 
 function buildManifest(compiler: Compiler, compilation: Compilation) {
-  const context = compiler.options.context;
+  const { context } = compiler.options;
   const manifest: Manifest = {};
 
   compilation.chunks.forEach((chunk: webpackCompilation.Chunk) => {
@@ -90,7 +93,7 @@ export class ReactLooselyLazyPlugin {
 
 export function getBundleFiles(
   manifest: { [key: string]: any },
-  moduleIds: Array<string>
+  moduleIds: string[]
 ) {
   return moduleIds
     .reduce((bundles: Bundle[], moduleId: string) => {
