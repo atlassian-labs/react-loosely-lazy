@@ -110,6 +110,22 @@ describe('plugin functionality', () => {
         publicPath: '/output/main.js',
       },
     ],
+    './components/dynamic.js': [
+      {
+        id: 8,
+        name: './src/__tests__/__fixtures__/webpack/app/components/dynamic.js',
+        file: '1.js',
+        publicPath: '/output/1.js',
+      },
+    ],
+    './components/lazy.js': [
+      {
+        id: 9,
+        name: './src/__tests__/__fixtures__/webpack/app/components/lazy.js',
+        file: '2.js',
+        publicPath: '/output/2.js',
+      },
+    ],
   };
 
   it('should create the manifest', done => {
