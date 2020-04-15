@@ -42,7 +42,6 @@ module.exports = {
     'react-hooks/rules-of-hooks': ['error'],
     'react-hooks/exhaustive-deps': ['warn'],
   },
-
   overrides: [
     {
       files: ['src/__tests__/**/*'],
@@ -86,6 +85,10 @@ module.exports = {
       env: {
         jest: true,
       },
+    },
+    {
+      files: ['src/webpack/**/*'],
+      env: { node: true },
     },
   ],
 };

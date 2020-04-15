@@ -1,0 +1,1 @@
+export { Static } from './static';
