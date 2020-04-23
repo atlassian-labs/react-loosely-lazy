@@ -1,1 +1,0 @@
-{"version":3,"sources":["webpack:///./src/__tests__/__fixtures__/webpack/app/components/lazy.js"],"names":["Lazy"],"mappings":"wFAAA,gEAEaA,EAAO,kBAAM","file":"2.js","sourcesContent":["import React from 'react';\n\nexport const Lazy = () => <div>Lazy</div>;\n"],"sourceRoot":""}

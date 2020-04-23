@@ -1,1 +1,0 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([[2],{9:function(n,e,t){"use strict";t.r(e),t.d(e,"Lazy",(function(){return a}));var r=t(0),u=t.n(r),a=function(){return u.a.createElement("div",null,"Lazy")}}}]);

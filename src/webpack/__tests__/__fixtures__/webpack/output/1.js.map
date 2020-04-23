@@ -1,1 +1,0 @@
-{"version":3,"sources":["webpack:///./src/__tests__/__fixtures__/webpack/app/components/dynamic.js"],"names":["Dynamic"],"mappings":"wFAAA,mEAEaA,EAAU,kBAAM","file":"1.js","sourcesContent":["import React from 'react';\n\nexport const Dynamic = () => <div>Dynamic</div>;\n"],"sourceRoot":""}
