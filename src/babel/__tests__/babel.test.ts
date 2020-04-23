@@ -1,6 +1,6 @@
 // @ts-ignore - babel-plugin-tester doesn't export types
 import pluginTester from 'babel-plugin-tester';
-import plugin from '../babel';
+import plugin from '../';
 import path from 'path';
 
 pluginTester({

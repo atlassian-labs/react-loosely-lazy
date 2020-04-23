@@ -1,5 +1,5 @@
 import webpack from 'webpack';
-import { ReactLooselyLazyPlugin, getBundleFiles } from '../webpack';
+import { ReactLooselyLazyPlugin, getBundleFiles } from '../';
 import path from 'path';
 
 const manifestFilename = 'rll-manifest.json';

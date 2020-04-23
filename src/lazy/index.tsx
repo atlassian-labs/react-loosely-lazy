@@ -36,6 +36,11 @@ type Options = {
   moduleId?: string;
 };
 
+type LazyComponent = React.ComponentType & {
+  preload: () => void;
+  getBundleUrl: (manifest: Manifest) => string | undefined;
+};
+
 const createDeferred = (loader: Loader, sync: boolean) => {
   let resolve: any;
   let result: any;
@@ -60,7 +65,7 @@ const lazyProxy = (
     getCacheId = () => '',
     moduleId = '',
   }: Options = {}
-) => {
+): LazyComponent => {
   const isServer = isNodeEnvironment();
   const cacheId = getCacheId();
   const dataLazyId = hash(moduleId);

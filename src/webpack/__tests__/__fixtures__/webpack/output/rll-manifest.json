@@ -1,0 +1,62 @@
+{
+  "react": {
+    "id": 0,
+    "name": "./node_modules/react/index.js",
+    "file": "main.js",
+    "publicPath": "/output/main.js"
+  },
+  "object-assign": {
+    "id": 1,
+    "name": "./node_modules/object-assign/index.js",
+    "file": "main.js",
+    "publicPath": "/output/main.js"
+  },
+  "react-dom": {
+    "id": 2,
+    "name": "./node_modules/react-dom/index.js",
+    "file": "main.js",
+    "publicPath": "/output/main.js"
+  },
+  "./cjs/react.production.min.js": {
+    "id": 3,
+    "name": "./node_modules/react/cjs/react.production.min.js",
+    "file": "main.js",
+    "publicPath": "/output/main.js"
+  },
+  "./cjs/react-dom.production.min.js": {
+    "id": 4,
+    "name": "./node_modules/react-dom/cjs/react-dom.production.min.js",
+    "file": "main.js",
+    "publicPath": "/output/main.js"
+  },
+  "scheduler": {
+    "id": 5,
+    "name": "./node_modules/scheduler/index.js",
+    "file": "main.js",
+    "publicPath": "/output/main.js"
+  },
+  "./cjs/scheduler.production.min.js": {
+    "id": 6,
+    "name": "./node_modules/scheduler/cjs/scheduler.production.min.js",
+    "file": "main.js",
+    "publicPath": "/output/main.js"
+  },
+  "/Users/rdeshpande/projects/react-loosely-lazy/src/webpack/__tests__/__fixtures__/webpack/app/index.js": {
+    "id": 7,
+    "name": "./src/webpack/__tests__/__fixtures__/webpack/app/index.js",
+    "file": "main.js",
+    "publicPath": "/output/main.js"
+  },
+  "./components/dynamic.js": {
+    "id": 8,
+    "name": "./src/webpack/__tests__/__fixtures__/webpack/app/components/dynamic.js",
+    "file": "1.js",
+    "publicPath": "/output/1.js"
+  },
+  "./components/lazy.js": {
+    "id": 9,
+    "name": "./src/webpack/__tests__/__fixtures__/webpack/app/components/lazy.js",
+    "file": "2.js",
+    "publicPath": "/output/2.js"
+  }
+}

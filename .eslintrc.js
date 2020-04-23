@@ -87,7 +87,7 @@ module.exports = {
       },
     },
     {
-      files: ['src/webpack/**/*'],
+      files: ['src/webpack/**/*', 'src/babel/**/*'],
       env: { node: true },
     },
   ],

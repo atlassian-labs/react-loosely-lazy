@@ -1,8 +1,8 @@
 import { lazyForPaint } from '..';
-import { isNodeEnvironment } from '../utils';
+import { isNodeEnvironment } from '../../utils';
 
-jest.mock('../utils', () => ({
-  ...jest.requireActual('../utils'),
+jest.mock('../../utils', () => ({
+  ...jest.requireActual('../../utils'),
   isNodeEnvironment: jest.fn(),
 }));
 
@@ -18,11 +18,8 @@ describe('lazy', () => {
         moduleId: mockModuleId,
       }
     );
-    describe('getBundleUrl', () => {
-      it('should return a LazyComponent with a getBundleUrl method on it', () => {
-        expect(lazyComponent.getBundleUrl).toBeDefined();
-      });
 
+    describe('getBundleUrl', () => {
       it('should find the module file in the supplied manifest', () => {
         const file = 'https://cdn.com/@foo/bar.js';
         const mockManifest = {
