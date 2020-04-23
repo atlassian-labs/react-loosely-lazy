@@ -1,4 +1,4 @@
-src/__tests__/__fixtures__/**
+src/babel/__tests__/__fixtures__/**/*
 lib 
 babel-plugin
 webpack-plugin
