@@ -15,6 +15,15 @@ type ImportDefaultComponent = {
 };
 type Loader = () => Promise<ImportDefaultComponent>;
 
+type Manifest = { [key: string]: Bundle };
+
+type Bundle = {
+  id: number | string | null;
+  name: string | null;
+  file: string;
+  publicPath: string;
+};
+
 type Options = {
   // Should be rendered on SSR
   // if false renders fallback on SSR
@@ -74,17 +83,37 @@ const lazyProxy = (
 
   LazyComponent.displayName = `Lazy(${displayNameFromId(moduleId)})`;
 
-  LazyComponent.prefetch = () => {
-    if (tryRequire(cacheId)) return;
+  /**
+   * This will eventually be used to render preload link tags on transition.
+   * Currently not working as we need a way for the client to be able to know the manifest[moduleId].file
+   * without having to load the manifest on the client as it could be huge.
+   */
+  LazyComponent.preload = () => {
+    if (tryRequire(cacheId)) {
+      return;
+    }
+
     const head = document.querySelector('head');
-    if (!head) return;
+
+    if (!head) {
+      return;
+    }
+
     const link = document.createElement('link');
-    link.rel = 'prefetch';
-    // TODO find out href or call
+
+    link.rel = 'preload';
+
+    // TODO add href to link
     head.appendChild(link);
   };
 
-  LazyComponent.Prefetch = () => <link rel="prefetch" href="** TODO **" />;
+  LazyComponent.getBundleUrl = (manifest: Manifest) => {
+    if (!manifest[moduleId]) {
+      return undefined;
+    }
+
+    return manifest[moduleId].file;
+  };
 
   return LazyComponent;
 };
