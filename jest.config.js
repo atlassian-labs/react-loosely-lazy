@@ -4,7 +4,9 @@
 // eslint-disable-next-line no-undef
 module.exports = {
   // Webpack plugin test generates files which causes an infinite loop in watch mode if not ignored
-  watchPathIgnorePatterns: ['src/__tests__/__fixtures__/webpack/output'],
+  watchPathIgnorePatterns: [
+    'src/webpack/__tests__/__fixtures__/webpack/output',
+  ],
   verbose: true,
   // All imported modules in your tests should be mocked automatically
   // automock: false,

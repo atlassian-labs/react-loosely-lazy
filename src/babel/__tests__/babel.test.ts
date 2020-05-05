@@ -7,4 +7,5 @@ pluginTester({
   plugin,
   pluginName: 'react-loosely-lazy',
   fixtures: path.join(__dirname, '__fixtures__/babel'),
+  snapshot: true,
 });

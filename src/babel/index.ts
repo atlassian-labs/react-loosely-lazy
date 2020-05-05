@@ -128,19 +128,14 @@ export default function ({
             }
 
             // adds the id property to options
+            const findLazyImportInWebpackCache = template.expression`(require.resolveWeak || function (v) { return v })(${t.stringLiteral(
+              importSpecifier
+            )})`;
+
             lazyOptions.node.properties.push(
               t.objectProperty(
                 t.identifier(BUNDLER_CACHE_ID_KEY),
-                t.arrowFunctionExpression(
-                  [],
-                  t.callExpression(
-                    t.memberExpression(
-                      t.identifier('require'),
-                      t.identifier('resolveWeak')
-                    ),
-                    [t.stringLiteral(importSpecifier)]
-                  )
-                )
+                findLazyImportInWebpackCache()
               )
             );
 
