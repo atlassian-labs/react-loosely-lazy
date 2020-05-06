@@ -10,13 +10,13 @@ const ExplicitSsr = lazyForPaint(
   {
     ssr: true,
     defer: 0,
-    getCacheId: () =>
-      (
-        require.resolveWeak ||
-        function (v) {
-          return v;
-        }
-      )('./my-component'),
+    getCacheId: function () {
+      if (require && require.resolveWeak) {
+        return require.resolveWeak('./my-component');
+      }
+
+      return './my-component';
+    },
     moduleId: './my-component',
   }
 );

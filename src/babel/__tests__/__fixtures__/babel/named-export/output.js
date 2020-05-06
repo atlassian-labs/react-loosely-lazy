@@ -9,13 +9,13 @@ const NamedExport = lazyForPaint(
   },
   {
     ssr: true,
-    getCacheId: () =>
-      (
-        require.resolveWeak ||
-        function (v) {
-          return v;
-        }
-      )('./my-component'),
+    getCacheId: function () {
+      if (require && require.resolveWeak) {
+        return require.resolveWeak('./my-component');
+      }
+
+      return './my-component';
+    },
     moduleId: './my-component',
   }
 );
