@@ -128,9 +128,16 @@ export default function ({
             }
 
             // adds the id property to options
-            const findLazyImportInWebpackCache = template.expression`() => (require.resolveWeak || function (v) { return v })(${t.stringLiteral(
+            const importSpecifierStringLiteral = t.stringLiteral(
               importSpecifier
-            )})`;
+            );
+            const findLazyImportInWebpackCache = template.expression`function () {
+              if (require && require.resolveWeak) {
+                return require.resolveWeak(${importSpecifierStringLiteral});
+              }
+
+              return ${importSpecifierStringLiteral};
+            }`;
 
             lazyOptions.node.properties.push(
               t.objectProperty(
