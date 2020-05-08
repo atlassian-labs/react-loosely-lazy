@@ -41,20 +41,20 @@ type LazyComponent = React.ComponentType & {
   getBundleUrl: (manifest: Manifest) => string | undefined;
 };
 
-const createDeferred = (loader: Loader, sync: boolean) => {
+const createDeferred = (loader: Loader) => {
   let resolve: any;
-  let result: any;
-  const promise = new Promise<ImportDefaultComponent>(r => {
-    resolve = (m: any) => {
-      result = m;
-      r(m);
-    };
-  });
-  // TODO: handle error & reject
-  const start = () => loader().then(resolve);
-  if (sync) start();
+  const deferred = {
+    promise: new Promise<ImportDefaultComponent>(r => {
+      resolve = (m: any) => {
+        deferred.result = m;
+        r(m);
+      };
+    }),
+    result: undefined,
+    start: () => loader().then(resolve),
+  };
 
-  return { promise, result, start };
+  return deferred;
 };
 
 const lazyProxy = (
@@ -69,7 +69,7 @@ const lazyProxy = (
   const isServer = isNodeEnvironment();
   const cacheId = getCacheId();
   const dataLazyId = hash(moduleId);
-  const deferred = createDeferred(loader, isServer && ssr);
+  const deferred = createDeferred(loader);
 
   const LazyComponent: any = isServer
     ? createComponentServer({
@@ -117,7 +117,7 @@ const lazyProxy = (
       return undefined;
     }
 
-    return manifest[moduleId].file;
+    return manifest[moduleId].publicPath;
   };
 
   return LazyComponent;

@@ -1,15 +1,24 @@
-export const createMockImport = (value: any, sync: boolean) => {
-  let resolve: { (arg0: { default: any }): void; (value?: unknown): void };
-  const mockImport = sync
-    ? ({
-        then: (fn: (arg0: { default: any }) => any) => fn({ default: value }),
-      } as any)
-    : new Promise(r => {
-        resolve = r;
-      });
+export const createMockImport = (
+  component: jest.Mock<JSX.Element, []>,
+  sync: boolean
+) => {
+  const resolved = { default: component };
+  let resolve: any;
+  let mockImport;
+
+  if (sync) {
+    // This should be the same as the transpiled output from the babel plugin
+    const then = (fn: any) => fn(resolved);
+
+    mockImport = { ...resolved, then };
+  } else {
+    mockImport = new Promise(r => {
+      resolve = r;
+    });
+  }
 
   const resolveImport = async () => {
-    resolve({ default: value });
+    resolve(resolved);
 
     // let react re-render
     await nextTick();

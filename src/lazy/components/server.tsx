@@ -8,6 +8,10 @@ export const createComponentServer = ({
   cacheId,
   dataLazyId,
 }: any) => (props: any) => {
+  if (ssr) {
+    deferred.start();
+  }
+
   const Resolved = ssr
     ? tryRequire(cacheId) || getExport(deferred.result)
     : null;

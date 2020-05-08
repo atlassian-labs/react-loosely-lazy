@@ -21,17 +21,17 @@ describe('lazy', () => {
 
     describe('getBundleUrl', () => {
       it('should find the module file in the supplied manifest', () => {
-        const file = 'https://cdn.com/@foo/bar.js';
+        const publicPath = 'https://cdn.com/@foo/bar.js';
         const mockManifest = {
           '@foo/bar': {
-            file,
+            file: '',
             id: 0,
             name: '',
-            publicPath: '',
+            publicPath,
           },
         };
 
-        expect(lazyComponent.getBundleUrl(mockManifest)).toEqual(file);
+        expect(lazyComponent.getBundleUrl(mockManifest)).toEqual(publicPath);
       });
     });
   });
