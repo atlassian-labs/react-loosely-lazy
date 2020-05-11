@@ -76,19 +76,18 @@ const lazyProxy = (
   const isServer = isNodeEnvironment();
   const cacheId = getCacheId();
   const dataLazyId = hash(moduleId);
-  const deferred = createDeferred(loader);
 
   const LazyComponent: any = isServer
     ? createComponentServer({
         ssr,
-        deferred,
+        loader,
         cacheId,
         dataLazyId,
       })
     : createComponentClient({
         ssr,
         defer,
-        deferred,
+        deferred: createDeferred(loader),
         cacheId,
         dataLazyId,
       });
