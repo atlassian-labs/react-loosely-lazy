@@ -21,6 +21,7 @@ export const createComponentClient = ({
       isCached = true;
     });
   }
+
   const ResolvedLazy = React.lazy(() => deferred.promise);
 
   return (props: any) => {

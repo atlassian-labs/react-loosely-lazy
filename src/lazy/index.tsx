@@ -43,14 +43,21 @@ type LazyComponent = React.ComponentType & {
 
 const createDeferred = (loader: Loader) => {
   let resolve: any;
+  let result: any;
   const deferred = {
     promise: new Promise<ImportDefaultComponent>(r => {
       resolve = (m: any) => {
+        let withDefault;
         deferred.result = m;
-        r(m);
+
+        if (!m.default) {
+          withDefault = { default: m };
+        }
+
+        r(withDefault ? withDefault : m);
       };
     }),
-    result: undefined,
+    result,
     start: () => loader().then(resolve),
   };
 
