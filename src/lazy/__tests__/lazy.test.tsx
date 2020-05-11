@@ -1,15 +1,21 @@
+import React from 'react';
 import { lazyForPaint } from '..';
-import { isNodeEnvironment } from '../../utils';
+import { LazySuspense } from '../../suspense';
+import { isNodeEnvironment, tryRequire } from '../../utils';
+import { act, render } from '@testing-library/react';
+import { nextTick } from '../../__tests__/utils';
 
 jest.mock('../../utils', () => ({
   ...jest.requireActual('../../utils'),
   isNodeEnvironment: jest.fn(),
+  tryRequire: jest.fn(),
 }));
 
 describe('lazy', () => {
+  const mockModuleId = '@foo/bar';
   describe('LazyComponent', () => {
     (isNodeEnvironment as any).mockImplementation(() => true);
-    const mockModuleId = '@foo/bar';
+
     const lazyComponent = lazyForPaint(
       // @ts-ignore - mocking import()
       () => Promise.resolve({ default: mockModuleId }),
@@ -21,18 +27,47 @@ describe('lazy', () => {
 
     describe('getBundleUrl', () => {
       it('should find the module file in the supplied manifest', () => {
-        const file = 'https://cdn.com/@foo/bar.js';
+        const publicPath = 'https://cdn.com/@foo/bar.js';
         const mockManifest = {
           '@foo/bar': {
-            file,
+            file: '',
             id: 0,
             name: '',
-            publicPath: '',
+            publicPath,
           },
         };
 
-        expect(lazyComponent.getBundleUrl(mockManifest)).toEqual(file);
+        expect(lazyComponent.getBundleUrl(mockManifest)).toEqual(publicPath);
       });
+    });
+  });
+
+  describe('createComponentClient', () => {
+    (isNodeEnvironment as any).mockImplementation(() => false);
+    it('should handle named exports', async () => {
+      (tryRequire as any).mockImplementation(() => false);
+      const MockComponent = jest.fn(() => <div />);
+      const MockFallback = () => <div />;
+      const MyAsync = lazyForPaint(
+        // @ts-ignore - mocking import()
+        () => Promise.resolve({ MockComponent }).then(m => m.MockComponent),
+        {
+          getCacheId: () => '',
+          moduleId: mockModuleId,
+        }
+      );
+
+      await act(async () => {
+        render(
+          <LazySuspense fallback={<MockFallback />}>
+            <MyAsync />
+          </LazySuspense>
+        );
+
+        await nextTick();
+      });
+
+      expect(MockComponent).toHaveBeenCalled();
     });
   });
 });

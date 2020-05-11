@@ -35,6 +35,7 @@ const createApp = ({
   const Fallback = jest.fn(() => <i>Fallback</i>) as any;
   const { mockImport, resolveImport } = createMockImport(Child, ssr && server);
   const lazyFn = phase === PHASE.AFTER_PAINT ? lazyAfterPaint : lazyForPaint;
+  // @ts-ignore - We are mocking the import
   const AsyncComponent = lazyFn(() => mockImport, {
     id: () => './my-component',
     ssr,
@@ -103,10 +104,12 @@ describe('hydrate without priority', () => {
         ssr,
         hydrate,
       });
+
       render(<ClientApp />, {
         hydrate,
         container: document.body.firstChild as HTMLElement,
       });
+
       // expect client to use live fallback ASAP
       expect(Child).not.toHaveBeenCalled();
       expect(Fallback).toHaveBeenCalled();

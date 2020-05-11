@@ -4,13 +4,11 @@ import { LazySuspenseContext } from '../../suspense/context';
 
 export const createComponentServer = ({
   ssr,
-  deferred,
+  loader,
   cacheId,
   dataLazyId,
 }: any) => (props: any) => {
-  const Resolved = ssr
-    ? tryRequire(cacheId) || getExport(deferred.result)
-    : null;
+  const Resolved = ssr ? tryRequire(cacheId) || getExport(loader()) : null;
   const { fallback } = useContext(LazySuspenseContext);
 
   return (

@@ -41,20 +41,27 @@ type LazyComponent = React.ComponentType & {
   getBundleUrl: (manifest: Manifest) => string | undefined;
 };
 
-const createDeferred = (loader: Loader, sync: boolean) => {
+const createDeferred = (loader: Loader) => {
   let resolve: any;
   let result: any;
-  const promise = new Promise<ImportDefaultComponent>(r => {
-    resolve = (m: any) => {
-      result = m;
-      r(m);
-    };
-  });
-  // TODO: handle error & reject
-  const start = () => loader().then(resolve);
-  if (sync) start();
+  const deferred = {
+    promise: new Promise<ImportDefaultComponent>(r => {
+      resolve = (m: any) => {
+        let withDefault;
+        deferred.result = m;
 
-  return { promise, result, start };
+        if (!m.default) {
+          withDefault = { default: m };
+        }
+
+        r(withDefault ? withDefault : m);
+      };
+    }),
+    result,
+    start: () => loader().then(resolve),
+  };
+
+  return deferred;
 };
 
 const lazyProxy = (
@@ -69,19 +76,18 @@ const lazyProxy = (
   const isServer = isNodeEnvironment();
   const cacheId = getCacheId();
   const dataLazyId = hash(moduleId);
-  const deferred = createDeferred(loader, isServer && ssr);
 
   const LazyComponent: any = isServer
     ? createComponentServer({
         ssr,
-        deferred,
+        loader,
         cacheId,
         dataLazyId,
       })
     : createComponentClient({
         ssr,
         defer,
-        deferred,
+        deferred: createDeferred(loader),
         cacheId,
         dataLazyId,
       });
@@ -117,7 +123,7 @@ const lazyProxy = (
       return undefined;
     }
 
-    return manifest[moduleId].file;
+    return manifest[moduleId].publicPath;
   };
 
   return LazyComponent;
