@@ -6,7 +6,7 @@ import { act, render } from '@testing-library/react';
 import { nextTick } from '../../__tests__/utils';
 
 jest.mock('../../utils', () => ({
-  ...jest.requireActual('../../utils'),
+  ...jest.requireActual<any>('../../utils'),
   isNodeEnvironment: jest.fn(),
   tryRequire: jest.fn(),
 }));
