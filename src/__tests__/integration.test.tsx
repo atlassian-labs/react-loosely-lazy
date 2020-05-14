@@ -14,7 +14,7 @@ import { createMockImport, nextTick } from './utils';
 import { isNodeEnvironment } from '../utils';
 
 jest.mock('../utils', () => ({
-  ...jest.requireActual('../utils'),
+  ...jest.requireActual<any>('../utils'),
   isNodeEnvironment: jest.fn(),
 }));
 
