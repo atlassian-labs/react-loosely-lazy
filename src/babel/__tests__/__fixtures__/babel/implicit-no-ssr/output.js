@@ -1,12 +1,12 @@
 import { lazy } from 'react-loosely-lazy';
-const ImplicitNoSsr = lazy(() => import('./my-component'), {
+const ImplicitNoSsr = lazy(() => import('react-loosely-lazy-component'), {
   ssr: false,
   getCacheId: function () {
     if (require && require.resolveWeak) {
-      return require.resolveWeak('./my-component');
+      return require.resolveWeak('react-loosely-lazy-component');
     }
 
-    return './my-component';
+    return 'react-loosely-lazy-component';
   },
-  moduleId: './my-component',
+  moduleId: './node_modules/react-loosely-lazy-component/build/index.js',
 });

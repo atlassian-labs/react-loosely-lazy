@@ -2,6 +2,7 @@
 
 import { NodePath, PluginObj } from '@babel/core';
 import * as BabelTypes from '@babel/types';
+
 const PACKAGE_NAME = 'react-loosely-lazy';
 const BUNDLER_CACHE_ID_KEY = 'getCacheId';
 const MODULE_ID_KEY = 'moduleId';
@@ -26,7 +27,11 @@ export default function ({
     visitor: {
       ImportDeclaration(
         path: NodePath<BabelTypes.ImportDeclaration>,
-        state: { opts?: { client?: boolean } }
+        state: {
+          opts?: {
+            client?: boolean;
+          };
+        }
       ) {
         const { client } = state.opts || {};
         const source = path.node.source.value;
@@ -131,6 +136,11 @@ export default function ({
             const importSpecifierStringLiteral = t.stringLiteral(
               importSpecifier
             );
+            const processPath = process.cwd();
+            const modulePath = require.resolve(importSpecifier);
+            const relativeModulePath = modulePath.includes(processPath)
+              ? modulePath.replace(processPath, '.')
+              : modulePath;
             const findLazyImportInWebpackCache = template.expression`function () {
               if (require && require.resolveWeak) {
                 return require.resolveWeak(${importSpecifierStringLiteral});
@@ -150,7 +160,7 @@ export default function ({
             lazyOptions.node.properties.push(
               t.objectProperty(
                 t.identifier(MODULE_ID_KEY),
-                t.stringLiteral(importSpecifier)
+                t.stringLiteral(relativeModulePath)
               )
             );
 

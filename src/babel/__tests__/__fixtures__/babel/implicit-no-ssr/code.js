@@ -1,3 +1,3 @@
 import { lazy } from 'react-loosely-lazy';
 
-const ImplicitNoSsr = lazy(() => import('./my-component'));
+const ImplicitNoSsr = lazy(() => import('react-loosely-lazy-component'));
