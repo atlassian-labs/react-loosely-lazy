@@ -1,4 +1,8 @@
-export const createSubscribe = (listeners: any[]) => (listener: any) => {
+import { Listener } from './listeners';
+
+export const createSubscribe = (listeners: Listener[]) => (
+  listener: Listener
+) => {
   listeners.push(listener);
 
   return () => {

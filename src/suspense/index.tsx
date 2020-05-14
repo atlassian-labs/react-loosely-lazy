@@ -1,2 +1,2 @@
-export { LazySuspense } from './component';
-export { LazySuspenseContext } from './context';
+export { LazySuspense, LazySuspenseProps } from './component';
+export { Fallback, LazySuspenseContext } from './context';

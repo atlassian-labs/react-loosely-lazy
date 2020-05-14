@@ -37,36 +37,39 @@ function buildComponents() {
     });
   // force components reset faking server/client
   Async.ComponentWithSSR = lazyForPaint(() => import('./components/with-ssr'), {
-    id: () => (require as any).resolveWeak('./components/with-ssr'),
+    getCacheId: () => (require as any).resolveWeak('./components/with-ssr'),
   });
   Async.ComponentNoSSR = lazyForPaint(() => import('./components/no-ssr'), {
-    id: () => (require as any).resolveWeak('./components/no-ssr'),
+    getCacheId: () => (require as any).resolveWeak('./components/no-ssr'),
     ssr: false,
   });
   Async.ComponentDeferWithSSR = lazyAfterPaint(
     () => import('./components/defer-with-ssr'),
     {
-      id: () => (require as any).resolveWeak('./components/defer-with-ssr'),
+      getCacheId: () =>
+        (require as any).resolveWeak('./components/defer-with-ssr'),
     }
   );
   Async.ComponentDeferNoSSR = lazy(() => import('./components/defer-no-ssr'), {
-    id: () => (require as any).resolveWeak('./components/defer-no-ssr'),
+    getCacheId: () => (require as any).resolveWeak('./components/defer-no-ssr'),
   });
   Async.ComponentWaitWithSSR = lazyForPaint(
     () => import('./components/wait-with-ssr'),
     {
-      id: () => (require as any).resolveWeak('./components/wait-with-ssr'),
+      getCacheId: () =>
+        (require as any).resolveWeak('./components/wait-with-ssr'),
     }
   );
   Async.ComponentWaitNoSSR = lazyForPaint(
     () => import('./components/wait-no-ssr'),
     {
-      id: () => (require as any).resolveWeak('./components/wait-no-ssr'),
+      getCacheId: () =>
+        (require as any).resolveWeak('./components/wait-no-ssr'),
       ssr: false,
     }
   );
   Async.ComponentDynamic = lazyForPaint(() => import('./components/dynamic'), {
-    id: () => (require as any).resolveWeak('./components/dynamic'),
+    getCacheId: () => (require as any).resolveWeak('./components/dynamic'),
   });
 }
 

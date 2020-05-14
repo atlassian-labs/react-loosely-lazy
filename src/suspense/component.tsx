@@ -1,48 +1,71 @@
 import React, { Component, Suspense } from 'react';
 import { isNodeEnvironment } from '../utils';
-import { LazySuspenseContext } from './context';
+import {
+  Fallback,
+  LazySuspenseContext,
+  LazySuspenseContextType,
+} from './context';
 
-export class LazySuspense extends Component<any, any> {
+export type LazySuspenseProps = {
+  fallback: Fallback;
+};
+
+type LazySuspenseState = LazySuspenseContextType;
+
+export class LazySuspense extends Component<
+  LazySuspenseProps,
+  LazySuspenseState
+> {
   state = {
     // Used on server to render fallback down the tree
     fallback: this.props.fallback,
     // Used on client to replace fallback with magic input
-    setFallback: (f: any) => {
-      if (this.hydrationFallback === f) return;
-      this.hydrationFallback = f;
-      this.useSibling = Boolean(f);
-      // Shedule an update so we force switch from the sibling tree
+    setFallback: (fallback: Fallback) => {
+      if (this.hydrationFallback === fallback) return;
+      this.hydrationFallback = fallback;
+      this.useSibling = Boolean(fallback);
+      // Schedule an update so we force switch from the sibling tree
       // back to the suspense boundary
       this.forceUpdate();
     },
   };
 
-  hydrationFallback = null;
-  useSibling = false;
-  mounted = false;
+  private hydrationFallback: Fallback = null;
+  private useSibling = false;
+  private mounted = false;
 
   componentDidMount() {
     this.mounted = true;
   }
 
-  DynamicFallback = ({ children, sibling }: any) => {
-    if (sibling) {
-      return children(this.useSibling ? this.hydrationFallback : null);
-    }
-
-    return children(this.useSibling ? null : this.props.fallback);
+  private DynamicFallback = ({
+    children,
+    sibling,
+  }: {
+    children(fallback: Fallback): Fallback;
+    sibling: boolean;
+  }) => {
+    return (
+      <>
+        {sibling
+          ? children(this.useSibling ? this.hydrationFallback : null)
+          : children(this.useSibling ? null : this.props.fallback)}
+      </>
+    );
   };
 
-  renderFallback(v: boolean) {
+  private renderFallback(sibling: boolean) {
+    const { DynamicFallback } = this;
+
     // Use render prop component to allow switch to hydration fallback
     return (
-      <this.DynamicFallback sibling={v}>
-        {(fallback: any) => fallback}
-      </this.DynamicFallback>
+      <DynamicFallback sibling={sibling}>
+        {(fallback: Fallback) => fallback}
+      </DynamicFallback>
     );
   }
 
-  renderServer() {
+  private renderServer() {
     return (
       <LazySuspenseContext.Provider value={this.state}>
         {this.props.children}
@@ -50,7 +73,7 @@ export class LazySuspense extends Component<any, any> {
     );
   }
 
-  renderClient() {
+  private renderClient() {
     return (
       <LazySuspenseContext.Provider value={this.state}>
         <Suspense fallback={this.renderFallback(false)}>

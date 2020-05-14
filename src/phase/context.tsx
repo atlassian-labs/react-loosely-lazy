@@ -1,14 +1,14 @@
 import { createContext, useContext } from 'react';
 
 import { PHASE, PHASE_LAZY_DELAY } from '../constants';
+import { Listener, LISTENERS } from './listeners';
 import { createSubscribe } from './utils';
 
-export const LISTENERS: any[] = [];
 let CURRENT_PHASE = PHASE.PAINT;
 
-export const setCurrent = (value: number) => {
-  CURRENT_PHASE = value;
-  LISTENERS.slice(0).forEach((listener: any) => listener(value));
+export const setCurrent = (phase: number) => {
+  CURRENT_PHASE = phase;
+  LISTENERS.slice(0).forEach((listener: Listener) => listener(phase));
 };
 
 export const LazyPhaseContext = createContext({

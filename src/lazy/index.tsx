@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ComponentType } from 'react';
 import { PHASE } from '../constants';
 
 import {
@@ -9,11 +9,8 @@ import {
 } from '../utils';
 import { createComponentServer } from './components/server';
 import { createComponentClient } from './components/client';
-
-type ImportDefaultComponent = {
-  default: React.ComponentType<any>;
-};
-type Loader = () => Promise<ImportDefaultComponent>;
+import { createDeferred } from './deferred';
+import { ClientLoader, Loader, ServerLoader } from './loader';
 
 type Manifest = { [key: string]: Bundle };
 
@@ -24,7 +21,7 @@ type Bundle = {
   publicPath: string;
 };
 
-type Options = {
+export type Options = {
   // Should be rendered on SSR
   // if false renders fallback on SSR
   ssr?: boolean;
@@ -36,41 +33,18 @@ type Options = {
   moduleId?: string;
 };
 
-type LazyComponent = React.ComponentType & {
+type LazyComponent = React.ComponentType<any> & {
   preload: () => void;
   getBundleUrl: (manifest: Manifest) => string | undefined;
-};
-
-const createDeferred = (loader: Loader) => {
-  let resolve: any;
-  let result: any;
-  const deferred = {
-    promise: new Promise<ImportDefaultComponent>(r => {
-      resolve = (m: any) => {
-        let withDefault;
-        deferred.result = m;
-
-        if (!m.default) {
-          withDefault = { default: m };
-        }
-
-        r(withDefault ? withDefault : m);
-      };
-    }),
-    result,
-    start: () => loader().then(resolve),
-  };
-
-  return deferred;
 };
 
 const lazyProxy = (
   loader: Loader,
   {
-    ssr = true,
     defer = PHASE.PAINT,
     getCacheId = () => '',
     moduleId = '',
+    ssr = true,
   }: Options = {}
 ): LazyComponent => {
   const isServer = isNodeEnvironment();
@@ -79,17 +53,17 @@ const lazyProxy = (
 
   const LazyComponent: any = isServer
     ? createComponentServer({
-        ssr,
-        loader,
         cacheId,
         dataLazyId,
+        loader: loader as ServerLoader,
+        ssr,
       })
     : createComponentClient({
-        ssr,
-        defer,
-        deferred: createDeferred(loader),
         cacheId,
         dataLazyId,
+        defer,
+        deferred: createDeferred(loader as ClientLoader),
+        ssr,
       });
 
   LazyComponent.displayName = `Lazy(${displayNameFromId(moduleId)})`;
@@ -137,20 +111,23 @@ export const DEFAULT_OPTIONS: {
   lazy: { ssr: false, defer: PHASE.LAZY },
 };
 
-export const lazyForPaint = (loader: Loader, opts?: any) =>
+export const lazyForPaint = (loader: Loader, opts?: Options) =>
   lazyProxy(loader, {
     ...DEFAULT_OPTIONS.lazyForPaint,
     ...(opts || {}),
   });
 
-export const lazyAfterPaint = (loader: Loader, opts?: any) =>
+export const lazyAfterPaint = (loader: Loader, opts?: Options) =>
   lazyProxy(loader, {
     ...DEFAULT_OPTIONS.lazyAfterPaint,
     ...(opts || {}),
   });
 
-export const lazy = (loader: Loader, opts?: any) =>
+export const lazy = (loader: Loader, opts?: Options) =>
   lazyProxy(loader, {
     ...DEFAULT_OPTIONS.lazy,
     ...(opts || {}),
   });
+
+export { ClientLoader, Loader, ServerLoader };
+export { LoaderError, isLoaderError } from './errors/loader-error';

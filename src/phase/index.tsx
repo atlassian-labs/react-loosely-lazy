@@ -1,8 +1,4 @@
 export { LazyWait } from './component';
-export {
-  useLazyPhase,
-  LazyPhaseContext,
-  setCurrent,
-  LISTENERS,
-} from './context';
+export { useLazyPhase, LazyPhaseContext, setCurrent } from './context';
 export { usePhaseSubscription } from './controller';
+export { LISTENERS } from './listeners';

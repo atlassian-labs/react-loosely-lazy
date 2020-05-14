@@ -3,7 +3,7 @@ export const createMockImport = (
   sync: boolean
 ) => {
   const resolved = { default: component };
-  let resolve: any;
+  let resolve: (value: typeof resolved) => void;
   let mockImport;
 
   if (sync) {
@@ -12,18 +12,16 @@ export const createMockImport = (
 
     mockImport = { ...resolved, then };
   } else {
-    mockImport = new Promise(r => {
-      resolve = r;
+    mockImport = new Promise<typeof resolved>(res => {
+      resolve = res;
     });
   }
 
   const resolveImport = async () => {
     resolve(resolved);
 
-    // let react re-render
+    // Let react re-render
     await nextTick();
-
-    return undefined;
   };
 
   return { mockImport, resolveImport };

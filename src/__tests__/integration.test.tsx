@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { ReactElement, useEffect } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { render, act } from '@testing-library/react';
 
@@ -32,7 +32,7 @@ const createApp = ({
   (isNodeEnvironment as any).mockImplementation(() => server);
 
   const Child = jest.fn(() => <p className="p">Content</p>);
-  const Fallback = jest.fn(() => <i>Fallback</i>) as any;
+  const Fallback = jest.fn<any, void[]>(() => <i>Fallback</i>);
   const { mockImport, resolveImport } = createMockImport(Child, ssr && server);
   const lazyFn = phase === PHASE.AFTER_PAINT ? lazyAfterPaint : lazyForPaint;
   // @ts-ignore - We are mocking the import
@@ -197,7 +197,13 @@ describe('render without priority', () => {
 });
 
 describe('with static phase', () => {
-  const Wrapper = ({ children, phase }: any) => {
+  const Wrapper = ({
+    children,
+    phase,
+  }: {
+    children: ReactElement;
+    phase?: number;
+  }) => {
     const { startNextPhase } = useLazyPhase();
     useEffect(() => {
       if (phase === PHASE.AFTER_PAINT) startNextPhase();
