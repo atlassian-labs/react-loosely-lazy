@@ -1,15 +1,12 @@
 import { lazyForPaint } from 'react-loosely-lazy';
-const ExplicitNoSsr = lazyForPaint(
-  () => import('react-loosely-lazy-component'),
-  {
-    ssr: false,
-    getCacheId: function () {
-      if (require && require.resolveWeak) {
-        return require.resolveWeak('react-loosely-lazy-component');
-      }
+const ExplicitNoSsr = lazyForPaint(() => import('prop-types'), {
+  ssr: false,
+  getCacheId: function () {
+    if (require && require.resolveWeak) {
+      return require.resolveWeak('prop-types');
+    }
 
-      return 'react-loosely-lazy-component';
-    },
-    moduleId: './node_modules/react-loosely-lazy-component/build/index.js',
-  }
-);
+    return 'prop-types';
+  },
+  moduleId: './node_modules/prop-types/index.js',
+});

@@ -85,7 +85,7 @@
     "prop-types": "~15.7.2",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
-    "react-loosely-lazy-component": "github:rohan-deshpande/react-loosely-lazy-component#master",
+    "prop-types": "github:rohan-deshpande/prop-types#master",
     "typescript": "^3.9.2",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.6",

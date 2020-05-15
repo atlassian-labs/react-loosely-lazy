@@ -1,7 +1,7 @@
 import { lazyForPaint } from 'react-loosely-lazy';
 const NamedExport = lazyForPaint(
   () => {
-    const resolved = require('react-loosely-lazy-component');
+    const resolved = require('prop-types');
 
     const then = fn => fn(resolved);
 
@@ -11,11 +11,11 @@ const NamedExport = lazyForPaint(
     ssr: true,
     getCacheId: function () {
       if (require && require.resolveWeak) {
-        return require.resolveWeak('react-loosely-lazy-component');
+        return require.resolveWeak('prop-types');
       }
 
-      return 'react-loosely-lazy-component';
+      return 'prop-types';
     },
-    moduleId: './node_modules/react-loosely-lazy-component/build/index.js',
+    moduleId: './node_modules/prop-types/index.js',
   }
 );

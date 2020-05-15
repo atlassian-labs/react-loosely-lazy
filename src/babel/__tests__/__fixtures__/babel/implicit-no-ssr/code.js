@@ -1,3 +1,3 @@
 import { lazy } from 'react-loosely-lazy';
 
-const ImplicitNoSsr = lazy(() => import('react-loosely-lazy-component'));
+const ImplicitNoSsr = lazy(() => import('prop-types'));
