@@ -1,6 +1,9 @@
-export const refElements = (fromEl: any, id: string) => {
+export const refElements = (
+  fromEl: HTMLInputElement,
+  id: string | undefined
+) => {
   const result = [];
-  let el = fromEl;
+  let el: (ChildNode & { readonly dataset?: DOMStringMap }) | null = fromEl;
   while ((el = el.nextSibling)) {
     if (el.dataset && el.dataset.lazyEnd === id) break;
     result.push(el);

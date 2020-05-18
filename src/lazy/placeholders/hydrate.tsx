@@ -1,6 +1,14 @@
 import React, { Fragment } from 'react';
 
-export const PlaceholderFallbackHydrate = ({ id, content }: any) => {
+export type PlaceholderFallbackHydrateProps = {
+  id: string;
+  content: HTMLElement[];
+};
+
+export const PlaceholderFallbackHydrate = ({
+  id,
+  content,
+}: PlaceholderFallbackHydrateProps) => {
   return (
     <>
       <input type="hidden" data-lazy-begin={id} />

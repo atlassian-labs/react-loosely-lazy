@@ -1,24 +1,28 @@
-import React, { useContext, useMemo, useRef } from 'react';
+import React, { ReactNode, useContext, useMemo, useRef } from 'react';
 
 import { PHASE } from '../constants';
 import { LazyPhaseContext } from './context';
+import { Listener } from './listeners';
 import { createSubscribe } from './utils';
 
 type LazyWaitProps = {
   until: boolean;
-  children: any;
+  children: ReactNode;
 };
+
 export const LazyWait = ({ until, children }: LazyWaitProps) => {
   const { api: ctxApi } = useContext(LazyPhaseContext);
   const phaseRef = useRef(-1);
 
   phaseRef.current = until ? PHASE.LAZY : -1;
 
-  // notify all children of phase change
-  const { current: listeners } = useRef<any>([]);
+  // Notify all children of phase change
+  const { current: listeners } = useRef<Listener[]>([]);
 
   useMemo(() => {
-    listeners.slice(0).forEach((listener: any) => listener(phaseRef.current));
+    listeners.slice(0).forEach((listener: Listener) => {
+      listener(phaseRef.current);
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listeners, phaseRef.current]);
 

@@ -3,9 +3,11 @@ import { cloneElements } from './render';
 import { refElements } from './hydrate';
 
 export const collect = () => {
-  const markers = document.querySelectorAll('input[data-lazy-begin]');
+  const markers = document.querySelectorAll<HTMLInputElement>(
+    'input[data-lazy-begin]'
+  );
   for (let i = 0, j = markers.length; i < j; i += 1) {
-    const el = markers[i] as any;
+    const el = markers[i];
     const { lazyBegin } = el.dataset || {};
     const value =
       SETTINGS.CURRENT_MODE === MODE.RENDER

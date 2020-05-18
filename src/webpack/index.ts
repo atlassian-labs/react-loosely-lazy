@@ -1,5 +1,5 @@
 import url from 'url';
-import { Compiler, compilation as webpackCompilation, Module } from 'webpack';
+import { Compiler, compilation as webpackCompilation } from 'webpack';
 
 type Compilation = webpackCompilation.Compilation;
 
