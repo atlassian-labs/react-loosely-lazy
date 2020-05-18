@@ -31,7 +31,6 @@ function removeDotSlashPrefix(path: string): string {
 
 function withModuleExtension(filePath: string): string {
   const extensions = ['.js', '.ts', '.tsx'];
-
   const extension = extensions.find(ext => {
     try {
       return lstatSync(`${filePath}${ext}`).isFile();
@@ -43,6 +42,13 @@ function withModuleExtension(filePath: string): string {
   return `${filePath}${extension}`;
 }
 
+/**
+ * Generates a relative path to the module that should be 1:1 with what the
+ * webpack plugin generates for the key for the chunk in the manifest.
+ *
+ * @param importSpecifier - The import string as it is written in application source code
+ * @param filename - The absolute path to the file being transpiled
+ */
 function getModulePath(importSpecifier: string, filename: string): string {
   const filePath = `${dirname(filename)}/${removeDotSlashPrefix(
     importSpecifier
@@ -56,7 +62,7 @@ function getModulePath(importSpecifier: string, filename: string): string {
     try {
       const isDirectory = lstatSync(filePath).isDirectory();
 
-      // module entry import eg., import('./module') where module has index.js
+      // module entry import eg., import('./module') where module has index file
       if (isDirectory) {
         modulePath = withModuleExtension(`${filePath}/index`);
       }
@@ -66,7 +72,7 @@ function getModulePath(importSpecifier: string, filename: string): string {
   }
 
   if (!modulePath) {
-    // relative import eg., import('./async') which is relative to the file being transpiled (filename)
+    // relative import eg., import('./async') which is relative to the file being transpiled ie., filename
     modulePath = withModuleExtension(filePath);
   }
 

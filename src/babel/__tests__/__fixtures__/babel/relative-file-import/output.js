@@ -1,7 +1,7 @@
 import { lazyForPaint } from 'react-loosely-lazy';
 const RelativeFileImport = lazyForPaint(
   () => {
-    const resolved = require('./__mocks__/imports/file');
+    const resolved = require('./__mocks__/imports/js-component');
 
     const then = fn => fn(resolved);
 
@@ -11,12 +11,12 @@ const RelativeFileImport = lazyForPaint(
     ssr: true,
     getCacheId: function () {
       if (require && require.resolveWeak) {
-        return require.resolveWeak('./__mocks__/imports/file');
+        return require.resolveWeak('./__mocks__/imports/js-component');
       }
 
-      return './__mocks__/imports/file';
+      return './__mocks__/imports/js-component';
     },
     moduleId:
-      './src/babel/__tests__/__fixtures__/babel/relative-file-import/__mocks__/imports/file.js',
+      './src/babel/__tests__/__fixtures__/babel/relative-file-import/__mocks__/imports/js-component.js',
   }
 );
