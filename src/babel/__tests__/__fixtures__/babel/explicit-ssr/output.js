@@ -1,7 +1,7 @@
 import { lazyForPaint } from 'react-loosely-lazy';
 const ExplicitSsr = lazyForPaint(
   () => {
-    const resolved = require('prop-types');
+    const resolved = require('react');
 
     const then = fn => fn(resolved);
 
@@ -12,11 +12,11 @@ const ExplicitSsr = lazyForPaint(
     defer: 0,
     getCacheId: function () {
       if (require && require.resolveWeak) {
-        return require.resolveWeak('prop-types');
+        return require.resolveWeak('react');
       }
 
-      return 'prop-types';
+      return 'react';
     },
-    moduleId: './node_modules/prop-types/index.js',
+    moduleId: './node_modules/react/index.js',
   }
 );

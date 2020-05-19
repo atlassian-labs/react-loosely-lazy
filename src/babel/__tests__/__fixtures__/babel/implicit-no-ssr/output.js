@@ -1,12 +1,12 @@
 import { lazy } from 'react-loosely-lazy';
-const ImplicitNoSsr = lazy(() => import('prop-types'), {
+const ImplicitNoSsr = lazy(() => import('react'), {
   ssr: false,
   getCacheId: function () {
     if (require && require.resolveWeak) {
-      return require.resolveWeak('prop-types');
+      return require.resolveWeak('react');
     }
 
-    return 'prop-types';
+    return 'react';
   },
-  moduleId: './node_modules/prop-types/index.js',
+  moduleId: './node_modules/react/index.js',
 });

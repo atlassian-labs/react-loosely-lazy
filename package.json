@@ -82,7 +82,6 @@
     "flow-copy-source": "^2.0.7",
     "jest": "^26.0.1",
     "prettier": "^2.0.5",
-    "prop-types": "~15.7.2",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "typescript": "^3.9.2",
@@ -91,7 +90,6 @@
     "webpack-dev-server": "^3.11.0"
   },
   "peerDependencies": {
-    "prop-types": "^15.0.0",
     "react": "^16.8.0"
   }
 }
