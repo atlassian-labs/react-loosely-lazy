@@ -1,7 +1,7 @@
 import { lazyForPaint } from 'react-loosely-lazy';
 const NamedExport = lazyForPaint(
   () => {
-    const resolved = require('./my-component');
+    const resolved = require('react');
 
     const then = fn => fn(resolved);
 
@@ -11,11 +11,11 @@ const NamedExport = lazyForPaint(
     ssr: true,
     getCacheId: function () {
       if (require && require.resolveWeak) {
-        return require.resolveWeak('./my-component');
+        return require.resolveWeak('react');
       }
 
-      return './my-component';
+      return 'react';
     },
-    moduleId: './my-component',
+    moduleId: './node_modules/react/index.js',
   }
 );

@@ -1,7 +1,7 @@
 import { lazyForPaint } from 'react-loosely-lazy';
 const ExplicitSsr = lazyForPaint(
   () => {
-    const resolved = require('./my-component');
+    const resolved = require('react');
 
     const then = fn => fn(resolved);
 
@@ -12,11 +12,11 @@ const ExplicitSsr = lazyForPaint(
     defer: 0,
     getCacheId: function () {
       if (require && require.resolveWeak) {
-        return require.resolveWeak('./my-component');
+        return require.resolveWeak('react');
       }
 
-      return './my-component';
+      return 'react';
     },
-    moduleId: './my-component',
+    moduleId: './node_modules/react/index.js',
   }
 );

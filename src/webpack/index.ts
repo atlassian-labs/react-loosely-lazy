@@ -36,6 +36,10 @@ function buildManifest(compiler: Compiler, compilation: Compilation) {
         );
         let currentModule = module;
 
+        if (!name) {
+          return;
+        }
+
         if (
           module.constructor.name === 'ConcatenatedModule' &&
           module.rootModule
@@ -45,10 +49,10 @@ function buildManifest(compiler: Compiler, compilation: Compilation) {
 
         if (
           currentModule.rawRequest &&
-          !manifest[currentModule.rawRequest] &&
+          !manifest[name] &&
           !file.endsWith('.map')
         ) {
-          manifest[currentModule.rawRequest] = {
+          manifest[name] = {
             id,
             name,
             file,

@@ -2,11 +2,13 @@
 
 import { NodePath, PluginObj } from '@babel/core';
 import * as BabelTypes from '@babel/types';
+import { dirname, relative } from 'path';
+import { lstatSync } from 'fs';
+
 const PACKAGE_NAME = 'react-loosely-lazy';
 const BUNDLER_CACHE_ID_KEY = 'getCacheId';
 const MODULE_ID_KEY = 'moduleId';
 const LAZY_METHODS = ['lazyForPaint', 'lazyAfterPaint', 'lazy'];
-
 const DEFAULT_OPTIONS: {
   [key: string]: { ssr: boolean; defer: number };
 } = {
@@ -14,6 +16,68 @@ const DEFAULT_OPTIONS: {
   lazyAfterPaint: { ssr: true, defer: 1 },
   lazy: { ssr: false, defer: 2 },
 };
+
+function hasDotSlashPrefix(path: string): boolean {
+  return path.substring(0, 2) === './';
+}
+
+function addDotSlashPrefix(path: string): string {
+  return hasDotSlashPrefix(path) ? path : `./${path}`;
+}
+
+function removeDotSlashPrefix(path: string): string {
+  return hasDotSlashPrefix(path) ? path.replace('./', '') : path;
+}
+
+function withModuleExtension(filePath: string): string {
+  const extensions = ['.js', '.ts', '.tsx'];
+  const extension = extensions.find(ext => {
+    try {
+      return lstatSync(`${filePath}${ext}`).isFile();
+    } catch {
+      return false;
+    }
+  });
+
+  return `${filePath}${extension}`;
+}
+
+/**
+ * Generates a relative path to the module that should be 1:1 with what the
+ * webpack plugin generates for the key for the chunk in the manifest.
+ *
+ * @param importSpecifier - The import string as it is written in application source code
+ * @param filename - The absolute path to the file being transpiled
+ */
+function getModulePath(importSpecifier: string, filename: string): string {
+  const filePath = `${dirname(filename)}/${removeDotSlashPrefix(
+    importSpecifier
+  )}`;
+  let modulePath;
+
+  // app dependency import eg., import('my-dependency') where my-dependency is a dependency in package.json
+  try {
+    modulePath = require.resolve(importSpecifier);
+  } catch {
+    try {
+      const isDirectory = lstatSync(filePath).isDirectory();
+
+      // module entry import eg., import('./module') where module has index file
+      if (isDirectory) {
+        modulePath = withModuleExtension(`${filePath}/index`);
+      }
+    } catch {
+      // we handle this below
+    }
+  }
+
+  if (!modulePath) {
+    // relative import eg., import('./async') which is relative to the file being transpiled ie., filename
+    modulePath = withModuleExtension(filePath);
+  }
+
+  return addDotSlashPrefix(relative(process.cwd(), modulePath));
+}
 
 export default function ({
   types: t,
@@ -26,9 +90,15 @@ export default function ({
     visitor: {
       ImportDeclaration(
         path: NodePath<BabelTypes.ImportDeclaration>,
-        state: { opts?: { client?: boolean } }
+        state: {
+          opts?: {
+            client?: boolean;
+          };
+          filename?: string;
+        }
       ) {
         const { client } = state.opts || {};
+        const { filename } = state;
         const source = path.node.source.value;
 
         if (source !== PACKAGE_NAME) {
@@ -146,11 +216,17 @@ export default function ({
               )
             );
 
+            if (!filename) {
+              throw new Error(
+                `Babel transpilation target for ${importSpecifier} not found`
+              );
+            }
+
             // adds the moduleId property to options
             lazyOptions.node.properties.push(
               t.objectProperty(
                 t.identifier(MODULE_ID_KEY),
-                t.stringLiteral(importSpecifier)
+                t.stringLiteral(getModulePath(importSpecifier, filename))
               )
             );
 
