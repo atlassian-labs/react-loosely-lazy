@@ -39,6 +39,10 @@ function withModuleExtension(filePath: string): string {
     }
   });
 
+  if (!extension) {
+    throw new Error(`Error: ${filePath}${extension} does not exist`);
+  }
+
   return `${filePath}${extension}`;
 }
 
@@ -48,8 +52,14 @@ function withModuleExtension(filePath: string): string {
  *
  * @param importSpecifier - The import string as it is written in application source code
  * @param filename - The absolute path to the file being transpiled
+ * @param modulePathReplacer - Contains from and to string keys to override a specific part of the resulting
+ * module paths generated
  */
-function getModulePath(importSpecifier: string, filename: string): string {
+function getModulePath(
+  importSpecifier: string,
+  filename: string,
+  modulePathReplacer: { from: string; to: string } | undefined
+): string {
   const filePath = `${dirname(filename)}/${removeDotSlashPrefix(
     importSpecifier
   )}`;
@@ -76,7 +86,15 @@ function getModulePath(importSpecifier: string, filename: string): string {
     modulePath = withModuleExtension(filePath);
   }
 
-  return addDotSlashPrefix(relative(process.cwd(), modulePath));
+  const path = addDotSlashPrefix(relative(process.cwd(), modulePath));
+
+  if (modulePathReplacer) {
+    const { from, to } = modulePathReplacer;
+
+    path.replace(from, to);
+  }
+
+  return path;
 }
 
 export default function ({
@@ -93,11 +111,12 @@ export default function ({
         state: {
           opts?: {
             client?: boolean;
+            modulePathReplacer?: { from: string; to: string };
           };
           filename?: string;
         }
       ) {
-        const { client } = state.opts || {};
+        const { client, modulePathReplacer } = state.opts || {};
         const { filename } = state;
         const source = path.node.source.value;
 
@@ -226,7 +245,9 @@ export default function ({
             lazyOptions.node.properties.push(
               t.objectProperty(
                 t.identifier(MODULE_ID_KEY),
-                t.stringLiteral(getModulePath(importSpecifier, filename))
+                t.stringLiteral(
+                  getModulePath(importSpecifier, filename, modulePathReplacer)
+                )
               )
             );
 
