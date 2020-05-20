@@ -52,6 +52,8 @@ function withModuleExtension(filePath: string): string {
  *
  * @param importSpecifier - The import string as it is written in application source code
  * @param filename - The absolute path to the file being transpiled
+ * @param modulePathReplacer - Contains from and to string keys to override a specific part of the resulting
+ * module paths generated
  */
 function getModulePath(
   importSpecifier: string,
