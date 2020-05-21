@@ -91,7 +91,7 @@ function getModulePath(
   if (modulePathReplacer) {
     const { from, to } = modulePathReplacer;
 
-    path.replace(from, to);
+    return path.replace(from, to);
   }
 
   return path;
