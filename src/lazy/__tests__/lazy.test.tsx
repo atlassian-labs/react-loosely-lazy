@@ -1,20 +1,21 @@
 import React from 'react';
+import { render, waitForElementToBeRemoved } from '@testing-library/react';
 import { lazyForPaint } from '..';
 import { LazySuspense } from '../../suspense';
-import { isNodeEnvironment, tryRequire } from '../../utils';
-import { act, render } from '@testing-library/react';
-import { nextTick } from '../../__tests__/utils';
-import { ErrorBoundary } from './utils';
+import { isNodeEnvironment } from '../../utils';
 import { LoaderError } from '../errors/loader-error';
+import { ErrorBoundary } from './utils';
 
 jest.mock('../../utils', () => ({
   ...jest.requireActual<any>('../../utils'),
   isNodeEnvironment: jest.fn(),
-  tryRequire: jest.fn(),
 }));
 
 describe('lazy', () => {
-  const mockModuleId = '@foo/bar';
+  const lazyOptions = {
+    getCacheId: () => 'foo',
+    moduleId: '@foo/bar',
+  };
 
   let restoreConsoleErrors: any = jest.fn();
   const silenceConsoleErrors = () => {
@@ -35,34 +36,36 @@ describe('lazy', () => {
     const error = new Error('ChunkLoadError');
     const loaderError = new LoaderError('foo', error);
     const LazyComponent = lazyForPaint(
-      () => (ssr ? require(mockModuleId) : Promise.reject(error)),
+      () => (ssr ? require('404') : Promise.reject(error)),
       {
-        getCacheId: () => 'foo',
-        moduleId: mockModuleId,
+        ...lazyOptions,
         ssr,
       }
     );
 
     const onError = jest.fn();
-    let queryByText: any;
 
     silenceConsoleErrors();
-    await act(async () => {
-      const result = render(
-        <ErrorBoundary
-          fallback={<div>Component failed to load</div>}
-          onError={onError}
-        >
-          <LazySuspense fallback={<div>Loading...</div>}>
-            <LazyComponent />
-          </LazySuspense>
-        </ErrorBoundary>
-      );
-      queryByText = result.queryByText;
-      await nextTick();
-    });
 
-    expect(queryByText!('Component failed to load')).not.toBeNull();
+    const { queryByText } = render(
+      <ErrorBoundary
+        fallback={<div>Component failed to load</div>}
+        onError={onError}
+      >
+        <LazySuspense fallback={<div>Loading...</div>}>
+          <LazyComponent />
+        </LazySuspense>
+      </ErrorBoundary>
+    );
+
+    if (ssr) {
+      expect(queryByText('Loading...')).toBeNull();
+    } else {
+      expect(queryByText('Loading...')).not.toBeNull();
+      await waitForElementToBeRemoved(() => queryByText('Loading...'));
+    }
+
+    expect(queryByText('Component failed to load')).not.toBeNull();
     expect(onError).toHaveBeenCalledTimes(1);
     expect(onError).toHaveBeenCalledWith(loaderError);
   };
@@ -70,13 +73,13 @@ describe('lazy', () => {
   describe('on the server', () => {
     beforeEach(() => {
       (isNodeEnvironment as any).mockImplementation(() => true);
-      (tryRequire as any).mockImplementation(() => false);
     });
 
     it('should return the module public path in the supplied manifest when calling getBundleUrl', () => {
+      const moduleId = '@foo/bar';
       const publicPath = 'https://cdn.com/@foo/bar.js';
       const manifest = {
-        [mockModuleId]: {
+        [moduleId]: {
           file: '',
           id: 0,
           name: '',
@@ -84,16 +87,60 @@ describe('lazy', () => {
         },
       };
       const LazyComponent = lazyForPaint(
-        // @ts-ignore - mocking import()
-        () => Promise.resolve({ default: 'yolo' }),
+        () => Promise.resolve({ default: () => <div /> }),
         {
-          getCacheId: () => '',
-          moduleId: mockModuleId,
+          ...lazyOptions,
+          moduleId,
         }
       );
 
       expect(LazyComponent.getBundleUrl(manifest)).toEqual(publicPath);
     });
+
+    it('should render the default component correctly when there is only a default export', async () => {
+      const DefaultComponent = () => <div>Component</div>;
+      const LazyTestComponent = lazyForPaint(
+        () => ({ default: DefaultComponent }),
+        lazyOptions
+      );
+
+      const { queryByText } = render(
+        <LazySuspense fallback={<div>Loading...</div>}>
+          <LazyTestComponent />
+        </LazySuspense>
+      );
+
+      expect(queryByText('Loading...')).toBeNull();
+      expect(queryByText('Component')).not.toBeNull();
+    });
+
+    it.todo(
+      'should render the named component correctly when there is only a named export'
+    );
+
+    it('should render the default component correctly when there are default and named exports', async () => {
+      const DefaultComponent = () => <div>Default Component</div>;
+      const NamedComponent = () => <div>Named Component</div>;
+      const LazyTestComponent = lazyForPaint(
+        // @ts-ignore - mocking import()
+        () => ({ default: DefaultComponent, NamedComponent }),
+        lazyOptions
+      );
+
+      const { queryByText } = render(
+        <LazySuspense fallback={<div>Loading...</div>}>
+          <LazyTestComponent />
+        </LazySuspense>
+      );
+
+      expect(queryByText('Loading...')).toBeNull();
+      expect(queryByText('Default Component')).not.toBeNull();
+      expect(queryByText('Named Component')).toBeNull();
+    });
+
+    it.todo(
+      'should render the named component correctly when there are default and named exports'
+    );
 
     it('should bubble a LoaderError in the component lifecycle when the loader fails', () => {
       return testErrorBubbling(true);
@@ -103,32 +150,119 @@ describe('lazy', () => {
   describe('on the client', () => {
     beforeEach(() => {
       (isNodeEnvironment as any).mockImplementation(() => false);
-      (tryRequire as any).mockImplementation(() => false);
     });
 
-    it('should handle named exports', async () => {
-      const MockComponent = jest.fn(() => <div />);
-      const MockFallback = () => <div />;
-      const MyAsync = lazyForPaint(
-        // @ts-ignore - mocking import()
-        () => Promise.resolve({ MockComponent }).then(m => m.MockComponent),
-        {
-          getCacheId: () => '',
-          moduleId: mockModuleId,
-        }
+    it('should render the default component correctly when there is only a default export', async () => {
+      const DefaultComponent = () => <div>Component</div>;
+      const LazyTestComponent = lazyForPaint(
+        () => Promise.resolve({ default: DefaultComponent }),
+        lazyOptions
       );
 
-      await act(async () => {
-        render(
-          <LazySuspense fallback={<MockFallback />}>
-            <MyAsync />
-          </LazySuspense>
-        );
+      const { queryByText } = render(
+        <LazySuspense fallback={<div>Loading...</div>}>
+          <LazyTestComponent />
+        </LazySuspense>
+      );
 
-        await nextTick();
-      });
+      expect(queryByText('Loading...')).not.toBeNull();
+      await waitForElementToBeRemoved(() => queryByText('Loading...'));
+      expect(queryByText('Component')).not.toBeNull();
+    });
 
-      expect(MockComponent).toHaveBeenCalled();
+    it('should render the named component correctly when there is only a named export', async () => {
+      const NamedComponent = () => <div>Component</div>;
+      const LazyTestComponent = lazyForPaint(
+        // @ts-ignore - mocking import()
+        () => Promise.resolve({ NamedComponent }).then(m => m.NamedComponent),
+        lazyOptions
+      );
+
+      const { queryByText } = render(
+        <LazySuspense fallback={<div>Loading...</div>}>
+          <LazyTestComponent />
+        </LazySuspense>
+      );
+
+      expect(queryByText('Loading...')).not.toBeNull();
+      await waitForElementToBeRemoved(() => queryByText('Loading...'));
+      expect(queryByText('Component')).not.toBeNull();
+    });
+
+    it('should render the default component correctly when there are default and named exports', async () => {
+      const DefaultComponent = () => <div>Default Component</div>;
+      const NamedComponent = () => <div>Named Component</div>;
+      const LazyTestComponent = lazyForPaint(
+        // @ts-ignore - mocking import()
+        () => Promise.resolve({ default: DefaultComponent, NamedComponent }),
+        lazyOptions
+      );
+
+      const { queryByText } = render(
+        <LazySuspense fallback={<div>Loading...</div>}>
+          <LazyTestComponent />
+        </LazySuspense>
+      );
+
+      expect(queryByText('Loading...')).not.toBeNull();
+      await waitForElementToBeRemoved(() => queryByText('Loading...'));
+      expect(queryByText('Default Component')).not.toBeNull();
+      expect(queryByText('Named Component')).toBeNull();
+    });
+
+    it('should render the named component correctly when there are default and named exports', async () => {
+      const DefaultComponent = () => <div>Default Component</div>;
+      const NamedComponent = () => <div>Named Component</div>;
+      const LazyTestComponent = lazyForPaint(
+        () =>
+          // @ts-ignore - mocking import()
+          Promise.resolve({ default: DefaultComponent, NamedComponent }).then(
+            m => m.NamedComponent
+          ),
+        lazyOptions
+      );
+
+      const { queryByText } = render(
+        <LazySuspense fallback={<div>Loading...</div>}>
+          <LazyTestComponent />
+        </LazySuspense>
+      );
+
+      expect(queryByText('Loading...')).not.toBeNull();
+      await waitForElementToBeRemoved(() => queryByText('Loading...'));
+      expect(queryByText('Default Component')).toBeNull();
+      expect(queryByText('Named Component')).not.toBeNull();
+    });
+
+    it('should render the component correctly after it has re-rendered', async () => {
+      const TestComponent = ({ renderPass }: { renderPass: number }) => (
+        <div>Component render pass ({renderPass})</div>
+      );
+      const fooModule = { default: TestComponent };
+
+      const LazyTestComponent = lazyForPaint(
+        () => Promise.resolve(fooModule),
+        lazyOptions
+      );
+
+      const { queryByText, rerender } = render(
+        <LazySuspense fallback={<div>Loading...</div>}>
+          <LazyTestComponent renderPass={1} />
+        </LazySuspense>
+      );
+
+      expect(queryByText('Loading...')).not.toBeNull();
+      await waitForElementToBeRemoved(() => queryByText('Loading...'));
+      expect(queryByText('Component render pass (1)')).not.toBeNull();
+
+      rerender(
+        <LazySuspense fallback={<div>Loading...</div>}>
+          <LazyTestComponent renderPass={2} />
+        </LazySuspense>
+      );
+
+      expect(queryByText('Loading...')).toBeNull();
+      expect(queryByText('Component render pass (2)')).not.toBeNull();
     });
 
     it('should bubble a LoaderError in the component lifecycle when the loader fails', () => {

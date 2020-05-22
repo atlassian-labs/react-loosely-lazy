@@ -1,12 +1,7 @@
-import React, { ComponentType } from 'react';
+import React from 'react';
 import { PHASE } from '../constants';
 
-import {
-  hash,
-  tryRequire,
-  displayNameFromId,
-  isNodeEnvironment,
-} from '../utils';
+import { hash, displayNameFromId, isNodeEnvironment } from '../utils';
 import { createComponentServer } from './components/server';
 import { createComponentClient } from './components/client';
 import { createDeferred } from './deferred';
@@ -74,10 +69,6 @@ const lazyProxy = (
    * without having to load the manifest on the client as it could be huge.
    */
   LazyComponent.preload = () => {
-    if (tryRequire(cacheId)) {
-      return;
-    }
-
     const head = document.querySelector('head');
 
     if (!head) {
