@@ -5,10 +5,10 @@ import path from 'path';
 const manifestFilename = 'rll-manifest.json';
 const config = {
   entry: {
-    main: path.join(__dirname, '__fixtures__/webpack/app/index.js'),
+    main: path.join(__dirname, '__fixtures__/app/index.js'),
   },
   output: {
-    path: path.join(__dirname, '__fixtures__/webpack/output'),
+    path: path.join(__dirname, '__fixtures__/output'),
     filename: '[name].js',
     chunkFilename: '[name].js',
     publicPath: '/output/',
@@ -31,11 +31,6 @@ const config = {
       },
     ],
   },
-  resolve: {
-    alias: {
-      test: path.resolve(__dirname, 'webpack'),
-    },
-  },
   plugins: [
     new ReactLooselyLazyPlugin({
       filename: manifestFilename,
@@ -45,57 +40,63 @@ const config = {
 
 describe('plugin functionality', () => {
   const expectedManifest = {
-    react: {
+    './node_modules/react/index.js': {
       id: 0,
       name: './node_modules/react/index.js',
       file: 'main.js',
       publicPath: '/output/main.js',
     },
-    'object-assign': {
+    './node_modules/object-assign/index.js': {
       id: 1,
       name: './node_modules/object-assign/index.js',
       file: 'main.js',
       publicPath: '/output/main.js',
     },
-    'react-dom': {
+    './node_modules/react-dom/index.js': {
       id: 2,
       name: './node_modules/react-dom/index.js',
       file: 'main.js',
       publicPath: '/output/main.js',
     },
-    './cjs/react.production.min.js': {
+    './node_modules/react/cjs/react.production.min.js': {
       id: 3,
       name: './node_modules/react/cjs/react.production.min.js',
       file: 'main.js',
       publicPath: '/output/main.js',
     },
-    './cjs/react-dom.production.min.js': {
+    './node_modules/react-dom/cjs/react-dom.production.min.js': {
       id: 4,
       name: './node_modules/react-dom/cjs/react-dom.production.min.js',
       file: 'main.js',
       publicPath: '/output/main.js',
     },
-    scheduler: {
+    './node_modules/scheduler/index.js': {
       id: 5,
       name: './node_modules/scheduler/index.js',
       file: 'main.js',
       publicPath: '/output/main.js',
     },
-    './cjs/scheduler.production.min.js': {
+    './node_modules/scheduler/cjs/scheduler.production.min.js': {
       id: 6,
       name: './node_modules/scheduler/cjs/scheduler.production.min.js',
       file: 'main.js',
       publicPath: '/output/main.js',
     },
-    './components/dynamic.js': {
+    './src/webpack/__tests__/__fixtures__/app/index.js': {
+      id: 7,
+      name: './src/webpack/__tests__/__fixtures__/app/index.js',
+      file: 'main.js',
+      publicPath: '/output/main.js',
+    },
+    './src/webpack/__tests__/__fixtures__/app/components/dynamic.js': {
       id: 8,
-      name: './src/__tests__/__fixtures__/webpack/app/components/dynamic.js',
+      name: './src/webpack/__tests__/__fixtures__/app/components/dynamic.js',
       file: '1.js',
       publicPath: '/output/1.js',
     },
-    './components/lazy.js': {
+    './src/webpack/__tests__/__fixtures__/app/components/lazy.js': {
       id: 9,
-      name: './src/__tests__/__fixtures__/webpack/app/components/lazy.js',
+      name: './src/webpack/__tests__/__fixtures__/app/components/lazy.js',
       file: '2.js',
       publicPath: '/output/2.js',
     },
@@ -103,19 +104,23 @@ describe('plugin functionality', () => {
 
   it('should create the manifest', done => {
     webpack(config, function (err, stats) {
+      expect(err).toBeNull();
+
       const asset = stats.compilation.assets[manifestFilename];
       const manifest = JSON.parse(asset.source());
 
-      expect(err).toBeNull();
-      expect(manifest).toEqual(expect.objectContaining(manifest));
+      expect(manifest).toEqual(expectedManifest);
 
       done();
     });
   });
 
   it('should get the module files based on the moduleIds provided', () => {
-    const result = getBundleFiles(expectedManifest, ['react', 'react-dom']);
+    const result = getBundleFiles(expectedManifest, [
+      './node_modules/react/index.js',
+      './node_modules/react-dom/index.js',
+    ]);
 
-    expect(result).toEqual(expect.arrayContaining(['main.js', 'main.js']));
+    expect(result).toEqual(['main.js', 'main.js']);
   });
 });

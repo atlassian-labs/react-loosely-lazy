@@ -17,6 +17,6 @@ const RelativeTypeScriptFileImport = lazyForPaint(
       return './__mocks__/imports/ts-component';
     },
     moduleId:
-      './src/babel/__tests__/__fixtures__/babel/relative-ts-file-import/__mocks__/imports/ts-component.ts',
+      './src/babel/__tests__/__fixtures__/relative-ts-file-import/__mocks__/imports/ts-component.ts',
   }
 );

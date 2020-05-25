@@ -17,6 +17,6 @@ const RelativeFileImport = lazyForPaint(
       return './__mocks__/imports/js-component';
     },
     moduleId:
-      './src/babel/__tests__/__fixtures__/babel/relative-file-import/__mocks__/imports/js-component.js',
+      './src/babel/__tests__/__fixtures__/relative-file-import/__mocks__/imports/js-component.js',
   }
 );

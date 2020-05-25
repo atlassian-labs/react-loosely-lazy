@@ -6,6 +6,6 @@ import path from 'path';
 pluginTester({
   plugin,
   pluginName: 'react-loosely-lazy',
-  fixtures: path.join(__dirname, '__fixtures__/babel'),
+  fixtures: path.join(__dirname, '__fixtures__'),
   snapshot: true,
 });

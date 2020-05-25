@@ -10,4 +10,4 @@ yarn.lock
 local-scripts/
 .idea
 .vscode
-src/webpack/__tests__/__fixtures__/webpack/output
+src/webpack/__tests__/__fixtures__/output
