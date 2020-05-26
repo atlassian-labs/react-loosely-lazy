@@ -1,14 +1,16 @@
 import { lazyForPaint } from 'react-loosely-lazy';
-const ImplicitSsr = lazyForPaint(
+const ChainedNamedImport = lazyForPaint(
   () => {
-    const resolved = require('react');
+    var _temp = require('react'),
+      _temp2 = ({ Component }) => Component,
+      _temp3 = mod => {
+        return mod;
+      },
+      _temp4 = mod => mod;
 
-    const then = fn => fn(resolved);
-
-    return { ...resolved, then };
+    return _temp4(_temp3(_temp2(_temp)));
   },
   {
-    ssr: true,
     getCacheId: function () {
       if (require && require.resolveWeak) {
         return require.resolveWeak('react');

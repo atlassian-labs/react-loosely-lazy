@@ -1,6 +1,5 @@
 import { lazyForPaint } from 'react-loosely-lazy';
-const WithClientOption = lazyForPaint(() => import('react'), {
-  ssr: true,
+const ImplicitSsr = lazyForPaint(() => require('react'), {
   getCacheId: function () {
     if (require && require.resolveWeak) {
       return require.resolveWeak('react');

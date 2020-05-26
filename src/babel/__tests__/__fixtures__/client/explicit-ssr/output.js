@@ -1,6 +1,6 @@
-import { lazy } from 'react-loosely-lazy';
-const ImplicitNoSsr = lazy(() => import('react'), {
-  ssr: false,
+import { lazyForPaint } from 'react-loosely-lazy';
+const ExplicitSSR = lazyForPaint(() => import('react'), {
+  ssr: true,
   getCacheId: function () {
     if (require && require.resolveWeak) {
       return require.resolveWeak('react');

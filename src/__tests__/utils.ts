@@ -1,3 +1,5 @@
+import { createDefaultServerImport } from '../lazy/__tests__/utils';
+
 export const createMockImport = (
   component: jest.Mock<JSX.Element, []>,
   sync: boolean
@@ -7,10 +9,7 @@ export const createMockImport = (
   let mockImport;
 
   if (sync) {
-    // This should be the same as the transpiled output from the babel plugin
-    const then = (fn: any) => fn(resolved);
-
-    mockImport = { ...resolved, then };
+    mockImport = createDefaultServerImport({ DefaultComponent: component });
   } else {
     mockImport = new Promise<typeof resolved>(res => {
       resolve = res;

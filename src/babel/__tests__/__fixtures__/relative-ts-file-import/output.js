@@ -1,14 +1,7 @@
 import { lazyForPaint } from 'react-loosely-lazy';
 const RelativeTypeScriptFileImport = lazyForPaint(
-  () => {
-    const resolved = require('./__mocks__/imports/ts-component');
-
-    const then = fn => fn(resolved);
-
-    return { ...resolved, then };
-  },
+  () => require('./__mocks__/imports/ts-component'),
   {
-    ssr: true,
     getCacheId: function () {
       if (require && require.resolveWeak) {
         return require.resolveWeak('./__mocks__/imports/ts-component');

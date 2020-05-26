@@ -1,14 +1,7 @@
 import { lazyForPaint } from 'react-loosely-lazy';
 const RelativeModuleWithIndexImport = lazyForPaint(
-  () => {
-    const resolved = require('./__mocks__/imports/module');
-
-    const then = fn => fn(resolved);
-
-    return { ...resolved, then };
-  },
+  () => require('./__mocks__/imports/module'),
   {
-    ssr: true,
     getCacheId: function () {
       if (require && require.resolveWeak) {
         return require.resolveWeak('./__mocks__/imports/module');

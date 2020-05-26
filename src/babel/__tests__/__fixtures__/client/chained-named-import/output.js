@@ -1,14 +1,13 @@
 import { lazyForPaint } from 'react-loosely-lazy';
-const NamedExport = lazyForPaint(
-  () => {
-    const resolved = require('react');
-
-    const then = fn => fn(resolved);
-
-    return { ...resolved, then };
-  },
+const ChainedNamedImport = lazyForPaint(
+  () =>
+    import('react')
+      .then(({ Component }) => Component)
+      .then(mod => {
+        return mod;
+      })
+      .then(mod => mod),
   {
-    ssr: true,
     getCacheId: function () {
       if (require && require.resolveWeak) {
         return require.resolveWeak('react');

@@ -1,109 +1,247 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-import { NodePath, PluginObj } from '@babel/core';
-import * as BabelTypes from '@babel/types';
-import { dirname, relative } from 'path';
-import { lstatSync } from 'fs';
+import {
+  NodePath,
+  PluginObj,
+  template as babelTemplate,
+  types as BabelTypes,
+} from '@babel/core';
+// TODO Remove when @babel/core exposes this type
+import { Binding } from '@babel/traverse';
+import { getModulePath, isPresent } from './utils';
+import { DEFAULT_OPTIONS } from '../lazy';
 
 const PACKAGE_NAME = 'react-loosely-lazy';
 const BUNDLER_CACHE_ID_KEY = 'getCacheId';
 const MODULE_ID_KEY = 'moduleId';
-const LAZY_METHODS = ['lazyForPaint', 'lazyAfterPaint', 'lazy'];
-const DEFAULT_OPTIONS: {
-  [key: string]: { ssr: boolean; defer: number };
-} = {
-  lazyForPaint: { ssr: true, defer: 0 },
-  lazyAfterPaint: { ssr: true, defer: 1 },
-  lazy: { ssr: false, defer: 2 },
+const LAZY_METHODS = Object.keys(DEFAULT_OPTIONS);
+
+export type ModulePathReplacer = {
+  from: string;
+  to: string;
 };
-
-function hasDotSlashPrefix(path: string): boolean {
-  return path.substring(0, 2) === './';
-}
-
-function addDotSlashPrefix(path: string): string {
-  return hasDotSlashPrefix(path) ? path : `./${path}`;
-}
-
-function removeDotSlashPrefix(path: string): string {
-  return hasDotSlashPrefix(path) ? path.replace('./', '') : path;
-}
-
-function withModuleExtension(filePath: string): string {
-  const extensions = ['.js', '.ts', '.tsx'];
-  const extension = extensions.find(ext => {
-    try {
-      return lstatSync(`${filePath}${ext}`).isFile();
-    } catch {
-      return false;
-    }
-  });
-
-  if (!extension) {
-    throw new Error(`Error: ${filePath}${extension} does not exist`);
-  }
-
-  return `${filePath}${extension}`;
-}
-
-/**
- * Generates a relative path to the module that should be 1:1 with what the
- * webpack plugin generates for the key for the chunk in the manifest.
- *
- * @param importSpecifier - The import string as it is written in application source code
- * @param filename - The absolute path to the file being transpiled
- * @param modulePathReplacer - Contains from and to string keys to override a specific part of the resulting
- * module paths generated
- */
-function getModulePath(
-  importSpecifier: string,
-  filename: string,
-  modulePathReplacer: { from: string; to: string } | undefined
-): string {
-  const filePath = `${dirname(filename)}/${removeDotSlashPrefix(
-    importSpecifier
-  )}`;
-  let modulePath;
-
-  // app dependency import eg., import('my-dependency') where my-dependency is a dependency in package.json
-  try {
-    modulePath = require.resolve(importSpecifier);
-  } catch {
-    try {
-      const isDirectory = lstatSync(filePath).isDirectory();
-
-      // module entry import eg., import('./module') where module has index file
-      if (isDirectory) {
-        modulePath = withModuleExtension(`${filePath}/index`);
-      }
-    } catch {
-      // we handle this below
-    }
-  }
-
-  if (!modulePath) {
-    // relative import eg., import('./async') which is relative to the file being transpiled ie., filename
-    modulePath = withModuleExtension(filePath);
-  }
-
-  const path = addDotSlashPrefix(relative(process.cwd(), modulePath));
-
-  if (modulePathReplacer) {
-    const { from, to } = modulePathReplacer;
-
-    return path.replace(from, to);
-  }
-
-  return path;
-}
 
 export default function ({
   types: t,
   template,
 }: {
   types: typeof BabelTypes;
-  template: any;
+  template: typeof babelTemplate;
 }): PluginObj {
+  function getCallExpression(path: NodePath) {
+    let maybeCallExpression = path.parentPath;
+
+    if (
+      maybeCallExpression.isMemberExpression() &&
+      !maybeCallExpression.node.computed &&
+      t.isIdentifier(maybeCallExpression.get('property'), { name: 'Map' })
+    ) {
+      maybeCallExpression = maybeCallExpression.parentPath;
+    }
+
+    return maybeCallExpression;
+  }
+
+  function getLazyArguments(
+    callExpression: NodePath<BabelTypes.CallExpression>
+  ): [NodePath<BabelTypes.Function>, NodePath<BabelTypes.ObjectExpression>] {
+    const args = callExpression.get<'arguments'>('arguments');
+    const loader = args[0];
+    let options = args[1];
+
+    if (!loader.isFunction()) {
+      throw new Error('Loader argument must be a function');
+    }
+
+    if (!options || !options.isObjectExpression()) {
+      callExpression.node.arguments.push(t.objectExpression([]));
+      options = callExpression.get<'arguments'>('arguments')[1];
+
+      return [loader, options as NodePath<BabelTypes.ObjectExpression>];
+    }
+
+    return [loader, options];
+  }
+
+  type PropertiesMap = Map<
+    string,
+    NodePath<BabelTypes.ObjectMethod | BabelTypes.ObjectProperty>
+  >;
+
+  function getPropertiesMap(
+    options: NodePath<BabelTypes.ObjectExpression>
+  ): PropertiesMap {
+    const properties = options.get<'properties'>('properties');
+
+    return properties.reduce<PropertiesMap>((map, property) => {
+      if (property.isSpreadElement()) {
+        throw new Error(
+          'Options argument does not support SpreadElement as it is not statically analyzable'
+        );
+      }
+
+      // @ts-expect-error TypeScript type narrowing does not work correctly here
+      map.set(property.node.key.name, property);
+
+      return map;
+    }, new Map());
+  }
+
+  function getSSR(map: PropertiesMap, lazyMethodName: string): boolean {
+    const property = map.get('ssr');
+    if (!property) {
+      return DEFAULT_OPTIONS[lazyMethodName].ssr;
+    }
+
+    if (property.isObjectMethod()) {
+      throw new Error('Unable to statically analyze ssr option');
+    }
+
+    // @ts-expect-error TypeScript type narrowing does not work correctly here
+    const value = property.node.value;
+    if (!t.isBooleanLiteral(value)) {
+      throw new Error('Unable to statically analyze ssr option');
+    }
+
+    return value.value;
+  }
+
+  // TODO Remove this hack when this library drops non-streaming support
+  function transformLoader(
+    loader: NodePath<BabelTypes.Function>,
+    env: 'client' | 'server',
+    ssr: boolean
+  ): { importPath: string | void } {
+    let importPath;
+
+    loader.traverse({
+      Import(nodePath: NodePath<BabelTypes.Import>) {
+        const maybeImportCallExpression = nodePath.parentPath;
+        if (!maybeImportCallExpression.isCallExpression()) {
+          return;
+        }
+
+        // Get the import path when the parent is a CallExpression and its first
+        // argument is a StringLiteral
+        const maybeImportPath = maybeImportCallExpression.get<'arguments'>(
+          'arguments'
+        )[0];
+        if (maybeImportPath.isStringLiteral()) {
+          importPath = maybeImportPath.node.value;
+        }
+
+        // Only transform the loader when we are on the server and SSR is
+        // enabled for the component
+        if (env === 'client' || !ssr) {
+          return;
+        }
+
+        // Replace the import with a require
+        nodePath.replaceWith(t.identifier('require'));
+
+        // Transform all then calls to be synchronous in order to support
+        // named exports
+        let maybeMemberExpression: NodePath<BabelTypes.Node> =
+          nodePath.parentPath.parentPath;
+        let previousIdOrExpression;
+        while (maybeMemberExpression.isMemberExpression()) {
+          const { property } = maybeMemberExpression.node;
+          if (!t.isIdentifier(property, { name: 'then' })) {
+            break;
+          }
+
+          const maybeCallExpression = maybeMemberExpression.parentPath;
+          if (!maybeCallExpression.isCallExpression()) {
+            break;
+          }
+
+          if (!previousIdOrExpression) {
+            const loaderId = loader.scope.generateUidIdentifier();
+            nodePath.scope.push({
+              id: loaderId,
+              init: maybeImportCallExpression.node,
+            });
+            previousIdOrExpression = loaderId;
+          }
+
+          const thenId = loader.scope.generateUidIdentifier();
+          const thenArgs = maybeCallExpression.get<'arguments'>('arguments');
+          const onFulfilled = thenArgs[0];
+          if (onFulfilled.isExpression()) {
+            nodePath.scope.push({
+              id: thenId,
+              init: onFulfilled.node,
+            });
+          }
+
+          const replacement = t.callExpression(thenId, [
+            previousIdOrExpression,
+          ]);
+
+          maybeCallExpression.replaceWith(replacement);
+
+          maybeMemberExpression = maybeMemberExpression.parentPath.parentPath;
+          previousIdOrExpression = replacement;
+        }
+      },
+      AwaitExpression() {
+        throw new Error('Loader argument does not support await expressions');
+      },
+      MemberExpression(nodePath: NodePath<BabelTypes.MemberExpression>) {
+        const maybeCallExpression = nodePath.parentPath;
+        if (
+          t.isIdentifier(nodePath.node.property, { name: 'then' }) &&
+          maybeCallExpression.isCallExpression()
+        ) {
+          const thenArgs = maybeCallExpression.get<'arguments'>('arguments');
+          if (thenArgs.length > 1) {
+            throw new Error(
+              'Loader argument does not support Promise.prototype.then with more than one argument'
+            );
+          }
+        }
+
+        if (t.isIdentifier(nodePath.node.property, { name: 'catch' })) {
+          throw new Error(
+            'Loader argument does not support Promise.prototype.catch'
+          );
+        }
+      },
+    });
+
+    return {
+      importPath,
+    };
+  }
+
+  function buildCacheIdProperty(importSpecifier: string) {
+    const importSpecifierStringLiteral = t.stringLiteral(importSpecifier);
+
+    const findLazyImportInWebpackCache = template.expression`function () {
+      if (require && require.resolveWeak) {
+        return require.resolveWeak(${importSpecifierStringLiteral});
+      }
+
+      return ${importSpecifierStringLiteral};
+    }`;
+
+    return t.objectProperty(
+      t.identifier(BUNDLER_CACHE_ID_KEY),
+      findLazyImportInWebpackCache()
+    );
+  }
+
+  function buildModuleIdProperty(
+    importSpecifier: string,
+    filename: string,
+    modulePathReplacer?: ModulePathReplacer
+  ) {
+    return t.objectProperty(
+      t.identifier(MODULE_ID_KEY),
+      t.stringLiteral(
+        getModulePath(importSpecifier, filename, modulePathReplacer)
+      )
+    );
+  }
+
   return {
     visitor: {
       ImportDeclaration(
@@ -111,7 +249,7 @@ export default function ({
         state: {
           opts?: {
             client?: boolean;
-            modulePathReplacer?: { from: string; to: string };
+            modulePathReplacer?: ModulePathReplacer;
           };
           filename?: string;
         }
@@ -127,147 +265,47 @@ export default function ({
         const bindingNames = LAZY_METHODS;
         const bindings = bindingNames
           .map(name => path.scope.getBinding(name))
-          .filter(binding => binding);
+          .filter(isPresent);
 
-        bindings.forEach((binding: any) => {
+        bindings.forEach((binding: Binding) => {
           const lazyMethodName = binding.identifier.name;
 
-          binding.referencePaths.forEach((refPath: any) => {
-            let callExpression = refPath.parentPath;
-
-            if (
-              callExpression.isMemberExpression() &&
-              callExpression.node.computed === false &&
-              callExpression.get('property').isIdentifier({ name: 'Map' })
-            ) {
-              callExpression = callExpression.parentPath;
-            }
-
+          binding.referencePaths.forEach((refPath: NodePath) => {
+            const callExpression = getCallExpression(refPath);
             if (!callExpression.isCallExpression()) {
               return;
             }
 
-            const args = callExpression.get('arguments');
+            const [loader, lazyOptions] = getLazyArguments(callExpression);
+            const propertiesMap = getPropertiesMap(lazyOptions);
 
-            if (!args.length) {
-              throw callExpression.error;
-            }
+            const { importPath } = transformLoader(
+              loader,
+              client ? 'client' : 'server',
+              getSSR(propertiesMap, lazyMethodName)
+            );
 
-            const lazyImport = args[0];
-            let lazyOptions = args[1];
-
-            // ensures that options exist even if not passed explicitly
-            if (!lazyOptions || !lazyOptions.isObjectExpression()) {
-              callExpression.node.arguments.push(t.objectExpression([]));
-              lazyOptions = callExpression.get('arguments')[1];
-            }
-
-            if (!lazyImport.isFunction()) {
+            if (!importPath) {
               return;
             }
 
-            let lazyImportPath = null;
-
-            lazyImport.traverse({
-              Import(importPath: NodePath<BabelTypes.ImportDeclaration>) {
-                lazyImportPath = importPath.parentPath;
-              },
-            });
-
-            if (!lazyImportPath) {
-              return;
-            }
-
-            const importSpecifier = (lazyImportPath as any).get('arguments')[0]
-              .node.value;
-            const lazyOptionsProperties = lazyOptions.get('properties');
-            const lazyOptionsPropertiesMap: {
-              [key: string]: NodePath<
-                | BabelTypes.ObjectProperty
-                | BabelTypes.ObjectMethod
-                | BabelTypes.SpreadProperty
-              >;
-            } = {};
-
-            lazyOptionsProperties.forEach((property: any) => {
-              if (property.type !== 'SpreadProperty') {
-                const key = property.get('key');
-
-                lazyOptionsPropertiesMap[key.node.name] = property;
-              }
-            });
-
-            if (
-              Object.prototype.isPrototypeOf.call(
-                lazyOptionsPropertiesMap,
-                BUNDLER_CACHE_ID_KEY
-              )
-            ) {
-              return;
-            }
-
-            // ensures the ssr property is inherited from the method's default even if not supplied
-            if (typeof lazyOptionsPropertiesMap.ssr === 'undefined') {
+            // Add the getCacheId property to options when not supplied
+            if (!propertiesMap.has(BUNDLER_CACHE_ID_KEY)) {
               lazyOptions.node.properties.push(
-                t.objectProperty(
-                  t.identifier('ssr'),
-                  t.booleanLiteral(DEFAULT_OPTIONS[lazyMethodName].ssr)
-                )
+                buildCacheIdProperty(importPath)
               );
             }
-
-            // adds the id property to options
-            const importSpecifierStringLiteral = t.stringLiteral(
-              importSpecifier
-            );
-            const findLazyImportInWebpackCache = template.expression`function () {
-              if (require && require.resolveWeak) {
-                return require.resolveWeak(${importSpecifierStringLiteral});
-              }
-
-              return ${importSpecifierStringLiteral};
-            }`;
-
-            lazyOptions.node.properties.push(
-              t.objectProperty(
-                t.identifier(BUNDLER_CACHE_ID_KEY),
-                findLazyImportInWebpackCache()
-              )
-            );
 
             if (!filename) {
               throw new Error(
-                `Babel transpilation target for ${importSpecifier} not found`
+                `Babel transpilation target for ${importPath} not found`
               );
             }
 
-            // adds the moduleId property to options
+            // Add the moduleId property to options
             lazyOptions.node.properties.push(
-              t.objectProperty(
-                t.identifier(MODULE_ID_KEY),
-                t.stringLiteral(
-                  getModulePath(importSpecifier, filename, modulePathReplacer)
-                )
-              )
+              buildModuleIdProperty(importPath, filename, modulePathReplacer)
             );
-
-            // there is no require on the client
-            if (client) {
-              return;
-            }
-
-            const ssrOptionIndex = lazyOptions.node.properties.findIndex(
-              (property: any) => property.key.name === 'ssr'
-            );
-
-            // transforms imports to requires if we are going to SSR
-            if (lazyOptions.node.properties[ssrOptionIndex].value.value) {
-              const lazyImportOverride = template`{const resolved = require(${t.stringLiteral(
-                importSpecifier
-              )});const then = (fn) => fn(resolved);return {...resolved, then }}`;
-
-              lazyImport.node.body = lazyImportOverride();
-            }
           });
         });
       },

@@ -1,5 +1,5 @@
 import { lazyForPaint } from 'react-loosely-lazy';
 
-const WithClientOption = lazyForPaint(() => import('react'), {
+const ExplicitSSR = lazyForPaint(() => import('react'), {
   ssr: true,
 });
