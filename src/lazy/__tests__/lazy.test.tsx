@@ -59,13 +59,13 @@ describe('lazy', () => {
     );
 
     if (ssr) {
-      expect(queryByText('Loading...')).toBeNull();
+      expect(queryByText('Loading...')).not.toBeInTheDocument();
     } else {
-      expect(queryByText('Loading...')).not.toBeNull();
+      expect(queryByText('Loading...')).toBeInTheDocument();
       await waitForElementToBeRemoved(() => queryByText('Loading...'));
     }
 
-    expect(queryByText('Component failed to load')).not.toBeNull();
+    expect(queryByText('Component failed to load')).toBeInTheDocument();
     expect(onError).toHaveBeenCalledTimes(1);
     expect(onError).toHaveBeenCalledWith(loaderError);
   };
@@ -110,8 +110,8 @@ describe('lazy', () => {
         </LazySuspense>
       );
 
-      expect(queryByText('Loading...')).toBeNull();
-      expect(queryByText('Component')).not.toBeNull();
+      expect(queryByText('Loading...')).not.toBeInTheDocument();
+      expect(queryByText('Component')).toBeInTheDocument();
     });
 
     it.todo(
@@ -133,9 +133,9 @@ describe('lazy', () => {
         </LazySuspense>
       );
 
-      expect(queryByText('Loading...')).toBeNull();
-      expect(queryByText('Default Component')).not.toBeNull();
-      expect(queryByText('Named Component')).toBeNull();
+      expect(queryByText('Loading...')).not.toBeInTheDocument();
+      expect(queryByText('Default Component')).toBeInTheDocument();
+      expect(queryByText('Named Component')).not.toBeInTheDocument();
     });
 
     it.todo(
@@ -165,9 +165,9 @@ describe('lazy', () => {
         </LazySuspense>
       );
 
-      expect(queryByText('Loading...')).not.toBeNull();
+      expect(queryByText('Loading...')).toBeInTheDocument();
       await waitForElementToBeRemoved(() => queryByText('Loading...'));
-      expect(queryByText('Component')).not.toBeNull();
+      expect(queryByText('Component')).toBeInTheDocument();
     });
 
     it('should render the named component correctly when there is only a named export', async () => {
@@ -184,9 +184,9 @@ describe('lazy', () => {
         </LazySuspense>
       );
 
-      expect(queryByText('Loading...')).not.toBeNull();
+      expect(queryByText('Loading...')).toBeInTheDocument();
       await waitForElementToBeRemoved(() => queryByText('Loading...'));
-      expect(queryByText('Component')).not.toBeNull();
+      expect(queryByText('Component')).toBeInTheDocument();
     });
 
     it('should render the default component correctly when there are default and named exports', async () => {
@@ -204,10 +204,10 @@ describe('lazy', () => {
         </LazySuspense>
       );
 
-      expect(queryByText('Loading...')).not.toBeNull();
+      expect(queryByText('Loading...')).toBeInTheDocument();
       await waitForElementToBeRemoved(() => queryByText('Loading...'));
-      expect(queryByText('Default Component')).not.toBeNull();
-      expect(queryByText('Named Component')).toBeNull();
+      expect(queryByText('Default Component')).toBeInTheDocument();
+      expect(queryByText('Named Component')).not.toBeInTheDocument();
     });
 
     it('should render the named component correctly when there are default and named exports', async () => {
@@ -228,13 +228,42 @@ describe('lazy', () => {
         </LazySuspense>
       );
 
-      expect(queryByText('Loading...')).not.toBeNull();
+      expect(queryByText('Loading...')).toBeInTheDocument();
       await waitForElementToBeRemoved(() => queryByText('Loading...'));
-      expect(queryByText('Default Component')).toBeNull();
-      expect(queryByText('Named Component')).not.toBeNull();
+      expect(queryByText('Default Component')).not.toBeInTheDocument();
+      expect(queryByText('Named Component')).toBeInTheDocument();
     });
 
-    it('should render the component correctly after it has re-rendered', async () => {
+    it('should re-render the component correctly', async () => {
+      const TestComponent = () => <div>Component</div>;
+      const LazyTestComponent = lazyForPaint(
+        () => Promise.resolve({ default: TestComponent }),
+        lazyOptions
+      );
+
+      const { getByText, queryByText, rerender } = render(
+        <LazySuspense fallback={<div>Loading...</div>}>
+          <LazyTestComponent />
+        </LazySuspense>
+      );
+
+      expect(queryByText('Loading...')).toBeInTheDocument();
+      await waitForElementToBeRemoved(() => queryByText('Loading...'));
+
+      const component = getByText('Component');
+
+      expect(component).toBeInTheDocument();
+
+      rerender(
+        <LazySuspense fallback={<div>Loading...</div>}>
+          <LazyTestComponent />
+        </LazySuspense>
+      );
+
+      expect(component).toBeInTheDocument();
+    });
+
+    it('should re-render the component correctly when it is updated', async () => {
       const TestComponent = ({ renderPass }: { renderPass: number }) => (
         <div>Component render pass ({renderPass})</div>
       );
@@ -251,9 +280,12 @@ describe('lazy', () => {
         </LazySuspense>
       );
 
-      expect(queryByText('Loading...')).not.toBeNull();
+      expect(queryByText('Loading...')).toBeInTheDocument();
       await waitForElementToBeRemoved(() => queryByText('Loading...'));
-      expect(queryByText('Component render pass (1)')).not.toBeNull();
+
+      const component = queryByText('Component render pass (1)');
+
+      expect(component).toBeInTheDocument();
 
       rerender(
         <LazySuspense fallback={<div>Loading...</div>}>
@@ -261,8 +293,9 @@ describe('lazy', () => {
         </LazySuspense>
       );
 
-      expect(queryByText('Loading...')).toBeNull();
-      expect(queryByText('Component render pass (2)')).not.toBeNull();
+      expect(queryByText('Loading...')).not.toBeInTheDocument();
+      expect(component).toBeInTheDocument();
+      expect(component).toHaveTextContent('Component render pass (2)');
     });
 
     it('should bubble a LoaderError in the component lifecycle when the loader fails', () => {

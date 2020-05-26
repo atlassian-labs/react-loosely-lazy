@@ -1,5 +1,5 @@
 import { format } from 'util';
-import '@testing-library/jest-dom/extend-expect';
+import '@testing-library/jest-dom';
 
 const error = console.error;
 
