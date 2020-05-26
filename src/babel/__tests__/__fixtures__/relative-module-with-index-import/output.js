@@ -17,6 +17,6 @@ const RelativeModuleWithIndexImport = lazyForPaint(
       return './__mocks__/imports/module';
     },
     moduleId:
-      './src/babel/__tests__/__fixtures__/babel/relative-module-with-index-import/__mocks__/imports/module/index.js',
+      './src/babel/__tests__/__fixtures__/relative-module-with-index-import/__mocks__/imports/module/index.js',
   }
 );
