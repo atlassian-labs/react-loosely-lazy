@@ -1,18 +1,15 @@
 import React, { useContext } from 'react';
 import { LazySuspenseContext } from '../../suspense';
-import { tryRequire, getExport } from '../../utils';
 import { LoaderError } from '../errors/loader-error';
+import { getExport } from '../../utils';
 import { ServerLoader } from '../loader';
 
 const load = (cacheId: string, loader: ServerLoader) => {
-  let result;
   try {
-    result = loader();
+    return getExport(loader());
   } catch (err) {
     throw new LoaderError(cacheId, err);
   }
-
-  return getExport(result);
 };
 
 export const createComponentServer = ({
@@ -26,7 +23,7 @@ export const createComponentServer = ({
   loader: ServerLoader;
   ssr: boolean;
 }) => (props: any) => {
-  const Resolved = ssr ? tryRequire(cacheId) || load(cacheId, loader) : null;
+  const Resolved = ssr ? load(cacheId, loader) : null;
   const { fallback } = useContext(LazySuspenseContext);
 
   return (

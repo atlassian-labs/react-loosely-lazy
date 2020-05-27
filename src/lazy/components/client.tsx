@@ -3,7 +3,6 @@ import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { COLLECTED, SETTINGS, MODE } from '../../constants';
 import { LazySuspenseContext } from '../../suspense';
 import { usePhaseSubscription } from '../../phase';
-import { tryRequire } from '../../utils';
 import { Deferred } from '../deferred';
 import { LoaderError } from '../errors/loader-error';
 import { PlaceholderFallbackRender } from '../placeholders/render';
@@ -22,21 +21,9 @@ export const createComponentClient = ({
   dataLazyId: string;
   ssr: boolean;
 }) => {
-  let isCached = Boolean(tryRequire(cacheId));
-
-  if (!isCached) {
-    deferred.promise.then(() => {
-      isCached = true;
-    });
-  }
-
   const ResolvedLazy = React.lazy(() => deferred.promise);
 
   return (props: any) => {
-    if (isCached) {
-      return <ResolvedLazy {...props} />;
-    }
-
     const { setFallback } = useContext(LazySuspenseContext);
     const [, setState] = useState();
     const isOwnPhase = usePhaseSubscription(defer);
