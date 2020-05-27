@@ -23,9 +23,9 @@ module.exports = {
     },
   },
   globals: {
-    // enable webpack require
+    // Enable webpack require
     require: 'readonly',
-    // fix for eslint-plugin-flowtype/384 not supporting wildcard
+    // Fix for eslint-plugin-flowtype/384 not supporting wildcard
     _: 'readonly',
   },
   plugins: ['react', 'react-hooks', 'import'],
@@ -44,17 +44,30 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['src/__tests__/**/*'],
-      env: { node: true },
+      // Enable a node environment for dot, config, and setup files, and any
+      // file under the webpack, babel, and test folders
+      files: [
+        '.*.js',
+        '*.config.js',
+        '*.setup.js',
+        'src/webpack/**/*',
+        'src/babel/**/*',
+        'src/__tests__/**/*',
+      ],
+      env: {
+        node: true,
+      },
+    },
+    {
+      // Enable a jest environment for test files
+      files: ['*.test.{js,ts,tsx}'],
+      env: {
+        jest: true,
+      },
     },
     {
       // Flow specific rules
-      files: [
-        'src/index.js.flow',
-        'src/server/index.js.flow',
-        '*/*flow.js',
-        'examples/*-flow/*/*.js',
-      ],
+      files: ['src/index.js.flow', '*/*flow.js'],
       extends: ['plugin:flowtype/recommended'],
       plugins: ['flowtype'],
       rules: {
@@ -78,17 +91,6 @@ module.exports = {
         '@typescript-eslint/no-empty-interface': 'off',
         '@typescript-eslint/ban-ts-ignore': 'off',
       },
-    },
-    {
-      // Jest env
-      files: ['*.test.{js,ts,tsx}'],
-      env: {
-        jest: true,
-      },
-    },
-    {
-      files: ['src/webpack/**/*', 'src/babel/**/*'],
-      env: { node: true },
     },
   ],
 };
