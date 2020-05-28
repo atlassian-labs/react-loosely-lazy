@@ -1,13 +1,8 @@
-node_modules
-lib
-server
-babel-plugin
-webpack-plugin
 coverage
-yarn.lock   
+lib
+node_modules
+yarn.lock
 
-# misc
-local-scripts/
 .idea
 .vscode
 src/webpack/__tests__/__fixtures__/output

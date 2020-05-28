@@ -1,7 +1,5 @@
 node_modules
 
-babel-plugin
 lib
-webpack-plugin
 
 __fixtures__
