@@ -7,13 +7,6 @@ const NamedImport = lazyForPaint(
     return _temp2(_temp);
   },
   {
-    getCacheId: function () {
-      if (require && require.resolveWeak) {
-        return require.resolveWeak('react');
-      }
-
-      return 'react';
-    },
     moduleId: './node_modules/react/index.js',
   }
 );

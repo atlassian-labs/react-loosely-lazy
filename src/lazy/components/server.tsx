@@ -4,26 +4,26 @@ import { LoaderError } from '../errors/loader-error';
 import { getExport } from '../../utils';
 import { ServerLoader } from '../loader';
 
-const load = (cacheId: string, loader: ServerLoader) => {
+const load = (moduleId: string, loader: ServerLoader) => {
   try {
     return getExport(loader());
   } catch (err) {
-    throw new LoaderError(cacheId, err);
+    throw new LoaderError(moduleId, err);
   }
 };
 
 export const createComponentServer = ({
-  cacheId,
   dataLazyId,
   loader,
+  moduleId,
   ssr,
 }: {
-  cacheId: string;
   dataLazyId: string;
   loader: ServerLoader;
+  moduleId: string;
   ssr: boolean;
 }) => (props: any) => {
-  const Resolved = ssr ? load(cacheId, loader) : null;
+  const Resolved = ssr ? load(moduleId, loader) : null;
   const { fallback } = useContext(LazySuspenseContext);
 
   return (

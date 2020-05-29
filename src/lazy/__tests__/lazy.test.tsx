@@ -17,7 +17,6 @@ jest.mock('../../utils', () => ({
 
 describe('lazy', () => {
   const lazyOptions = {
-    getCacheId: () => 'foo',
     moduleId: '@foo/bar',
   };
 
@@ -38,11 +37,13 @@ describe('lazy', () => {
 
   const testErrorBubbling = async (ssr: boolean) => {
     const error = new Error('ChunkLoadError');
-    const loaderError = new LoaderError('foo', error);
+    const moduleId = '@foo/bar';
+    const loaderError = new LoaderError(moduleId, error);
     const LazyComponent = lazyForPaint(
       () => (ssr ? require('404') : Promise.reject(error)),
       {
         ...lazyOptions,
+        moduleId,
         ssr,
       }
     );

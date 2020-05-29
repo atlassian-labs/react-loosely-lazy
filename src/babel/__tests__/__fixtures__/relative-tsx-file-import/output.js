@@ -2,13 +2,6 @@ import { lazyForPaint } from 'react-loosely-lazy';
 const RelativeTsxFileImport = lazyForPaint(
   () => require('./__mocks__/imports/tsx-component'),
   {
-    getCacheId: function () {
-      if (require && require.resolveWeak) {
-        return require.resolveWeak('./__mocks__/imports/tsx-component');
-      }
-
-      return './__mocks__/imports/tsx-component';
-    },
     moduleId:
       './src/babel/__tests__/__fixtures__/relative-tsx-file-import/__mocks__/imports/tsx-component.tsx',
   }

@@ -10,7 +10,6 @@ import { getModulePath, isPresent } from './utils';
 import { DEFAULT_OPTIONS } from '../lazy';
 
 const PACKAGE_NAME = 'react-loosely-lazy';
-const BUNDLER_CACHE_ID_KEY = 'getCacheId';
 const MODULE_ID_KEY = 'moduleId';
 const LAZY_METHODS = Object.keys(DEFAULT_OPTIONS);
 
@@ -212,23 +211,6 @@ export default function ({
     };
   }
 
-  function buildCacheIdProperty(importSpecifier: string) {
-    const importSpecifierStringLiteral = t.stringLiteral(importSpecifier);
-
-    const findLazyImportInWebpackCache = template.expression`function () {
-      if (require && require.resolveWeak) {
-        return require.resolveWeak(${importSpecifierStringLiteral});
-      }
-
-      return ${importSpecifierStringLiteral};
-    }`;
-
-    return t.objectProperty(
-      t.identifier(BUNDLER_CACHE_ID_KEY),
-      findLazyImportInWebpackCache()
-    );
-  }
-
   function buildModuleIdProperty(
     importSpecifier: string,
     filename: string,
@@ -287,13 +269,6 @@ export default function ({
 
             if (!importPath) {
               return;
-            }
-
-            // Add the getCacheId property to options when not supplied
-            if (!propertiesMap.has(BUNDLER_CACHE_ID_KEY)) {
-              lazyOptions.node.properties.push(
-                buildCacheIdProperty(importPath)
-              );
             }
 
             if (!filename) {

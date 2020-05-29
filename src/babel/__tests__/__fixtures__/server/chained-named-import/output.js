@@ -11,13 +11,6 @@ const ChainedNamedImport = lazyForPaint(
     return _temp4(_temp3(_temp2(_temp)));
   },
   {
-    getCacheId: function () {
-      if (require && require.resolveWeak) {
-        return require.resolveWeak('react');
-      }
-
-      return 'react';
-    },
     moduleId: './node_modules/react/index.js',
   }
 );

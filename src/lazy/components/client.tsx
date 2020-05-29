@@ -9,16 +9,16 @@ import { PlaceholderFallbackRender } from '../placeholders/render';
 import { PlaceholderFallbackHydrate } from '../placeholders/hydrate';
 
 export const createComponentClient = ({
-  cacheId,
   defer,
   deferred,
   dataLazyId,
+  moduleId,
   ssr,
 }: {
-  cacheId: string;
   defer: number;
   deferred: Deferred;
   dataLazyId: string;
+  moduleId: string;
   ssr: boolean;
 }) => {
   const ResolvedLazy = React.lazy(() => deferred.promise);
@@ -36,7 +36,7 @@ export const createComponentClient = ({
           .catch((err: Error) => {
             // Throw the error within the component lifecycle -- refer to https://github.com/facebook/react/issues/11409
             setState(() => {
-              throw new LoaderError(cacheId, err);
+              throw new LoaderError(moduleId, err);
             });
           });
     }, [isOwnPhase, setFallback]);
