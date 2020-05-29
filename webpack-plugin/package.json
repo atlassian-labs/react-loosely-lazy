@@ -1,0 +1,5 @@
+{
+  "main": "../lib/cjs/webpack/index.js",
+  "module": "../lib/esm/webpack/index.js",
+  "types": "../lib/cjs/webpack/index.d.ts"
+}

@@ -1,0 +1,5 @@
+{
+  "main": "../lib/cjs/babel/index.js",
+  "module": "../lib/esm/babel/index.js",
+  "types": "../lib/cjs/babel/index.d.ts"
+}
