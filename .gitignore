@@ -1,8 +1,10 @@
+.idea
+.local
+.vscode
+
 coverage
 lib
 node_modules
 yarn.lock
 
-.idea
-.vscode
 src/webpack/__tests__/__fixtures__/output
