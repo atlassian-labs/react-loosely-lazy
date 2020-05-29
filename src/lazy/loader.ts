@@ -8,4 +8,6 @@ export type Loader = ClientLoader | ServerLoader;
 
 export type ClientLoader = () => Promise<ImportDefaultComponent>;
 
-export type ServerLoader = () => ImportDefaultComponent;
+export type ServerLoader = () =>
+  | ImportDefaultComponent
+  | React.ComponentType<any>;

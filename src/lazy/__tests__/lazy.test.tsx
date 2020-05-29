@@ -4,7 +4,11 @@ import { lazyForPaint } from '..';
 import { LazySuspense } from '../../suspense';
 import { isNodeEnvironment } from '../../utils';
 import { LoaderError } from '../errors/loader-error';
-import { ErrorBoundary } from './utils';
+import {
+  createDefaultServerImport,
+  createNamedServerImport,
+  ErrorBoundary,
+} from './utils';
 
 jest.mock('../../utils', () => ({
   ...jest.requireActual<any>('../../utils'),
@@ -13,7 +17,6 @@ jest.mock('../../utils', () => ({
 
 describe('lazy', () => {
   const lazyOptions = {
-    getCacheId: () => 'foo',
     moduleId: '@foo/bar',
   };
 
@@ -34,11 +37,13 @@ describe('lazy', () => {
 
   const testErrorBubbling = async (ssr: boolean) => {
     const error = new Error('ChunkLoadError');
-    const loaderError = new LoaderError('foo', error);
+    const moduleId = '@foo/bar';
+    const loaderError = new LoaderError(moduleId, error);
     const LazyComponent = lazyForPaint(
       () => (ssr ? require('404') : Promise.reject(error)),
       {
         ...lazyOptions,
+        moduleId,
         ssr,
       }
     );
@@ -87,7 +92,7 @@ describe('lazy', () => {
         },
       };
       const LazyComponent = lazyForPaint(
-        () => Promise.resolve({ default: () => <div /> }),
+        () => createDefaultServerImport({ DefaultComponent: () => <div /> }),
         {
           ...lazyOptions,
           moduleId,
@@ -100,7 +105,7 @@ describe('lazy', () => {
     it('should render the default component correctly when there is only a default export', async () => {
       const DefaultComponent = () => <div>Component</div>;
       const LazyTestComponent = lazyForPaint(
-        () => ({ default: DefaultComponent }),
+        () => createDefaultServerImport({ DefaultComponent }),
         lazyOptions
       );
 
@@ -114,16 +119,28 @@ describe('lazy', () => {
       expect(queryByText('Component')).toBeInTheDocument();
     });
 
-    it.todo(
-      'should render the named component correctly when there is only a named export'
-    );
+    it('should render the named component correctly when there is only a named export', () => {
+      const NamedComponent = () => <div>Component</div>;
+      const LazyTestComponent = lazyForPaint(
+        () => createNamedServerImport({ NamedComponent }),
+        lazyOptions
+      );
+
+      const { queryByText } = render(
+        <LazySuspense fallback={<div>Loading...</div>}>
+          <LazyTestComponent />
+        </LazySuspense>
+      );
+
+      expect(queryByText('Loading...')).not.toBeInTheDocument();
+      expect(queryByText('Component')).toBeInTheDocument();
+    });
 
     it('should render the default component correctly when there are default and named exports', async () => {
       const DefaultComponent = () => <div>Default Component</div>;
       const NamedComponent = () => <div>Named Component</div>;
       const LazyTestComponent = lazyForPaint(
-        // @ts-ignore - mocking import()
-        () => ({ default: DefaultComponent, NamedComponent }),
+        () => createDefaultServerImport({ DefaultComponent, NamedComponent }),
         lazyOptions
       );
 
@@ -138,9 +155,24 @@ describe('lazy', () => {
       expect(queryByText('Named Component')).not.toBeInTheDocument();
     });
 
-    it.todo(
-      'should render the named component correctly when there are default and named exports'
-    );
+    it('should render the named component correctly when there are default and named exports', async () => {
+      const DefaultComponent = () => <div>Default Component</div>;
+      const NamedComponent = () => <div>Named Component</div>;
+      const LazyTestComponent = lazyForPaint(
+        () => createNamedServerImport({ DefaultComponent, NamedComponent }),
+        lazyOptions
+      );
+
+      const { queryByText } = render(
+        <LazySuspense fallback={<div>Loading...</div>}>
+          <LazyTestComponent />
+        </LazySuspense>
+      );
+
+      expect(queryByText('Loading...')).not.toBeInTheDocument();
+      expect(queryByText('Default Component')).not.toBeInTheDocument();
+      expect(queryByText('Named Component')).toBeInTheDocument();
+    });
 
     it('should bubble a LoaderError in the component lifecycle when the loader fails', () => {
       return testErrorBubbling(true);

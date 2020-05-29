@@ -23,8 +23,6 @@ export type Options = {
 
   defer?: number;
 
-  getCacheId?: () => string;
-
   moduleId?: string;
 };
 
@@ -35,29 +33,23 @@ type LazyComponent = React.ComponentType<any> & {
 
 const lazyProxy = (
   loader: Loader,
-  {
-    defer = PHASE.PAINT,
-    getCacheId = () => '',
-    moduleId = '',
-    ssr = true,
-  }: Options = {}
+  { defer = PHASE.PAINT, moduleId = '', ssr = true }: Options = {}
 ): LazyComponent => {
   const isServer = isNodeEnvironment();
-  const cacheId = getCacheId();
   const dataLazyId = hash(moduleId);
 
   const LazyComponent: any = isServer
     ? createComponentServer({
-        cacheId,
         dataLazyId,
         loader: loader as ServerLoader,
+        moduleId,
         ssr,
       })
     : createComponentClient({
-        cacheId,
         dataLazyId,
         defer,
         deferred: createDeferred(loader as ClientLoader),
+        moduleId,
         ssr,
       });
 

@@ -27,53 +27,28 @@ import LooselyLazy, {
 const Async: any = {};
 
 function buildComponents() {
-  // force clear webpack cache
-  // @ts-ignore
-  Object.keys(__webpack_modules__)
-    .filter(id => id.includes('/examples/'))
-    .forEach(id => {
-      // @ts-ignore
-      delete __webpack_modules__[id];
-    });
   // force components reset faking server/client
-  Async.ComponentWithSSR = lazyForPaint(() => import('./components/with-ssr'), {
-    getCacheId: () => (require as any).resolveWeak('./components/with-ssr'),
-  });
+  Async.ComponentWithSSR = lazyForPaint(() => import('./components/with-ssr'));
   Async.ComponentNoSSR = lazyForPaint(() => import('./components/no-ssr'), {
-    getCacheId: () => (require as any).resolveWeak('./components/no-ssr'),
     ssr: false,
   });
-  Async.ComponentDeferWithSSR = lazyAfterPaint(
-    () => import('./components/defer-with-ssr'),
-    {
-      getCacheId: () =>
-        (require as any).resolveWeak('./components/defer-with-ssr'),
-    }
+  Async.ComponentDeferWithSSR = lazyAfterPaint(() =>
+    import('./components/defer-with-ssr')
   );
-  Async.ComponentDeferNoSSR = lazy(() => import('./components/defer-no-ssr'), {
-    getCacheId: () => (require as any).resolveWeak('./components/defer-no-ssr'),
-  });
-  Async.ComponentWaitWithSSR = lazyForPaint(
-    () => import('./components/wait-with-ssr'),
-    {
-      getCacheId: () =>
-        (require as any).resolveWeak('./components/wait-with-ssr'),
-    }
+  Async.ComponentDeferNoSSR = lazy(() => import('./components/defer-no-ssr'));
+  Async.ComponentWaitWithSSR = lazyForPaint(() =>
+    import('./components/wait-with-ssr')
   );
   Async.ComponentWaitNoSSR = lazyForPaint(
     () => import('./components/wait-no-ssr'),
     {
-      getCacheId: () =>
-        (require as any).resolveWeak('./components/wait-no-ssr'),
       ssr: false,
     }
   );
-  Async.ComponentDynamic = lazyForPaint(() => import('./components/dynamic'), {
-    getCacheId: () => (require as any).resolveWeak('./components/dynamic'),
-  });
+  Async.ComponentDynamic = lazyForPaint(() => import('./components/dynamic'));
 }
 
-const Fallback = ({ id }: any) => (
+const Fallback = ({ id }: { id: string }) => (
   <div style={{ borderBottom: '2px dotted #E1E' }}>{`<Fallback${id} />`}</div>
 );
 
@@ -101,7 +76,7 @@ const InteractiveComponents = React.memo(() => (
   </>
 ));
 
-const LazyComponents = React.memo(({ status }: any) => (
+const LazyComponents = React.memo(({ status }: { status: string }) => (
   <>
     <LazyWait until={status === 'LAZY'}>
       <LazySuspense fallback={<Fallback id="WaitWithSSR" />}>
@@ -134,7 +109,7 @@ const DynamicComponents = React.memo(() => (
 /**
  * Main App
  */
-const App = ({ mode }: any) => {
+const App = ({ mode }: { mode: 'CLIENT' | 'SERVER' }) => {
   const [status, setStatus] = useState('SSR');
   const { startNextPhase } = useLazyPhase();
   console.log(`----- ${mode} | ${status} ------`);
