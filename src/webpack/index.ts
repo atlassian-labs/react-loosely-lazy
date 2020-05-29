@@ -74,21 +74,24 @@ export class ReactLooselyLazyPlugin {
   }
 
   apply(compiler: Compiler) {
-    compiler.plugin('emit', (compilation, callback) => {
-      const manifest = buildManifest(compiler, compilation);
-      const json = JSON.stringify(manifest, null, 2);
+    compiler.hooks.emit.tapAsync(
+      ReactLooselyLazyPlugin.name,
+      (compilation, callback) => {
+        const manifest = buildManifest(compiler, compilation);
+        const json = JSON.stringify(manifest, null, 2);
 
-      compilation.assets[this.filename] = {
-        source() {
-          return json;
-        },
-        size() {
-          return json.length;
-        },
-      };
+        compilation.assets[this.filename] = {
+          source() {
+            return json;
+          },
+          size() {
+            return json.length;
+          },
+        };
 
-      callback();
-    });
+        callback();
+      }
+    );
   }
 }
 
