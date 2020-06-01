@@ -67,7 +67,7 @@ module.exports = {
     },
     {
       // Flow specific rules
-      files: ['src/index.js.flow', '*/*flow.js'],
+      files: ['*.js.flow', '*/*flow.js'],
       extends: ['plugin:flowtype/recommended'],
       plugins: ['flowtype'],
       rules: {
