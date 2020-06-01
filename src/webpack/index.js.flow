@@ -1,0 +1,24 @@
+// @flow
+
+export type Manifest = { [key: string]: Bundle };
+
+export type Bundle = {
+  id: number | string | null,
+  file: string,
+  name: string | null,
+  publicPath: string,
+};
+
+export type ReactLooselyLazyPluginOptions = {
+  filename: string,
+};
+
+declare export class ReactLooselyLazyPlugin {
+  constructor(opts: ReactLooselyLazyPluginOptions): ReactLooselyLazyPlugin;
+  apply(compiler: any): void;
+}
+
+declare export function getBundleFiles(
+  manifest: Manifest,
+  moduleIds: string[]
+): string[];

@@ -9,13 +9,17 @@ type ModuleExtended = webpackCompilation.Module & {
   rawRequest?: string;
 };
 
-type Manifest = { [key: string]: Bundle };
+export type Manifest = { [key: string]: Bundle };
 
-type Bundle = {
+export type Bundle = {
   id: number | string | null;
-  name: string | null;
   file: string;
+  name: string | null;
   publicPath: string;
+};
+
+export type ReactLooselyLazyPluginOptions = {
+  filename: string;
 };
 
 function buildManifest(compiler: Compiler, compilation: Compilation) {
@@ -69,7 +73,7 @@ function buildManifest(compiler: Compiler, compilation: Compilation) {
 export class ReactLooselyLazyPlugin {
   filename: string;
 
-  constructor(opts: { filename: string } = { filename: '' }) {
+  constructor(opts: ReactLooselyLazyPluginOptions) {
     this.filename = opts.filename;
   }
 
@@ -95,7 +99,5 @@ export class ReactLooselyLazyPlugin {
   }
 }
 
-export const getBundleFiles = (
-  manifest: { [key: string]: Bundle },
-  moduleIds: string[]
-) => moduleIds.map(id => manifest[id].file);
+export const getBundleFiles = (manifest: Manifest, moduleIds: string[]) =>
+  moduleIds.map(id => manifest[id].file);
