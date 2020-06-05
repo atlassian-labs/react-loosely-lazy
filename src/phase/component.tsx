@@ -5,7 +5,7 @@ import { LazyPhaseContext } from './context';
 import { Listener } from './listeners';
 import { createSubscribe } from './utils';
 
-type LazyWaitProps = {
+export type LazyWaitProps = {
   until: boolean;
   children: ReactNode;
 };
