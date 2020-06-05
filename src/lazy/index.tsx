@@ -6,15 +6,9 @@ import { createComponentServer } from './components/server';
 import { createComponentClient } from './components/client';
 import { createDeferred } from './deferred';
 import { ClientLoader, Loader, ServerLoader } from './loader';
+import type { Bundle, Manifest } from '../webpack';
 
-type Manifest = { [key: string]: Bundle };
-
-type Bundle = {
-  id: number | string | null;
-  name: string | null;
-  file: string;
-  publicPath: string;
-};
+export type { Bundle, Manifest };
 
 export type Options = {
   // Should be rendered on SSR
