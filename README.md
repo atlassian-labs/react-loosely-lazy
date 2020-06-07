@@ -1,14 +1,13 @@
-<h1 align="center">react-loosely-lazy</h1>
-
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=flat-square"></a>
-  <a href="CONTRIBUTING"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square"></a>
+  <img src="https://user-images.githubusercontent.com/84136/83958564-9f660900-a8b6-11ea-97d8-c93fecebfeed.png" alt="react-loosely-lazy logo" height="150" />
 </p>
-<!-- UNCOMMENT ONCE WE HAVE 	THESE, CONVERT TO A TAGS AND MOVE INTO P TAG ABOVE -->
-<!--[![npm](https://img.shields.io/npm/v/react-loosely-lazy.svg)](https://www.npmjs.com/package/react-loosely-lazy)-->
-<!--[![npm bundle size (minified + gzip)](https://img.shields.io/bundlephobia/minzip/react-loosely-lazy.svg)](https://bundlephobia.com/result?p=react-loosely-lazy)-->
-<!--[![CircleCI](https://circleci.com/gh/atlassian/react-loosely-lazy.svg?style=shield&circle-token=xxx)](https://circleci.com/gh/atlassian/react-loosely-lazy)-->
-<!--[![codecov](https://codecov.io/gh/atlassian/react-loosely-lazy/branch/master/graph/badge.svg)](https://codecov.io/gh/atlassian/react-loosely-lazy)-->
+<h1 align="center">react-loosely-lazy</h1>
+<p align="center">
+  <a href="https://www.npmjs.com/package/react-loosely-lazy"><img src="https://img.shields.io/npm/v/react-loosely-lazy.svg"></a>
+  <a href="https://bundlephobia.com/result?p=react-loosely-lazy"><img src="https://img.shields.io/bundlephobia/minzip/react-loosely-lazy.svg" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg"></a>
+  <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" /></a>
+</p>
 
 A future focused async component loading library for React. Comes packed with loading phases to enable fine-grained performance optimisations.
 
