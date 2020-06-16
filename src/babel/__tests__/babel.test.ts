@@ -1,8 +1,9 @@
 import { transformAsync } from '@babel/core';
 // @ts-ignore - babel-plugin-tester doesn't export types
 import pluginTester from 'babel-plugin-tester';
-import plugin from '../';
+import outdent from 'outdent';
 import path from 'path';
+import plugin, { BabelPluginOptions } from '../';
 
 pluginTester({
   plugin,
@@ -12,7 +13,12 @@ pluginTester({
 });
 
 describe.each(['server', 'client'])('on the %s', (env: string) => {
-  const babel = (code: string) =>
+  type BabelOptions = Partial<{ filename: string }> & BabelPluginOptions;
+
+  const babel = (
+    code: string,
+    { filename = 'test.js', ...options }: BabelOptions = {}
+  ) =>
     transformAsync(code, {
       babelrc: false,
       caller: {
@@ -20,10 +26,82 @@ describe.each(['server', 'client'])('on the %s', (env: string) => {
         supportsStaticESM: true,
       },
       configFile: false,
-      filename: 'test.js',
-      plugins: [[plugin, { client: env === 'client' }]],
+      filename,
+      plugins: [[plugin, { client: env === 'client', ...options }]],
       sourceType: 'module',
     });
+
+  describe('correctly generates the moduleId when running babel from a different cwd', () => {
+    const transformedImport = env === 'client' ? 'import' : 'require';
+
+    const mockCwd = (cwd: string) => {
+      jest.spyOn(process, 'cwd').mockImplementation(() => cwd);
+    };
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('by default', async () => {
+      const mocksDir = path.join(__dirname, '__mocks__');
+      // Pretend we are running babel from the __mocks__/test directory
+      mockCwd(path.join(mocksDir, 'test'));
+
+      await expect(
+        babel(
+          `
+            import { lazyForPaint } from 'react-loosely-lazy';
+
+            const TestComponent = lazyForPaint(() => import('./async'));
+          `,
+          {
+            // Pretend the file being transpiled is in the __mocks__/app directory
+            filename: path.join(mocksDir, 'app', 'index.js'),
+          }
+        )
+      ).resolves.toMatchObject({
+        code: outdent`
+          import { lazyForPaint } from 'react-loosely-lazy';
+          const TestComponent = lazyForPaint(() => ${transformedImport}('./async'), {
+            moduleId: "../app/async.js"
+          });
+      `,
+      });
+    });
+
+    it('when given a modulePathReplacer', async () => {
+      const mocksDir = path.join(__dirname, '__mocks__');
+      // Pretend we are running babel from the __mocks__/test directory
+      mockCwd(path.join(mocksDir, 'test'));
+
+      await expect(
+        babel(
+          `
+            import { lazyForPaint } from 'react-loosely-lazy';
+
+            const TestComponent = lazyForPaint(() => import('./async'));
+          `,
+          {
+            // Pretend the file being transpiled is in the __mocks__/app directory
+            filename: path.join(mocksDir, 'app', 'index.js'),
+            // Since babel is running in the test directory, but the file and its import live in the app directory we
+            // want to transform the moduleId so that it matches where the app directory actually lives
+            modulePathReplacer: {
+              from: '../',
+              to: './',
+            },
+          }
+        )
+      ).resolves.toMatchObject({
+        code: outdent`
+          import { lazyForPaint } from 'react-loosely-lazy';
+          const TestComponent = lazyForPaint(() => ${transformedImport}('./async'), {
+            moduleId: "./app/async.js"
+          });
+        `,
+      });
+    });
+  });
 
   describe('throws an error when the loader argument', () => {
     it('is not a function', async () => {

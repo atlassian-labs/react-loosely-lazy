@@ -1,84 +1,50 @@
-import { lstatSync } from 'fs';
-import { dirname, relative } from 'path';
+import { dirname, normalize, relative } from 'path';
 
-function hasDotSlashPrefix(path: string): boolean {
-  return path.substring(0, 2) === './';
+function hasRelativePrefix(path: string): boolean {
+  return path.substring(0, 2) === './' || path.substring(0, 3) === '../';
 }
 
 function addDotSlashPrefix(path: string): string {
-  return hasDotSlashPrefix(path) ? path : `./${path}`;
+  return hasRelativePrefix(path) ? path : `./${path}`;
 }
 
-function removeDotSlashPrefix(path: string): string {
-  return hasDotSlashPrefix(path) ? path.replace('./', '') : path;
-}
-
-function withModuleExtension(filePath: string): string {
-  const extensions = ['.js', '.ts', '.tsx'];
-  const extension = extensions.find(ext => {
-    try {
-      return lstatSync(`${filePath}${ext}`).isFile();
-    } catch {
-      return false;
-    }
-  });
-
-  if (!extension) {
-    throw new Error(`Error: ${filePath}${extension} does not exist`);
-  }
-
-  return `${filePath}${extension}`;
-}
+export type GetModulePathOptions = {
+  filename: string;
+  importPath: string;
+  modulePathReplacer: { from: string; to: string } | undefined;
+};
 
 /**
  * Generates a relative path to the module that should be 1:1 with what the
  * webpack plugin generates for the key for the chunk in the manifest.
  *
- * @param importSpecifier - The import string as it is written in application source code
  * @param filename - The absolute path to the file being transpiled
+ * @param importPath - The import string as it is written in application source code
  * @param modulePathReplacer - Contains from and to string keys to override a specific part of the resulting
  * module paths generated
  */
-export function getModulePath(
-  importSpecifier: string,
-  filename: string,
-  modulePathReplacer: { from: string; to: string } | undefined
-): string {
-  const filePath = `${dirname(filename)}/${removeDotSlashPrefix(
-    importSpecifier
-  )}`;
-  let modulePath;
+export function getModulePath({
+  filename,
+  importPath,
+  modulePathReplacer,
+}: GetModulePathOptions): string {
+  // Resolve the import path starting from the filename path itself rather than from within this file
+  const modulePath = require.resolve(importPath, {
+    paths: [dirname(filename)],
+  });
 
-  // App dependency import eg., import('my-dependency') where my-dependency is a dependency in package.json
-  try {
-    modulePath = require.resolve(importSpecifier);
-  } catch {
-    try {
-      const isDirectory = lstatSync(filePath).isDirectory();
-
-      // module entry import eg., import('./module') where module has index file
-      if (isDirectory) {
-        modulePath = withModuleExtension(`${filePath}/index`);
-      }
-    } catch {
-      // We handle this below
-    }
-  }
-
-  if (!modulePath) {
-    // Relative import eg., import('./async') which is relative to the file being transpiled ie., filename
-    modulePath = withModuleExtension(filePath);
-  }
-
-  const path = addDotSlashPrefix(relative(process.cwd(), modulePath));
+  const path = relative(process.cwd(), modulePath);
 
   if (modulePathReplacer) {
     const { from, to } = modulePathReplacer;
+    // Normalize the "from" option so that it matches the normalized relative path format and replace it with whatever
+    // is in the "to" option
+    const normalizedFrom = normalize(from);
 
-    return path.replace(from, to);
+    return path.replace(normalizedFrom, to);
   }
 
-  return path;
+  return addDotSlashPrefix(path);
 }
 
 export function isPresent<T>(t: T | undefined | null | void): t is T {
