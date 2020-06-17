@@ -83,6 +83,7 @@
     "flow-bin": "^0.124.0",
     "flow-copy-source": "^2.0.7",
     "jest": "^26.0.1",
+    "outdent": "^0.7.1",
     "prettier": "^2.0.5",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",

@@ -1,12 +1,7 @@
-import {
-  NodePath,
-  PluginObj,
-  template as babelTemplate,
-  types as BabelTypes,
-} from '@babel/core';
+import { NodePath, PluginObj, types as BabelTypes } from '@babel/core';
 // TODO Remove when @babel/core exposes this type
 import { Binding } from '@babel/traverse';
-import { getModulePath, isPresent } from './utils';
+import { getModulePath, GetModulePathOptions, isPresent } from './utils';
 import { DEFAULT_OPTIONS } from '../lazy';
 
 const PACKAGE_NAME = 'react-loosely-lazy';
@@ -18,12 +13,15 @@ export type ModulePathReplacer = {
   to: string;
 };
 
+export type BabelPluginOptions = Partial<{
+  client: boolean;
+  modulePathReplacer: ModulePathReplacer;
+}>;
+
 export default function ({
   types: t,
-  template,
 }: {
   types: typeof BabelTypes;
-  template: typeof babelTemplate;
 }): PluginObj {
   function getCallExpression(path: NodePath) {
     let maybeCallExpression = path.parentPath;
@@ -211,16 +209,10 @@ export default function ({
     };
   }
 
-  function buildModuleIdProperty(
-    importSpecifier: string,
-    filename: string,
-    modulePathReplacer?: ModulePathReplacer
-  ) {
+  function buildModuleIdProperty(opts: GetModulePathOptions) {
     return t.objectProperty(
       t.identifier(MODULE_ID_KEY),
-      t.stringLiteral(
-        getModulePath(importSpecifier, filename, modulePathReplacer)
-      )
+      t.stringLiteral(getModulePath(opts))
     );
   }
 
@@ -229,10 +221,7 @@ export default function ({
       ImportDeclaration(
         path: NodePath<BabelTypes.ImportDeclaration>,
         state: {
-          opts?: {
-            client?: boolean;
-            modulePathReplacer?: ModulePathReplacer;
-          };
+          opts?: BabelPluginOptions | undefined | false;
           filename?: string;
         }
       ) {
@@ -279,7 +268,11 @@ export default function ({
 
             // Add the moduleId property to options
             lazyOptions.node.properties.push(
-              buildModuleIdProperty(importPath, filename, modulePathReplacer)
+              buildModuleIdProperty({
+                filename,
+                importPath,
+                modulePathReplacer,
+              })
             );
           });
         });
