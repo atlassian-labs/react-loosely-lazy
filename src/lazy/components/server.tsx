@@ -4,33 +4,35 @@ import { LoaderError } from '../errors/loader-error';
 import { getExport } from '../../utils';
 import { ServerLoader } from '../loader';
 
-const load = (moduleId: string, loader: ServerLoader) => {
+function load<P>(moduleId: string, loader: ServerLoader<P>) {
   try {
     return getExport(loader());
   } catch (err) {
     throw new LoaderError(moduleId, err);
   }
-};
+}
 
-export const createComponentServer = ({
+export function createComponentServer<P>({
   dataLazyId,
   loader,
   moduleId,
   ssr,
 }: {
   dataLazyId: string;
-  loader: ServerLoader;
+  loader: ServerLoader<P>;
   moduleId: string;
   ssr: boolean;
-}) => (props: any) => {
-  const Resolved = ssr ? load(moduleId, loader) : null;
-  const { fallback } = useContext(LazySuspenseContext);
+}) {
+  return (props: P) => {
+    const Resolved = ssr ? load(moduleId, loader) : null;
+    const { fallback } = useContext(LazySuspenseContext);
 
-  return (
-    <>
-      <input type="hidden" data-lazy-begin={dataLazyId} />
-      {Resolved ? <Resolved {...props} /> : fallback}
-      <input type="hidden" data-lazy-end={dataLazyId} />
-    </>
-  );
-};
+    return (
+      <>
+        <input type="hidden" data-lazy-begin={dataLazyId} />
+        {Resolved ? <Resolved {...props} /> : fallback}
+        <input type="hidden" data-lazy-end={dataLazyId} />
+      </>
+    );
+  };
+}

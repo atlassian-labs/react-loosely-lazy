@@ -1,16 +1,16 @@
 import { ImportDefaultComponent, ClientLoader } from './loader';
 
-export type Deferred = {
-  promise: Promise<ImportDefaultComponent>;
-  result: ImportDefaultComponent | void;
+export type Deferred<P> = {
+  promise: Promise<ImportDefaultComponent<P>>;
+  result: ImportDefaultComponent<P> | void;
   start(): Promise<void>;
 };
 
-export const createDeferred = (loader: ClientLoader): Deferred => {
+export const createDeferred = <P>(loader: ClientLoader<P>): Deferred<P> => {
   let resolve: (m: any) => void;
 
   const deferred = {
-    promise: new Promise<ImportDefaultComponent>(res => {
+    promise: new Promise<ImportDefaultComponent<P>>(res => {
       resolve = (m: any) => {
         let withDefault;
         deferred.result = m;

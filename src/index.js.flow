@@ -1,50 +1,84 @@
-// @flow
+// @flow strict
 
 import type { Node, ComponentType } from 'react';
+import type { Asset, Manifest } from './webpack';
 
-declare export var MODE: {| RENDER: string, HYDRATE: string |};
+export type { Asset, Manifest };
 
-declare export var SETTINGS: {|
+declare export var MODE: {
+  RENDER: string,
+  HYDRATE: string,
+};
+
+declare export var SETTINGS: {
   CURRENT_MODE: typeof MODE.RENDER | typeof MODE.HYDRATE,
-|};
+};
 
-declare export var LooselyLazy: {|
-  init: (mode: typeof SETTINGS.CURRENT_MODE) => void,
-|};
+declare export var LooselyLazy: {
+  init(mode: typeof SETTINGS.CURRENT_MODE): void,
+};
 
 declare export default typeof LooselyLazy;
 
-type ImportDefaultComponent = {
-  default: ComponentType<any>,
+export type LazyComponent<P> = ComponentType<P> & {
+  getAssetUrls(manifest: Manifest): string[] | void,
+  preload(): void,
 };
 
-declare export function Loader(): Promise<ImportDefaultComponent>;
+type Options = {
+  ssr?: boolean,
+  defer?: number,
+  moduleId?: string,
+};
 
-type LazyComponent = any;
-
-declare export function LazySuspense(props: {|
-  children: Node,
+export type LazySuspenseProps = {
+  children?: ?Node,
   fallback: Node,
-|}): Node;
+};
 
-declare export function lazyForPaint(
-  loader: typeof Loader,
-  opts?: any
-): LazyComponent;
+declare export var LazySuspense: ComponentType<LazySuspenseProps>;
 
-declare export function lazyAfterPaint(
-  loader: typeof Loader,
-  opts?: any
-): LazyComponent;
+export type ImportDefaultComponent<P> = {
+  default: ComponentType<P>,
+  ...
+};
 
-declare export function lazy(loader: typeof Loader, opts?: any): LazyComponent;
+export type ClientLoader<P> = () => Promise<
+  ImportDefaultComponent<P> | ComponentType<P>
+>;
 
-declare export function LazyWait(props: {|
+export type ServerLoader<P> = () =>
+  | ImportDefaultComponent<P>
+  | ComponentType<P>;
+
+// TODO: Reinstate ServerLoader<P> whenever flow better supports dynamic imports
+export type Loader<P> = ClientLoader<P>; // | ServerLoader<P>;
+
+export type { Options as LazyOptions };
+
+declare export function lazyForPaint<P>(
+  loader: Loader<P>,
+  opts?: Options
+): LazyComponent<P>;
+
+declare export function lazyAfterPaint<P>(
+  loader: Loader<P>,
+  opts?: Options
+): LazyComponent<P>;
+
+declare export function lazy<P>(
+  loader: Loader<P>,
+  opts?: Options
+): LazyComponent<P>;
+
+export type LazyWaitProps = {
   until: boolean,
   children: Node,
-|}): Node;
+};
 
-declare export function useLazyPhase(): {|
-  startNextPhase: () => void,
-  resetPhase: () => void,
-|};
+declare export var LazyWait: ComponentType<LazyWaitProps>;
+
+declare export function useLazyPhase(): {
+  startNextPhase(): void,
+  resetPhase(): void,
+};

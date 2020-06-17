@@ -1,4 +1,4 @@
-import { LoaderError, isLoaderError } from '../errors/loader-error';
+import { LoaderError, isLoaderError } from '../loader-error';
 
 describe('LoaderError', () => {
   it('returns an error object that contains the correct name, message, native error, and stack', () => {

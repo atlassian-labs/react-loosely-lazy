@@ -67,11 +67,12 @@ module.exports = {
     },
     {
       // Flow specific rules
-      files: ['*.js.flow', '*/*flow.js'],
+      files: ['*.js.flow', '*/*flow.js', '*.flow.test.js'],
       extends: ['plugin:flowtype/recommended'],
       plugins: ['flowtype'],
       rules: {
         'flowtype/generic-spacing': ['off'],
+        'no-unused-vars': ['off'],
       },
     },
     {
@@ -82,14 +83,25 @@ module.exports = {
         'prettier/@typescript-eslint',
       ],
       rules: {
+        '@typescript-eslint/ban-ts-comment': [
+          'error',
+          {
+            'ts-expect-error': 'allow-with-description',
+            'ts-ignore': 'allow-with-description',
+          },
+        ],
         '@typescript-eslint/explicit-function-return-type': 'off',
-        '@typescript-eslint/no-use-before-define': 'off',
+        '@typescript-eslint/explicit-module-boundary-types': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
-        '@typescript-eslint/no-implicit-any': 'off',
-        '@typescript-eslint/explicit-member-accessibility': 'off',
         '@typescript-eslint/no-non-null-assertion': 'off',
-        '@typescript-eslint/no-empty-interface': 'off',
-        '@typescript-eslint/ban-ts-ignore': 'off',
+        '@typescript-eslint/no-use-before-define': 'off',
+      },
+    },
+    {
+      // TypeScript specific rules for type tests
+      files: ['*.typescript.test.{ts,tsx}'],
+      rules: {
+        '@typescript-eslint/no-unused-vars': 'off',
       },
     },
   ],

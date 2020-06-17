@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
-
 export { default as hash } from './hash';
 
 export const getExport = (m: any) => ('default' in m ? m.default : m);

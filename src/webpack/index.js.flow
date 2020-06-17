@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 
 export type Asset = string;
 
@@ -10,7 +10,7 @@ export type ReactLooselyLazyPluginOptions = {
 
 declare export class ReactLooselyLazyPlugin {
   constructor(opts: ReactLooselyLazyPluginOptions): ReactLooselyLazyPlugin;
-  apply(compiler: any): void;
+  apply(compiler: {}): void;
 }
 
 declare export function getAssets(
