@@ -2,4 +2,5 @@ node_modules
 
 lib
 
-__fixtures__
+src/babel/__tests__/__fixtures__
+src/webpack/__tests__/__fixtures__/output

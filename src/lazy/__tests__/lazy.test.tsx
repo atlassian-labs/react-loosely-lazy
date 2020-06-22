@@ -80,16 +80,11 @@ describe('lazy', () => {
       (isNodeEnvironment as any).mockImplementation(() => true);
     });
 
-    it('should return the module public path in the supplied manifest when calling getBundleUrl', () => {
-      const moduleId = '@foo/bar';
-      const publicPath = 'https://cdn.com/@foo/bar.js';
+    it('should return the module public path in the supplied manifest when calling getAssetUrls', () => {
+      const moduleId = './src/app/foo.tsx';
+      const publicPath = 'https://cdn.com/async-foo.js';
       const manifest = {
-        [moduleId]: {
-          file: '',
-          id: 0,
-          name: '',
-          publicPath,
-        },
+        [moduleId]: [publicPath],
       };
       const LazyComponent = lazyForPaint(
         () => createDefaultServerImport({ DefaultComponent: () => <div /> }),
@@ -99,7 +94,7 @@ describe('lazy', () => {
         }
       );
 
-      expect(LazyComponent.getBundleUrl(manifest)).toEqual(publicPath);
+      expect(LazyComponent.getAssetUrls(manifest)).toEqual([publicPath]);
     });
 
     it('should render the default component correctly when there is only a default export', async () => {
