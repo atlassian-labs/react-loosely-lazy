@@ -1,3 +1,5 @@
+export const PACKAGE_NAME = 'react-loosely-lazy';
+
 export const MODE = {
   RENDER: 'RENDER' as const,
   HYDRATE: 'HYDRATE' as const,
@@ -13,7 +15,7 @@ export const PHASE_LAZY_DELAY = 50;
 
 export const COLLECTED = new Map();
 
-type Settings = {
+export type Settings = {
   CURRENT_MODE: typeof MODE.HYDRATE | typeof MODE.RENDER;
 };
 
