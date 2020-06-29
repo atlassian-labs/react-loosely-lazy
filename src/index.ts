@@ -1,4 +1,6 @@
 export { MODE, SETTINGS } from './constants';
+export type { Settings } from './constants';
+
 export { LooselyLazy as default } from './init';
 
 export {

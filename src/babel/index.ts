@@ -1,10 +1,10 @@
 import { NodePath, PluginObj, types as BabelTypes } from '@babel/core';
 // TODO Remove when @babel/core exposes this type
 import { Binding } from '@babel/traverse';
-import { getModulePath, GetModulePathOptions, isPresent } from './utils';
+import { PACKAGE_NAME } from '../constants';
 import { DEFAULT_OPTIONS } from '../lazy';
+import { getModulePath, GetModulePathOptions, isPresent } from './utils';
 
-const PACKAGE_NAME = 'react-loosely-lazy';
 const MODULE_ID_KEY = 'moduleId';
 const LAZY_METHODS = Object.keys(DEFAULT_OPTIONS);
 

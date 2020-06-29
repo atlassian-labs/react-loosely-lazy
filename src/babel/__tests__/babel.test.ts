@@ -3,11 +3,12 @@ import { transformAsync } from '@babel/core';
 import pluginTester from 'babel-plugin-tester';
 import outdent from 'outdent';
 import path from 'path';
+import { PACKAGE_NAME } from '../../constants';
 import plugin, { BabelPluginOptions } from '../';
 
 pluginTester({
   plugin,
-  pluginName: 'react-loosely-lazy',
+  pluginName: PACKAGE_NAME,
   fixtures: path.join(__dirname, '__fixtures__'),
   snapshot: true,
 });

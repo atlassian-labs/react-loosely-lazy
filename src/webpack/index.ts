@@ -1,4 +1,5 @@
 import { Compiler, compilation as webpackCompilation } from 'webpack';
+import { PACKAGE_NAME } from '../constants';
 import { Asset, Manifest } from './manifest';
 import { buildManifest } from './utils';
 
@@ -28,7 +29,7 @@ export class ReactLooselyLazyPlugin {
       let hasLibraryImport = false;
 
       parser.hooks.import.tap(name, (statement, source) => {
-        if (source === 'react-loosely-lazy') {
+        if (source === PACKAGE_NAME) {
           hasLibraryImport = true;
         }
       });
@@ -46,7 +47,7 @@ export class ReactLooselyLazyPlugin {
         if (
           harmonySpecifier &&
           harmonySpecifier.has(calleeName) &&
-          harmonySpecifier.get(calleeName).source === 'react-loosely-lazy'
+          harmonySpecifier.get(calleeName).source === PACKAGE_NAME
         ) {
           currentLibraryExpression = expression;
         }
