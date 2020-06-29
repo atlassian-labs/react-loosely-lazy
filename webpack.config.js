@@ -57,10 +57,10 @@ module.exports = {
   },
 
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.json'],
     alias: {
       'react-loosely-lazy': resolve(__dirname, './src'),
     },
+    extensions: ['.ts', '.tsx', '.js', '.json'],
   },
 
   devServer: {

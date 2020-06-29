@@ -1,14 +1,15 @@
 import React from 'react';
-import { PHASE } from '../constants';
 
+import { PHASE } from '../constants';
 import { hash, displayNameFromId, isNodeEnvironment } from '../utils';
+import type { Asset, Manifest } from '../webpack';
+
 import { createComponentServer } from './components/server';
 import { createComponentClient } from './components/client';
 import { createDeferred } from './deferred';
 import { ClientLoader, Loader, ServerLoader } from './loader';
-import type { Bundle, Manifest } from '../webpack';
 
-export type { Bundle, Manifest };
+export type { Asset, Manifest };
 
 export type Options = {
   // Should be rendered on SSR
@@ -22,7 +23,7 @@ export type Options = {
 
 type LazyComponent = React.ComponentType<any> & {
   preload: () => void;
-  getBundleUrl: (manifest: Manifest) => string | undefined;
+  getAssetUrls: (manifest: Manifest) => string[] | undefined;
 };
 
 const lazyProxy = (
@@ -69,12 +70,12 @@ const lazyProxy = (
     head.appendChild(link);
   };
 
-  LazyComponent.getBundleUrl = (manifest: Manifest) => {
+  LazyComponent.getAssetUrls = (manifest: Manifest) => {
     if (!manifest[moduleId]) {
       return undefined;
     }
 
-    return manifest[moduleId].publicPath;
+    return manifest[moduleId];
   };
 
   return LazyComponent;

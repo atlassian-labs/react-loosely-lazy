@@ -6,7 +6,9 @@ export type ImportDefaultComponent = {
 
 export type Loader = ClientLoader | ServerLoader;
 
-export type ClientLoader = () => Promise<ImportDefaultComponent>;
+export type ClientLoader = () => Promise<
+  ImportDefaultComponent | React.ComponentType<any>
+>;
 
 export type ServerLoader = () =>
   | ImportDefaultComponent
