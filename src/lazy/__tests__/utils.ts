@@ -1,29 +1,28 @@
-import { Component, ComponentType, ReactNode } from 'react';
+import { Component, ReactNode } from 'react';
 
-export const createDefaultServerImport = <P1, P2>({
+export const createDefaultServerImport = <C1, C2>({
   DefaultComponent,
   NamedComponent,
 }: {
-  DefaultComponent: ComponentType<P1>;
-  NamedComponent?: ComponentType<P2>;
+  DefaultComponent: C1;
+  NamedComponent?: C2;
 }) => {
   return NamedComponent
     ? { default: DefaultComponent, TestComponent: NamedComponent }
     : { default: DefaultComponent };
 };
 
-export const createNamedServerImport = <P1, P2>({
+export const createNamedServerImport = <C1, C2>({
   DefaultComponent,
   NamedComponent,
 }: {
-  DefaultComponent?: ComponentType<P1>;
-  NamedComponent: ComponentType<P2>;
+  DefaultComponent?: C1;
+  NamedComponent: C2;
 }) => {
   const _temp = DefaultComponent
     ? { default: DefaultComponent, TestComponent: NamedComponent }
     : { TestComponent: NamedComponent };
-  const _temp2 = ({ TestComponent }: { TestComponent: ComponentType<P2> }) =>
-    TestComponent;
+  const _temp2 = ({ TestComponent }: { TestComponent: C2 }) => TestComponent;
 
   return _temp2(_temp);
 };

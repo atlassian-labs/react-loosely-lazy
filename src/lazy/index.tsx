@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType, FunctionComponent } from 'react';
 
 import { PHASE } from '../constants';
 import { hash, displayNameFromId, isNodeEnvironment } from '../utils';
@@ -21,29 +21,31 @@ export type Options = {
   moduleId?: string;
 };
 
-export type LazyComponent<P> = ComponentType<P> & {
+export type LazyComponent<C extends ComponentType<any>> = FunctionComponent<
+  ComponentProps<C>
+> & {
   preload: () => void;
   getAssetUrls: (manifest: Manifest) => string[] | undefined;
 };
 
-function lazyProxy<P>(
-  loader: Loader<P>,
+function lazyProxy<C extends ComponentType<any>>(
+  loader: Loader<C>,
   { defer = PHASE.PAINT, moduleId = '', ssr = true }: Options = {}
-): LazyComponent<P> {
+): LazyComponent<C> {
   const isServer = isNodeEnvironment();
   const dataLazyId = hash(moduleId);
 
-  const LazyComponent: ComponentType<P> = isServer
+  const LazyComponent: FunctionComponent<ComponentProps<C>> = isServer
     ? createComponentServer({
         dataLazyId,
-        loader: loader as ServerLoader<P>,
+        loader: loader as ServerLoader<C>,
         moduleId,
         ssr,
       })
     : createComponentClient({
         dataLazyId,
         defer,
-        deferred: createDeferred(loader as ClientLoader<P>),
+        deferred: createDeferred(loader as ClientLoader<C>),
         moduleId,
         ssr,
       });
@@ -92,22 +94,31 @@ export const DEFAULT_OPTIONS: {
   lazy: { ssr: false, defer: PHASE.LAZY },
 };
 
-export function lazyForPaint<P>(loader: Loader<P>, opts?: Options) {
-  return lazyProxy<P>(loader, {
+export function lazyForPaint<C extends ComponentType<any>>(
+  loader: Loader<C>,
+  opts?: Options
+) {
+  return lazyProxy<C>(loader, {
     ...DEFAULT_OPTIONS.lazyForPaint,
     ...(opts || {}),
   });
 }
 
-export function lazyAfterPaint<P>(loader: Loader<P>, opts?: Options) {
-  return lazyProxy<P>(loader, {
+export function lazyAfterPaint<C extends ComponentType<any>>(
+  loader: Loader<C>,
+  opts?: Options
+) {
+  return lazyProxy<C>(loader, {
     ...DEFAULT_OPTIONS.lazyAfterPaint,
     ...(opts || {}),
   });
 }
 
-export function lazy<P>(loader: Loader<P>, opts?: Options) {
-  return lazyProxy<P>(loader, {
+export function lazy<C extends ComponentType<any>>(
+  loader: Loader<C>,
+  opts?: Options
+) {
+  return lazyProxy<C>(loader, {
     ...DEFAULT_OPTIONS.lazy,
     ...(opts || {}),
   });

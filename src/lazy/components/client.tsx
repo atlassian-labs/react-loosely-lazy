@@ -1,4 +1,12 @@
-import React, { lazy, useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  ComponentProps,
+  ComponentType,
+  lazy,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import { COLLECTED, SETTINGS, MODE } from '../../constants';
 import { LazySuspenseContext } from '../../suspense';
@@ -8,7 +16,7 @@ import { LoaderError } from '../errors/loader-error';
 import { PlaceholderFallbackRender } from '../placeholders/render';
 import { PlaceholderFallbackHydrate } from '../placeholders/hydrate';
 
-export function createComponentClient<P>({
+export function createComponentClient<C extends ComponentType<any>>({
   defer,
   deferred,
   dataLazyId,
@@ -16,14 +24,14 @@ export function createComponentClient<P>({
   ssr,
 }: {
   defer: number;
-  deferred: Deferred<P>;
+  deferred: Deferred<C>;
   dataLazyId: string;
   moduleId: string;
   ssr: boolean;
 }) {
   const ResolvedLazy = lazy(() => deferred.promise);
 
-  return (props: P) => {
+  return (props: ComponentProps<C>) => {
     const { setFallback } = useContext(LazySuspenseContext);
     const [, setState] = useState();
     const isOwnPhase = usePhaseSubscription(defer);
@@ -64,7 +72,6 @@ export function createComponentClient<P>({
       }, [setFallback]);
     }
 
-    // @ts-expect-error React.lazy types seem to be incorrect, refer to: https://github.com/DefinitelyTyped/DefinitelyTyped/issues/42713
     return <ResolvedLazy {...props} />;
   };
 }

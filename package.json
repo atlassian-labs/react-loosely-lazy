@@ -82,7 +82,7 @@
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-react": "^7.20.3",
     "eslint-plugin-react-hooks": "^4.0.8",
-    "flow-bin": "^0.128.0",
+    "flow-bin": "^0.130.0",
     "flow-copy-source": "^2.0.7",
     "jest": "^26.0.1",
     "mini-css-extract-plugin": "^0.9.0",

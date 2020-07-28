@@ -37,7 +37,6 @@ const createApp = ({
   const lazyFn = phase === PHASE.AFTER_PAINT ? lazyAfterPaint : lazyForPaint;
   // @ts-ignore - We are mocking the import
   const AsyncComponent = lazyFn(() => mockImport, {
-    id: () => './my-component',
     ssr,
   });
 

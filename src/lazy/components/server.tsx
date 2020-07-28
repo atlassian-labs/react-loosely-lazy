@@ -1,10 +1,10 @@
-import React, { useContext } from 'react';
+import React, { ComponentProps, ComponentType, useContext } from 'react';
 import { LazySuspenseContext } from '../../suspense';
 import { LoaderError } from '../errors/loader-error';
 import { getExport } from '../../utils';
 import { ServerLoader } from '../loader';
 
-function load<P>(moduleId: string, loader: ServerLoader<P>) {
+function load<C>(moduleId: string, loader: ServerLoader<C>) {
   try {
     return getExport(loader());
   } catch (err) {
@@ -12,18 +12,18 @@ function load<P>(moduleId: string, loader: ServerLoader<P>) {
   }
 }
 
-export function createComponentServer<P>({
+export function createComponentServer<C extends ComponentType<any>>({
   dataLazyId,
   loader,
   moduleId,
   ssr,
 }: {
   dataLazyId: string;
-  loader: ServerLoader<P>;
+  loader: ServerLoader<C>;
   moduleId: string;
   ssr: boolean;
 }) {
-  return (props: P) => {
+  return (props: ComponentProps<C>) => {
     const Resolved = ssr ? load(moduleId, loader) : null;
     const { fallback } = useContext(LazySuspenseContext);
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ComponentType } from 'react';
 import { lazyForPaint } from 'react-loosely-lazy';
 import type { FooProps } from './__fixtures__/foo';
 
@@ -12,7 +12,7 @@ const UntypedEmptyPropsTestComponent = lazyForPaint(() =>
 <UntypedEmptyPropsTestComponent foo="foo" />;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-const TypedEmptyPropsTestComponent = lazyForPaint<{}>(() =>
+const TypedEmptyPropsTestComponent = lazyForPaint<ComponentType<{}>>(() =>
   import('./__fixtures__/empty-props')
 );
 
@@ -21,7 +21,7 @@ const TypedEmptyPropsTestComponent = lazyForPaint<{}>(() =>
 // @ts-expect-error foo prop is not allowed
 <TypedEmptyPropsTestComponent foo="foo" />;
 
-const NamedUntypedEmptyPropsTestComponent = lazyForPaint<unknown>(() =>
+const NamedUntypedEmptyPropsTestComponent = lazyForPaint(() =>
   import('./__fixtures__/empty-props').then(({ EmptyProps }) => EmptyProps)
 );
 
@@ -31,7 +31,7 @@ const NamedUntypedEmptyPropsTestComponent = lazyForPaint<unknown>(() =>
 <NamedUntypedEmptyPropsTestComponent foo="foo" />;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-const NamedTypedEmptyPropsTestComponent = lazyForPaint<{}>(() =>
+const NamedTypedEmptyPropsTestComponent = lazyForPaint<ComponentType<{}>>(() =>
   import('./__fixtures__/empty-props').then(({ EmptyProps }) => EmptyProps)
 );
 
@@ -52,7 +52,7 @@ const UntypedPropsTestComponent = lazyForPaint(() =>
 // @ts-expect-error bar prop is not allowed
 <UntypedPropsTestComponent foo="foo" bar="bar" />;
 
-const TypedPropsTestComponent = lazyForPaint<FooProps>(() =>
+const TypedPropsTestComponent = lazyForPaint<ComponentType<FooProps>>(() =>
   import('./__fixtures__/foo')
 );
 
@@ -65,19 +65,18 @@ const TypedPropsTestComponent = lazyForPaint<FooProps>(() =>
 <TypedPropsTestComponent foo="foo" bar="bar" />;
 
 const NamedUntypedPropsTestComponent = lazyForPaint(() =>
-  // @ts-expect-error TypeScript does not seem to infer named imports correctly, refer to: https://github.com/microsoft/TypeScript/issues/30712
   import('./__fixtures__/foo').then(({ Foo }) => Foo)
 );
 
+// @ts-expect-error foo prop is missing
 <NamedUntypedPropsTestComponent />;
 
-// @ts-expect-error foo prop cannot be inferred
 <NamedUntypedPropsTestComponent foo="foo" />;
 
 // @ts-expect-error bar prop is not allowed
 <NamedUntypedPropsTestComponent foo="foo" bar="bar" />;
 
-const NamedTypedPropsTestComponent = lazyForPaint<FooProps>(() =>
+const NamedTypedPropsTestComponent = lazyForPaint<ComponentType<FooProps>>(() =>
   import('./__fixtures__/foo').then(({ Foo }) => Foo)
 );
 
@@ -89,17 +88,18 @@ const NamedTypedPropsTestComponent = lazyForPaint<FooProps>(() =>
 // @ts-expect-error bar prop is not allowed
 <NamedTypedPropsTestComponent foo="foo" bar="bar" />;
 
-const MixedTypedPropsTestComponent = lazyForPaint<FooProps>(() =>
+const MixedTypedPropsTestComponent = lazyForPaint<ComponentType<FooProps>>(() =>
   // @ts-expect-error FooProps and BarProps do not match
   import('./__fixtures__/bar')
 );
 
-const NamedMixedTypedPropsTestComponent = lazyForPaint<FooProps>(() =>
-  // @ts-expect-error FooProps and BarProps do not match
-  import('./__fixtures__/bar').then(({ Bar }) => Bar)
+const NamedMixedTypedPropsTestComponent = lazyForPaint<ComponentType<FooProps>>(
+  () =>
+    // @ts-expect-error FooProps and BarProps do not match
+    import('./__fixtures__/bar').then(({ Bar }) => Bar)
 );
 
-const TestComponent = lazyForPaint<FooProps>(() =>
+const TestComponent = lazyForPaint<ComponentType<FooProps>>(() =>
   import('./__fixtures__/foo')
 );
 

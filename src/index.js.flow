@@ -1,6 +1,6 @@
 // @flow strict
 
-import type { Node, ComponentType } from 'react';
+import type { ComponentType, ElementConfig, Node } from 'react';
 import type { Asset, Manifest } from './webpack';
 
 export type { Asset, Manifest };
@@ -20,7 +20,7 @@ declare export var LooselyLazy: {
 
 declare export default typeof LooselyLazy;
 
-export type LazyComponent<P> = ComponentType<P> & {
+export type LazyComponent<C> = ComponentType<ElementConfig<C>> & {
   getAssetUrls(manifest: Manifest): string[] | void,
   preload(): void,
 };
@@ -38,38 +38,34 @@ export type LazySuspenseProps = {
 
 declare export var LazySuspense: ComponentType<LazySuspenseProps>;
 
-export type ImportDefaultComponent<P> = {
-  default: ComponentType<P>,
+export type JavaScriptModule<C> = {
+  default: C,
   ...
 };
 
-export type ClientLoader<P> = () => Promise<
-  ImportDefaultComponent<P> | ComponentType<P>
->;
+export type ClientLoader<C> = () => Promise<JavaScriptModule<C> | C>;
 
-export type ServerLoader<P> = () =>
-  | ImportDefaultComponent<P>
-  | ComponentType<P>;
+export type ServerLoader<C> = () => JavaScriptModule<C> | C;
 
-// TODO: Reinstate ServerLoader<P> whenever flow better supports dynamic imports
-export type Loader<P> = ClientLoader<P>; // | ServerLoader<P>;
+// TODO: Reinstate ServerLoader<C> whenever flow better supports dynamic imports
+export type Loader<C> = ClientLoader<C>; // | ServerLoader<C>;
 
 export type { Options as LazyOptions };
 
-declare export function lazyForPaint<P>(
-  loader: Loader<P>,
+declare export function lazyForPaint<C>(
+  loader: Loader<C>,
   opts?: Options
-): LazyComponent<P>;
+): LazyComponent<C>;
 
-declare export function lazyAfterPaint<P>(
-  loader: Loader<P>,
+declare export function lazyAfterPaint<C>(
+  loader: Loader<C>,
   opts?: Options
-): LazyComponent<P>;
+): LazyComponent<C>;
 
-declare export function lazy<P>(
-  loader: Loader<P>,
+declare export function lazy<C>(
+  loader: Loader<C>,
   opts?: Options
-): LazyComponent<P>;
+): LazyComponent<C>;
 
 export type LazyWaitProps = {
   until: boolean,
