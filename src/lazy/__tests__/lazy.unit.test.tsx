@@ -80,21 +80,39 @@ describe('lazy', () => {
       (isNodeEnvironment as any).mockImplementation(() => true);
     });
 
-    it('should return the module public path in the supplied manifest when calling getAssetUrls', () => {
-      const moduleId = './src/app/foo.tsx';
-      const publicPath = 'https://cdn.com/async-foo.js';
-      const manifest = {
-        [moduleId]: [publicPath],
-      };
-      const LazyComponent = lazyForPaint(
-        () => createDefaultServerImport({ DefaultComponent: () => <div /> }),
-        {
-          ...lazyOptions,
-          moduleId,
-        }
-      );
+    describe('getAssetUrls', () => {
+      const createComponent = (moduleId: string) =>
+        lazyForPaint(
+          () => createDefaultServerImport({ DefaultComponent: () => <div /> }),
+          {
+            ...lazyOptions,
+            moduleId,
+          }
+        );
 
-      expect(LazyComponent.getAssetUrls(manifest)).toEqual([publicPath]);
+      it('should return undefined when given an empty manifest', () => {
+        const manifest = {};
+        const TestComponent = createComponent('./src/app/foo.tsx');
+        expect(TestComponent.getAssetUrls(manifest)).toBeUndefined();
+      });
+
+      it('should return undefined when given a manifest that does not contain the component moduleId', () => {
+        const manifest = {
+          './src/app/bar.tsx': ['https://cdn.com/async-bar.js'],
+        };
+        const TestComponent = createComponent('./src/app/foo.tsx');
+        expect(TestComponent.getAssetUrls(manifest)).toBeUndefined();
+      });
+
+      it('should return the module public paths when given a manifest that contains the component moduleId', () => {
+        const publicPath = 'https://cdn.com/async-foo.js';
+        const moduleId = './src/app/foo.tsx';
+        const manifest = {
+          [`${moduleId}`]: [publicPath],
+        };
+        const TestComponent = createComponent(moduleId);
+        expect(TestComponent.getAssetUrls(manifest)).toEqual([publicPath]);
+      });
     });
 
     it('should render the default component correctly when there is only a default export', async () => {

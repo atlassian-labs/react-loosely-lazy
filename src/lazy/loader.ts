@@ -1,15 +1,9 @@
-import React from 'react';
-
-export type ImportDefaultComponent = {
-  default: React.ComponentType<any>;
+export type JavaScriptModule<C> = {
+  default: C;
 };
 
-export type Loader = ClientLoader | ServerLoader;
+export type ClientLoader<C> = () => Promise<JavaScriptModule<C> | C>;
 
-export type ClientLoader = () => Promise<
-  ImportDefaultComponent | React.ComponentType<any>
->;
+export type ServerLoader<C> = () => JavaScriptModule<C> | C;
 
-export type ServerLoader = () =>
-  | ImportDefaultComponent
-  | React.ComponentType<any>;
+export type Loader<C> = ClientLoader<C> | ServerLoader<C>;

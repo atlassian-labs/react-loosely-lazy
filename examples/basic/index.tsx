@@ -5,8 +5,6 @@
  * To do this properly we will need to create a full app with a server and a client that calls it.
  */
 
-/* eslint-disable no-undef, @typescript-eslint/camelcase, @typescript-eslint/ban-ts-ignore */
-
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import ReactDOMServer from 'react-dom/server';
@@ -21,7 +19,6 @@ import LooselyLazy, {
   LazySuspense,
   LazyWait,
   MODE,
-  SETTINGS,
 } from 'react-loosely-lazy';
 
 const Async: any = {};
@@ -152,8 +149,6 @@ const mode = isRender ? MODE.RENDER : MODE.HYDRATE;
 if (container) {
   buildComponents();
   setTimeout(() => {
-    // @ts-ignore - this will no longer work but were simulating server env behaviour
-    SETTINGS.IS_SERVER = true;
     LooselyLazy.init(mode);
     const ssr = ReactDOMServer.renderToString(<App mode="SERVER" />);
     container.innerHTML = isRender ? `<div>${ssr}</div>` : ssr;
@@ -161,8 +156,6 @@ if (container) {
 }
 
 setTimeout(() => {
-  // @ts-ignore - this will no longer work but were simulating client env behaviour
-  SETTINGS.IS_SERVER = false;
   LooselyLazy.init(mode);
   buildComponents();
   ReactDOM.render(<App mode="CLIENT" />, container);

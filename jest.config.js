@@ -6,7 +6,8 @@ module.exports = {
   coverageDirectory: '<rootDir>/coverage',
   resetMocks: true,
   setupFilesAfterEnv: ['<rootDir>jest.setup.js'],
-  testMatch: ['<rootDir>/src/**/__tests__/?(*.)+(test).(j|t)s?(x)'],
+  // Matches all test.tsx? files under the src directory that are not prefixed with flow, or typescript
+  testRegex: ['\\/src\\/(.+\\/)*(.*(?<!(flow|typescript))\\.)?test\\.tsx?$'],
   verbose: true,
   // Webpack plugin test generates files which causes an infinite loop in watch mode if not ignored
   watchPathIgnorePatterns: ['src/webpack/__tests__/__fixtures__/output'],

@@ -1,16 +1,19 @@
-import { ImportDefaultComponent, ClientLoader } from './loader';
+import { ComponentType } from 'react';
+import { ClientLoader, JavaScriptModule } from './loader';
 
-export type Deferred = {
-  promise: Promise<ImportDefaultComponent>;
-  result: ImportDefaultComponent | void;
+export type Deferred<C> = {
+  promise: Promise<JavaScriptModule<C>>;
+  result: JavaScriptModule<C> | void;
   start(): Promise<void>;
 };
 
-export const createDeferred = (loader: ClientLoader): Deferred => {
+export const createDeferred = <C extends ComponentType<any>>(
+  loader: ClientLoader<C>
+): Deferred<C> => {
   let resolve: (m: any) => void;
 
   const deferred = {
-    promise: new Promise<ImportDefaultComponent>(res => {
+    promise: new Promise<JavaScriptModule<C>>(res => {
       resolve = (m: any) => {
         let withDefault;
         deferred.result = m;
