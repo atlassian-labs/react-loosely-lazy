@@ -35,7 +35,7 @@ React Loosely Lazy solves both of these problems with a server side compatible A
 ```js
 import { lazyForPaint, LazySuspense } from 'react-loosely-lazy';
 
-const MyAsyncComponent = lazyForPaint(() => import('./MyComponent'));
+const AsyncMyComponent = lazyForPaint(() => import('./MyComponent'));
 const Loading = () => <div>loading...</div>;
 const App = () => (
   <LazySuspense fallback={Loading}>
