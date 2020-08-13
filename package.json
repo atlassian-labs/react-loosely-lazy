@@ -44,6 +44,9 @@
     "preversion": "npm run lint -s && npm run types:check -s && npm run test -s"
   },
   "dependencies": {},
+  "peerDependencies": {
+    "react": "^16.9.0 || ^17.0.0-0"
+  },
   "devDependencies": {
     "@babel/cli": "^7.5.5",
     "@babel/core": "^7.9.6",
@@ -88,14 +91,11 @@
     "mini-css-extract-plugin": "^0.9.0",
     "outdent": "^0.7.1",
     "prettier": "^2.0.5",
-    "react": "^16.10.2",
-    "react-dom": "^16.10.2",
+    "react": "^16.13.0",
+    "react-dom": "^16.13.0",
     "typescript": "^3.9.7",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.6",
     "webpack-dev-server": "^3.11.0"
-  },
-  "peerDependencies": {
-    "react": "^16.8.0"
   }
 }

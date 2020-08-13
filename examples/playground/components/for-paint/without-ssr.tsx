@@ -1,15 +1,16 @@
 import React from 'react';
 
+import { controlFetch } from '../../utils';
+import { Result } from '../result';
+
 let hasThrown = false;
 
 const ComponentNoSSR = () => {
   if (!hasThrown) {
     hasThrown = true;
-    throw new Promise(r => setTimeout(r, 1000));
+    throw controlFetch(true);
   }
 
-  return (
-    <div style={{ borderBottom: `2px solid #E1E` }}>{`<ComponentNoSSR />`}</div>
-  );
+  return <Result step="PAINT" isDone />;
 };
 export default ComponentNoSSR;
