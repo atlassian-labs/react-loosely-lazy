@@ -9,24 +9,8 @@ type Props = {
   isDone?: boolean;
 };
 
-export const Result = ({ isFallback, hasSsr, isDone, step }: Props) => {
+export const Result = ({ isFallback, hasSsr }: Props) => {
   const isServer = window.name === 'nodejs';
-  const [waitType, setWaitType] = useState(
-    isDone ? '' : (window as any).step.includes(step) ? 'bundle' : 'hold'
-  );
-
-  useEffect(() => {
-    const listener = (v: string) => {
-      if (!v.includes(step)) return;
-      if (v.includes('LOADING')) setWaitType('bundle');
-      else if (v.includes('FETCHING')) setWaitType('data');
-      else setWaitType('');
-    };
-    if (waitType || isFallback) listeners.add(listener);
-    return () => {
-      listeners.delete(listener);
-    };
-  }, [isFallback, waitType, setWaitType]);
 
   return (
     <div style={{ background: hasSsr && isFallback ? '#E11' : '' }}>
@@ -51,7 +35,7 @@ export const Progress = ({ step }: { step: string }) => {
     if ((window as any).step.includes(step)) {
       setWaitType('bundle');
     }
-  }, [setWaitType]);
+  }, [step, setWaitType]);
 
   useEffect(() => {
     const listener = (v: string) => {
@@ -61,10 +45,11 @@ export const Progress = ({ step }: { step: string }) => {
       else setWaitType('');
     };
     if (waitType) listeners.add(listener);
+
     return () => {
       listeners.delete(listener);
     };
-  }, [waitType, setWaitType]);
+  }, [step, waitType, setWaitType]);
 
   return (
     <span>

@@ -77,6 +77,7 @@ export class LazySuspense extends Component<
     children,
     outsideSuspense,
   }) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useLayoutEffect(() => {
       return () => {
         // the effect cleanup is called by the Suspense boundary itself
@@ -85,7 +86,8 @@ export class LazySuspense extends Component<
         // the hydration fallback at the same time
         if (!outsideSuspense) this.state.setFallback(null);
       };
-    }, []);
+    }, [outsideSuspense]);
+
     return outsideSuspense
       ? children(this.hydrationFallback ? this.hydrationFallback : null)
       : children(this.hydrationFallback ? null : this.props.fallback);

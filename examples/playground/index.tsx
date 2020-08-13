@@ -84,6 +84,7 @@ const App = ({ initialStep }: { initialStep: string }) => {
   useEffect(() => {
     const listener = (v: string) => setStep(v);
     listeners.add(listener);
+
     return () => {
       listeners.delete(listener);
     };
@@ -93,7 +94,7 @@ const App = ({ initialStep }: { initialStep: string }) => {
     if (step === 'AFTER LOADING') {
       startNextPhase();
     }
-  }, [step]);
+  }, [step, startNextPhase]);
 
   return (
     <>

@@ -28,6 +28,7 @@ export const LazyWait = ({ until, children }: LazyWaitProps) => {
     listeners.slice(0).forEach((listener: Listener) => {
       listener(phaseRef.current);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listeners, phaseRef.current]);
 
   const api = useMemo(
