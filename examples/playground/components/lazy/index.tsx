@@ -1,33 +1,29 @@
-import React, { memo } from 'react';
-import { lazy, LazySuspense } from 'react-loosely-lazy';
+import React from 'react';
+import { lazy } from 'react-loosely-lazy';
 
 import { controlLoad } from '../../utils';
-import { Result, Progress } from '../result';
+import { Section } from '../common/section';
 
-const Async: any = {};
+const props = {
+  step: 'AF',
+  title: 'Lazy',
+};
 
 export const buildLazyComponents = {
   server: () => {
-    Async.LazyWithoutSSR = lazy(() => import('./without-ssr'), {
+    const WithoutSSR = lazy(() => import('./without-ssr'), {
       moduleId: './lazy/without-ssr',
       ssr: false,
     });
+
+    return () => <Section components={{ WithoutSSR }} {...props} />;
   },
   client: () => {
-    Async.LazyWithoutSSR = lazy(
-      () => import('./without-ssr').then(controlLoad),
-      { moduleId: './lazy/without-ssr', ssr: false }
-    );
+    const WithoutSSR = lazy(() => import('./without-ssr').then(controlLoad), {
+      moduleId: './lazy/without-ssr',
+      ssr: false,
+    });
+
+    return () => <Section components={{ WithoutSSR }} {...props} />;
   },
 };
-
-export const LazyComponents = memo(() => (
-  <>
-    <h3>
-      <Progress step="AF" /> Lazy components
-    </h3>
-    <LazySuspense fallback={<Result step="AF" isFallback />}>
-      <Async.LazyWithoutSSR />
-    </LazySuspense>
-  </>
-));

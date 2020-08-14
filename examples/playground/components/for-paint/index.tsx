@@ -1,43 +1,35 @@
-import React, { memo } from 'react';
-import { lazyForPaint, LazySuspense } from 'react-loosely-lazy';
+import React from 'react';
+import { lazyForPaint } from 'react-loosely-lazy';
 
 import { controlLoad } from '../../utils';
-import { Result, Progress } from '../result';
+import { Section } from '../common/section';
 
-const Async: any = {};
+const props = {
+  step: 'PAINT',
+  title: 'For paint',
+};
 
 export const buildForPaintComponents = {
   server: () => {
-    Async.ForPaintWithSSR = lazyForPaint(() => require('./with-ssr'), {
+    const WithSSR = lazyForPaint(() => require('./with-ssr'), {
       moduleId: './for-paint/with-ssr',
     });
-    Async.ForPaintWithoutSSR = lazyForPaint(() => import('./without-ssr'), {
+    const WithoutSSR = lazyForPaint(() => import('./without-ssr'), {
       moduleId: './for-paint/without-ssr',
       ssr: false,
     });
+
+    return () => <Section components={{ WithSSR, WithoutSSR }} {...props} />;
   },
   client: () => {
-    Async.ForPaintWithSSR = lazyForPaint(
-      () => import('./with-ssr').then(controlLoad),
-      { moduleId: './for-paint/with-ssr' }
-    );
-    Async.ForPaintWithoutSSR = lazyForPaint(
+    const WithSSR = lazyForPaint(() => import('./with-ssr').then(controlLoad), {
+      moduleId: './for-paint/with-ssr',
+    });
+    const WithoutSSR = lazyForPaint(
       () => import('./without-ssr').then(controlLoad),
       { moduleId: './for-paint/without-ssr', ssr: false }
     );
+
+    return () => <Section components={{ WithSSR, WithoutSSR }} {...props} />;
   },
 };
-
-export const ForPaintComponents = memo(() => (
-  <>
-    <h3>
-      <Progress step="PAINT" /> For paint components
-    </h3>
-    <LazySuspense fallback={<Result step="PAINT" isFallback hasSsr />}>
-      <Async.ForPaintWithSSR />
-    </LazySuspense>
-    <LazySuspense fallback={<Result step="PAINT" isFallback />}>
-      <Async.ForPaintWithoutSSR />
-    </LazySuspense>
-  </>
-));

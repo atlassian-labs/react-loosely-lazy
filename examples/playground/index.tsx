@@ -1,31 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, FunctionComponent } from 'react';
 import ReactDOM from 'react-dom';
 import ReactDOMServer from 'react-dom/server';
 
 import { useLazyPhase, MODE } from 'react-loosely-lazy';
-import { listeners } from './utils';
+import { listeners, steps, pastSteps } from './constants';
 
-import {
-  ForPaintComponents,
-  AfterPaintComponents,
-  LazyComponents,
-  CustomWaitComponents,
-  buildServerComponents,
-  buildClientComponents,
-} from './components';
-
-const steps = [
-  'SSR',
-  'PAINT LOADING',
-  'PAINT FETCHING',
-  'PAINT READY',
-  'AFTER LOADING',
-  'AFTER FETCHING',
-  'AFTER READY', // also 'LAZY READY'
-  'CUSTOM LOADING',
-  'CUSTOM FETCHING',
-  'CUSTOM READY',
-];
+import { buildServerComponents, buildClientComponents } from './components';
 
 /**
  * Controls App
@@ -33,10 +13,9 @@ const steps = [
 const Controls = () => {
   const [stepIndex, setStepIndex] = useState(0);
   const [step, setStep] = useState(steps[stepIndex]);
-  const resetSteps = () => setStepIndex(0);
 
   useEffect(() => {
-    (window as any).step = steps[stepIndex];
+    pastSteps.add(steps[stepIndex]);
     setStep(steps[stepIndex]);
   }, [stepIndex, setStep]);
 
@@ -46,19 +25,13 @@ const Controls = () => {
 
   return (
     <div>
-      <h1>{window.location.hash || 'hydration'} example</h1>
+      <h1>{window.location.search.replace('?', '') || 'hydration'} example</h1>
       <p>
-        <a href="#render" onClick={() => resetSteps()}>
-          Switch to render
-        </a>
+        <a href="./?render">Switch to render</a>
         {' | '}
-        <a href="#hydration" onClick={() => resetSteps()}>
-          Switch to hydration
-        </a>
+        <a href="./?hydration">Switch to hydration</a>
         {' | '}
-        <a href="#failssr" onClick={() => resetSteps()}>
-          Switch to failing ssr
-        </a>
+        <a href="./?failssr">Switch to failing ssr</a>
       </p>
       <ul>
         {steps.map(v => (
@@ -69,7 +42,11 @@ const Controls = () => {
           </li>
         ))}
       </ul>
-      <button onClick={() => setStepIndex(stepIndex + 1)}>Next step</button>
+      <button
+        onClick={() => setStepIndex(Math.min(stepIndex + 1, steps.length - 1))}
+      >
+        Next step
+      </button>
     </div>
   );
 };
@@ -77,7 +54,17 @@ const Controls = () => {
 /**
  * Main App
  */
-const App = ({ initialStep }: { initialStep: string }) => {
+type AppProps = {
+  initialStep: string;
+  components: {
+    ForPaint: FunctionComponent<any>;
+    AfterPaint: FunctionComponent<any>;
+    Lazy: FunctionComponent<any>;
+    CustomWait: FunctionComponent<any>;
+  };
+};
+
+const App = ({ initialStep, components }: AppProps) => {
   const [step, setStep] = useState(initialStep);
   const { startNextPhase } = useLazyPhase();
 
@@ -100,10 +87,10 @@ const App = ({ initialStep }: { initialStep: string }) => {
     <>
       <h1>&nbsp;</h1>
       <main>
-        <ForPaintComponents />
-        <AfterPaintComponents />
-        <LazyComponents />
-        <CustomWaitComponents step={step} />
+        <components.ForPaint />
+        <components.AfterPaint />
+        <components.Lazy />
+        <components.CustomWait step={step} />
       </main>
     </>
   );
@@ -111,19 +98,21 @@ const App = ({ initialStep }: { initialStep: string }) => {
 
 const renderApp = (v: string) => {
   const appContainer = document.querySelector('#app');
-  const isFailSsr = window.location.hash.includes('failssr');
-  const isRender = isFailSsr || window.location.hash.includes('render');
+  const isFailSsr = window.location.search.includes('failssr');
+  const isRender = isFailSsr || window.location.search.includes('render');
   const mode = isRender ? MODE.RENDER : MODE.HYDRATE;
 
   if (v === 'SSR' && appContainer && !isFailSsr) {
-    buildServerComponents(mode);
-    const ssr = ReactDOMServer.renderToString(<App initialStep={v} />);
+    const components = buildServerComponents(mode);
+    const ssr = ReactDOMServer.renderToString(
+      <App initialStep={v} components={components} />
+    );
     appContainer.innerHTML = isRender ? `<div>${ssr}</div>` : ssr;
   }
   if (v === 'PAINT LOADING') {
-    buildClientComponents(mode);
+    const components = buildClientComponents(mode);
     ReactDOM[isRender ? 'render' : 'hydrate'](
-      <App initialStep={v} />,
+      <App initialStep={v} components={components} />,
       appContainer
     );
   }

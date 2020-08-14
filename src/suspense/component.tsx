@@ -31,7 +31,7 @@ type DynamicFallbackProps = {
  * lazy child. The lazy component is indeed responsible of collecting its own
  * SSR output and let this suspense alternative render it as fallback.
  *
- * To be clear, it does not render Suspense on the server: it only renderes
+ * To be clear, it does not render Suspense on the server: it only renders
  * a context provider in order to pass the fallback down to the child being
  * rendered if the lazy component is not there.
  *
@@ -69,6 +69,11 @@ export class LazySuspense extends Component<
   private hydrationFallback: Fallback = null;
   private mounted = false;
 
+  constructor(props: LazySuspenseProps) {
+    super(props);
+    this.DynamicFallback.displayName = 'DynamicFallback';
+  }
+
   componentDidMount() {
     this.mounted = true;
   }
@@ -95,7 +100,6 @@ export class LazySuspense extends Component<
 
   private renderFallback(outsideSuspense: boolean) {
     const { DynamicFallback } = this;
-    DynamicFallback.displayName = 'DynamicFallback';
 
     // Use render prop component to allow switch to hydration fallback
     return (

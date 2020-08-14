@@ -1,4 +1,6 @@
-export const listeners = new Set<(v: string) => void>();
+import { listeners } from './constants';
+
+export const isServer = () => window.name === 'nodejs';
 
 export const controlLoad = <T>(result: T): Promise<T> => {
   let resolve: (v?: T) => void;

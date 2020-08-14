@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { controlFetch } from '../../utils';
-import { Result } from '../result';
+import { Result } from '../common/result';
 
 let hasThrown = false;
 
@@ -13,4 +13,5 @@ const ComponentNoSSR = () => {
 
   return <Result step="PAINT" isDone />;
 };
+
 export default ComponentNoSSR;

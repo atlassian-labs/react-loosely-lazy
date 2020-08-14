@@ -1,16 +1,17 @@
 import React from 'react';
 
-import { controlFetch } from '../../utils';
-import { Result } from '../result';
+import { controlFetch, isServer } from '../../utils';
+import { Result } from '../common/result';
 
 let hasThrown = false;
 
 const ComponentWithSSR = () => {
-  if (!hasThrown && window.name !== 'nodejs') {
+  if (!hasThrown && !isServer()) {
     hasThrown = true;
     throw controlFetch(true);
   }
 
   return <Result step="CUSTOM" hasSsr isDone />;
 };
+
 export default ComponentWithSSR;

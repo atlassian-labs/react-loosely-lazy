@@ -1,45 +1,47 @@
-import React, { memo } from 'react';
-import { lazyForPaint, LazySuspense, LazyWait } from 'react-loosely-lazy';
+import React from 'react';
+import { lazyForPaint, LazyWait } from 'react-loosely-lazy';
 
 import { controlLoad } from '../../utils';
-import { Result, Progress } from '../result';
+import { Section } from '../common/section';
 
-const Async: any = {};
+const props = {
+  step: 'CUSTOM',
+  title: 'Custom wait',
+};
 
 export const buildCustomWaitComponents = {
   server: () => {
-    Async.ForPaintWithSSR = lazyForPaint(() => require('./with-ssr'), {
+    const WithSSR = lazyForPaint(() => require('./with-ssr'), {
       moduleId: './custom-wait/with-ssr',
     });
-    Async.ForPaintWithoutSSR = lazyForPaint(() => import('./without-ssr'), {
+    const WithoutSSR = lazyForPaint(() => import('./without-ssr'), {
       moduleId: './custom-wait/without-ssr',
       ssr: false,
     });
+
+    return ({ step }: { step: string }) => (
+      <Section
+        components={{ WithSSR, WithoutSSR, Wrapper: LazyWait }}
+        currentStep={step}
+        {...props}
+      />
+    );
   },
   client: () => {
-    Async.ForPaintWithSSR = lazyForPaint(
-      () => import('./with-ssr').then(controlLoad),
-      { moduleId: './custom-wait/with-ssr' }
-    );
-    Async.ForPaintWithoutSSR = lazyForPaint(
+    const WithSSR = lazyForPaint(() => import('./with-ssr').then(controlLoad), {
+      moduleId: './custom-wait/with-ssr',
+    });
+    const WithoutSSR = lazyForPaint(
       () => import('./without-ssr').then(controlLoad),
       { moduleId: './custom-wait/without-ssr', ssr: false }
     );
+
+    return ({ step }: { step: string }) => (
+      <Section
+        components={{ WithSSR, WithoutSSR, Wrapper: LazyWait }}
+        currentStep={step}
+        {...props}
+      />
+    );
   },
 };
-
-export const CustomWaitComponents = memo(({ step }: { step: string }) => (
-  <>
-    <h3>
-      <Progress step="CUSTOM" /> Custom wait components
-    </h3>
-    <LazyWait until={step.includes('CUSTOM')}>
-      <LazySuspense fallback={<Result step="CUSTOM" isFallback hasSsr />}>
-        <Async.ForPaintWithSSR />
-      </LazySuspense>
-      <LazySuspense fallback={<Result step="CUSTOM" isFallback />}>
-        <Async.ForPaintWithoutSSR />
-      </LazySuspense>
-    </LazyWait>
-  </>
-));
