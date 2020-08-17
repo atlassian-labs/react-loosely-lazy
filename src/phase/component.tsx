@@ -1,4 +1,10 @@
-import React, { ReactNode, useContext, useMemo, useRef } from 'react';
+import React, {
+  ReactNode,
+  useContext,
+  useMemo,
+  useRef,
+  useEffect,
+} from 'react';
 
 import { PHASE } from '../constants';
 import { LazyPhaseContext } from './context';
@@ -16,15 +22,7 @@ export const LazyWait = ({ until, children }: LazyWaitProps) => {
 
   phaseRef.current = until ? PHASE.LAZY : -1;
 
-  // Notify all children of phase change
   const { current: listeners } = useRef<Listener[]>([]);
-
-  useMemo(() => {
-    listeners.slice(0).forEach((listener: Listener) => {
-      listener(phaseRef.current);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [listeners, phaseRef.current]);
 
   const api = useMemo(
     () => ({
@@ -34,6 +32,14 @@ export const LazyWait = ({ until, children }: LazyWaitProps) => {
     }),
     [listeners, ctxApi, phaseRef]
   );
+
+  useEffect(() => {
+    // Notify all children of phase change
+    listeners.slice(0).forEach((listener: Listener) => {
+      listener(phaseRef.current);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listeners, phaseRef.current]);
 
   return (
     <LazyPhaseContext.Provider value={api}>

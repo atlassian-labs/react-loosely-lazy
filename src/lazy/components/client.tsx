@@ -38,21 +38,20 @@ export function createComponentClient<C extends ComponentType<any>>({
 
     useMemo(() => {
       if (isOwnPhase)
-        deferred
-          .start()
-          .then(() => setFallback(null))
-          .catch((err: Error) => {
-            // Throw the error within the component lifecycle -- refer to https://github.com/facebook/react/issues/11409
-            setState(() => {
-              throw new LoaderError(moduleId, err);
-            });
+        deferred.start().catch((err: Error) => {
+          // Throw the error within the component lifecycle
+          // refer to https://github.com/facebook/react/issues/11409
+          setState(() => {
+            throw new LoaderError(moduleId, err);
           });
-    }, [isOwnPhase, setFallback]);
+        });
+    }, [isOwnPhase]);
 
     useMemo(() => {
+      // find SSR content (or fallbacks) wrapped in inputs based on lazyId
       const content = (COLLECTED.get(dataLazyId) || []).shift();
-
       if (!content) return;
+
       // override Suspense fallback with magic input wrappers
       const component =
         SETTINGS.CURRENT_MODE === MODE.RENDER ? (
@@ -64,9 +63,8 @@ export function createComponentClient<C extends ComponentType<any>>({
     }, [setFallback]);
 
     if (!ssr) {
-      // if not SSR we can replace stale placeholder with suspense
-      // as soon as the component mounts, so fallback becomes live
-      // but we do not trigger hydration warnings
+      // as the fallback is SSRd too, we want to discard it as soon as this
+      // mounts (to avoid hydration warnings) and let Suspense render it
       useEffect(() => {
         setFallback(null);
       }, [setFallback]);

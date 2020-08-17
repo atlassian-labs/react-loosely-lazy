@@ -12,12 +12,19 @@ import { ClientLoader, Loader, ServerLoader } from './loader';
 export type { Asset, Manifest };
 
 export type Options = {
-  // Should be rendered on SSR
-  // if false renders fallback on SSR
+  /**
+   * Whenever it should be required and rendered in SSR
+   * If false it will just render the provided fallback
+   */
   ssr?: boolean;
-
+  /**
+   * Id of `PHASE` responsible for start loading
+   */
   defer?: number;
-
+  /**
+   * Id of the module being imported (normally its path).
+   * It's calculated and provided by babel plugin
+   */
   moduleId?: string;
 };
 
