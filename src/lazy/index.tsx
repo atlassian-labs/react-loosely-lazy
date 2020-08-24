@@ -1,48 +1,25 @@
-import type { ComponentProps, ComponentType, FunctionComponent } from 'react';
+import { ComponentProps, ComponentType, FunctionComponent } from 'react';
 
 import { PHASE } from '../constants';
 import { hash, displayNameFromId, isNodeEnvironment } from '../utils';
-import type { Asset, Manifest } from '../webpack';
+import { Asset, Manifest } from '../webpack';
 
 import { createComponentClient } from './components/client';
 import { createComponentServer } from './components/server';
 import { createDeferred } from './deferred';
 import { ClientLoader, Loader, ServerLoader } from './loader';
+import { LazyOptions, LazyComponent } from './types';
 
-export type { Asset, Manifest };
-
-export type Options = {
-  /**
-   * Whenever it should be required and rendered in SSR
-   * If false it will just render the provided fallback
-   */
-  ssr?: boolean;
-  /**
-   * Id of `PHASE` responsible for start loading
-   */
-  defer?: number;
-  /**
-   * Id of the module being imported (normally its path).
-   * It's calculated and provided by babel plugin
-   */
-  moduleId?: string;
-};
-
-export type LazyComponent<C extends ComponentType<any>> = FunctionComponent<
-  ComponentProps<C>
-> & {
-  preload: () => void;
-  getAssetUrls: (manifest: Manifest) => string[] | undefined;
-};
+export { Asset, Manifest, LazyOptions, LazyComponent };
 
 function lazyProxy<C extends ComponentType<any>>(
   loader: Loader<C>,
-  { defer = PHASE.PAINT, moduleId = '', ssr = true }: Options = {}
+  { defer = PHASE.PAINT, moduleId = '', ssr = true }: LazyOptions = {}
 ): LazyComponent<C> {
   const isServer = isNodeEnvironment();
   const dataLazyId = hash(moduleId);
 
-  const LazyComponent: FunctionComponent<ComponentProps<C>> = isServer
+  const LazyInternal: FunctionComponent<ComponentProps<C>> = isServer
     ? createComponentServer({
         dataLazyId,
         loader: loader as ServerLoader<C>,
@@ -57,7 +34,7 @@ function lazyProxy<C extends ComponentType<any>>(
         ssr,
       });
 
-  LazyComponent.displayName = `Lazy(${displayNameFromId(moduleId)})`;
+  LazyInternal.displayName = `Lazy(${displayNameFromId(moduleId)})`;
 
   const getAssetUrls = (manifest: Manifest) => {
     if (!manifest[moduleId]) {
@@ -87,7 +64,7 @@ function lazyProxy<C extends ComponentType<any>>(
     head.appendChild(link);
   };
 
-  return Object.assign(LazyComponent, {
+  return Object.assign(LazyInternal, {
     getAssetUrls,
     preload,
   });
@@ -103,7 +80,7 @@ export const DEFAULT_OPTIONS: {
 
 export function lazyForPaint<C extends ComponentType<any>>(
   loader: Loader<C>,
-  opts?: Options
+  opts?: LazyOptions
 ) {
   return lazyProxy<C>(loader, {
     ...DEFAULT_OPTIONS.lazyForPaint,
@@ -113,7 +90,7 @@ export function lazyForPaint<C extends ComponentType<any>>(
 
 export function lazyAfterPaint<C extends ComponentType<any>>(
   loader: Loader<C>,
-  opts?: Options
+  opts?: LazyOptions
 ) {
   return lazyProxy<C>(loader, {
     ...DEFAULT_OPTIONS.lazyAfterPaint,
@@ -123,7 +100,7 @@ export function lazyAfterPaint<C extends ComponentType<any>>(
 
 export function lazy<C extends ComponentType<any>>(
   loader: Loader<C>,
-  opts?: Options
+  opts?: LazyOptions
 ) {
   return lazyProxy<C>(loader, {
     ...DEFAULT_OPTIONS.lazy,
@@ -131,5 +108,5 @@ export function lazy<C extends ComponentType<any>>(
   });
 }
 
-export type { ClientLoader, Loader, ServerLoader };
+export { ClientLoader, Loader, ServerLoader };
 export { LoaderError, isLoaderError } from './errors/loader-error';

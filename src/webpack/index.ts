@@ -5,8 +5,6 @@ import { buildManifest } from './utils';
 
 type Parser = webpackCompilation.normalModuleFactory.Parser;
 
-export type { Asset, Manifest };
-
 export type ReactLooselyLazyPluginOptions = {
   filename: string;
 };
@@ -109,3 +107,5 @@ export const getAssets = (manifest: Manifest, moduleIds: string[]) =>
     (assets, id) => assets.concat(manifest[id]),
     []
   );
+
+export { Asset, Manifest };

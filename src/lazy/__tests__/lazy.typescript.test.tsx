@@ -1,6 +1,6 @@
 import React, { ComponentType } from 'react';
 import { lazyForPaint } from 'react-loosely-lazy';
-import type { FooProps } from './__fixtures__/foo';
+import { FooProps } from './__fixtures__/foo';
 
 const UntypedEmptyPropsTestComponent = lazyForPaint(() =>
   import('./__fixtures__/empty-props')

@@ -1,11 +1,5 @@
-import React, { Fragment, createContext, SuspenseProps } from 'react';
-
-export type Fallback = SuspenseProps['fallback'];
-
-export type LazySuspenseContextType = {
-  fallback: Fallback;
-  setFallback(fallback: Fallback): void;
-};
+import React, { Fragment, createContext } from 'react';
+import { Fallback, LazySuspenseContextType } from './types';
 
 export const LazySuspenseContext = createContext<LazySuspenseContextType>({
   fallback: <Fragment />,

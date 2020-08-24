@@ -5,15 +5,8 @@ import React, {
   FunctionComponent,
 } from 'react';
 import { isNodeEnvironment } from '../utils';
-import {
-  Fallback,
-  LazySuspenseContext,
-  LazySuspenseContextType,
-} from './context';
-
-export type LazySuspenseProps = {
-  fallback: Fallback;
-};
+import { LazySuspenseContext } from './context';
+import { Fallback, LazySuspenseContextType, LazySuspenseProps } from './types';
 
 type LazySuspenseState = LazySuspenseContextType;
 
