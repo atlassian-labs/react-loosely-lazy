@@ -1,5 +1,4 @@
 export { MODE, SETTINGS } from './constants';
-export type { Settings } from './constants';
 
 export { LooselyLazy as default } from './init';
 
@@ -11,15 +10,17 @@ export {
   LoaderError,
 } from './lazy';
 
-export type {
+export {
   ClientLoader,
   Loader,
-  Options as LazyOptions,
+  LazyOptions,
   ServerLoader,
+  LazyComponent,
 } from './lazy';
 
 export { LazySuspense } from './suspense';
-export type { Fallback, LazySuspenseProps } from './suspense';
+export { Fallback, LazySuspenseProps } from './suspense';
 
 export { LazyWait, useLazyPhase } from './phase';
-export type { LazyWaitProps } from './phase';
+export { LazyWaitProps } from './phase';
+export { Settings } from './types';

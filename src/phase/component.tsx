@@ -1,20 +1,10 @@
-import React, {
-  ReactNode,
-  useContext,
-  useMemo,
-  useRef,
-  useEffect,
-} from 'react';
+import React, { useContext, useMemo, useRef, useEffect } from 'react';
 
 import { PHASE } from '../constants';
 import { LazyPhaseContext } from './context';
 import { Listener } from './listeners';
 import { createSubscribe } from './utils';
-
-export type LazyWaitProps = {
-  until: boolean;
-  children: ReactNode;
-};
+import { LazyWaitProps } from './types';
 
 export const LazyWait = ({ until, children }: LazyWaitProps) => {
   const { api: ctxApi } = useContext(LazyPhaseContext);
