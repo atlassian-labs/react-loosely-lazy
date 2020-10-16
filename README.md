@@ -11,6 +11,8 @@
 
 A future focused async component loading library for React. Comes packed with loading phases to enable fine-grained performance optimisations.
 
+> History of React Loosely Lazy at [Improving performance through better architecture](https://www.atlassian.com/engineering/react-resource-router-deep-dive)
+
 ## Why?
 
 Today, React's native solution for asynchronously loading components, [`React.lazy`](https://reactjs.org/docs/code-splitting.html#reactlazy), does not work on the server. To get around this, developers have had to invent their own solutions to the problem such as `react-loadable` and `loadable-components`. These libraries however will not be compatible with `Suspense` out of the box and their APIs are quite different to the direction the React team are taking. It's also clear that this has become such a core part of building React apps at scale that it makes sense to rely on React to fill this requirement rather than third party libraries.
