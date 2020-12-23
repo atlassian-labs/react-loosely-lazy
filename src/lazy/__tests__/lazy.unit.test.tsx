@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, waitForElementToBeRemoved } from '@testing-library/react';
 import { lazyForPaint } from '..';
+import { LooselyLazy } from '../../init';
 import { LazySuspense } from '../../suspense';
 import { isNodeEnvironment } from '../../utils';
 import { LoaderError } from '../errors/loader-error';
@@ -28,6 +29,7 @@ describe('lazy', () => {
   };
 
   beforeEach(() => {
+    LooselyLazy.init({ manifest: {} });
     restoreConsoleErrors = jest.fn();
   });
 
@@ -92,16 +94,18 @@ describe('lazy', () => {
 
       it('should return undefined when given an empty manifest', () => {
         const manifest = {};
+        LooselyLazy.init({ manifest });
         const TestComponent = createComponent('./src/app/foo.tsx');
-        expect(TestComponent.getAssetUrls(manifest)).toBeUndefined();
+        expect(TestComponent.getAssetUrls()).toBeUndefined();
       });
 
       it('should return undefined when given a manifest that does not contain the component moduleId', () => {
         const manifest = {
           './src/app/bar.tsx': ['https://cdn.com/async-bar.js'],
         };
+        LooselyLazy.init({ manifest });
         const TestComponent = createComponent('./src/app/foo.tsx');
-        expect(TestComponent.getAssetUrls(manifest)).toBeUndefined();
+        expect(TestComponent.getAssetUrls()).toBeUndefined();
       });
 
       it('should return the module public paths when given a manifest that contains the component moduleId', () => {
@@ -110,8 +114,9 @@ describe('lazy', () => {
         const manifest = {
           [`${moduleId}`]: [publicPath],
         };
+        LooselyLazy.init({ manifest });
         const TestComponent = createComponent(moduleId);
-        expect(TestComponent.getAssetUrls(manifest)).toEqual([publicPath]);
+        expect(TestComponent.getAssetUrls()).toEqual([publicPath]);
       });
     });
 

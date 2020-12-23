@@ -12,10 +12,10 @@ const props = {
 export const buildAfterPaintComponents = {
   server: () => {
     const WithSSR = lazyAfterPaint(() => require('./with-ssr'), {
-      moduleId: './after-paint/with-ssr',
+      moduleId: './examples/playground/components/after-paint/with-ssr.tsx',
     });
     const WithoutSSR = lazyAfterPaint(() => import('./without-ssr'), {
-      moduleId: './after-paint/without-ssr',
+      moduleId: './examples/playground/components/after-paint/without-ssr.tsx',
       ssr: false,
     });
 
@@ -24,11 +24,15 @@ export const buildAfterPaintComponents = {
   client: () => {
     const WithSSR = lazyAfterPaint(
       () => import('./with-ssr').then(controlLoad),
-      { moduleId: './after-paint/with-ssr' }
+      { moduleId: './examples/playground/components/after-paint/with-ssr.tsx' }
     );
     const WithoutSSR = lazyAfterPaint(
       () => import('./without-ssr').then(controlLoad),
-      { moduleId: './after-paint/without-ssr', ssr: false }
+      {
+        moduleId:
+          './examples/playground/components/after-paint/without-ssr.tsx',
+        ssr: false,
+      }
     );
 
     return () => <Section components={{ WithSSR, WithoutSSR }} {...props} />;

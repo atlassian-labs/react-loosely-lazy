@@ -1,6 +1,6 @@
 import { ComponentProps, ComponentType, FunctionComponent } from 'react';
 
-import { PHASE } from '../constants';
+import { PHASE, SETTINGS } from '../constants';
 import { hash, displayNameFromId, isNodeEnvironment } from '../utils';
 import { Asset, Manifest } from '../webpack';
 
@@ -9,6 +9,7 @@ import { createComponentServer } from './components/server';
 import { createDeferred } from './deferred';
 import { ClientLoader, Loader, ServerLoader } from './loader';
 import { LazyOptions, LazyComponent } from './types';
+import { preloadAsset } from './utils';
 
 export { Asset, Manifest, LazyOptions, LazyComponent };
 
@@ -22,6 +23,7 @@ function lazyProxy<C extends ComponentType<any>>(
   const LazyInternal: FunctionComponent<ComponentProps<C>> = isServer
     ? createComponentServer({
         dataLazyId,
+        defer,
         loader: loader as ServerLoader<C>,
         moduleId,
         ssr,
@@ -36,32 +38,22 @@ function lazyProxy<C extends ComponentType<any>>(
 
   LazyInternal.displayName = `Lazy(${displayNameFromId(moduleId)})`;
 
-  const getAssetUrls = (manifest: Manifest) => {
-    if (!manifest[moduleId]) {
+  /**
+   * Allows getting module chunks urls
+   */
+  const getAssetUrls = () => {
+    if (!SETTINGS.MANIFEST[moduleId]) {
       return;
     }
 
-    return manifest[moduleId];
+    return SETTINGS.MANIFEST[moduleId];
   };
 
   /**
-   * This will eventually be used to render preload link tags on transition.
-   * Currently not working as we need a way for the client to be able to know the manifest[moduleId].file
-   * without having to load the manifest on the client as it could be huge.
+   * Allows imperatively preload the module chunk asset
    */
   const preload = () => {
-    const head = document.querySelector('head');
-
-    if (!head) {
-      return;
-    }
-
-    const link = document.createElement('link');
-
-    link.rel = 'preload';
-
-    // TODO add href to link
-    head.appendChild(link);
+    preloadAsset(loader);
   };
 
   return Object.assign(LazyInternal, {

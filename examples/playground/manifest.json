@@ -1,0 +1,14 @@
+{
+  "./examples/playground/components/after-paint/with-ssr.tsx": [
+    "/0.js"
+  ],
+  "./examples/playground/components/for-paint/with-ssr.tsx": [
+    "/2.js"
+  ],
+  "./examples/playground/components/custom-wait/with-ssr.tsx": [
+    "/1.js"
+  ],
+  "./examples/playground/components/lazy/without-ssr.tsx": [
+    "/3.js"
+  ]
+}

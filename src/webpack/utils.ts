@@ -1,5 +1,5 @@
 import { Compiler, compilation as webpackCompilation } from 'webpack';
-import { Manifest } from './manifest';
+import { Manifest } from '../types';
 import url from 'url';
 
 type Compilation = webpackCompilation.Compilation;

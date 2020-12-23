@@ -27,6 +27,15 @@ React Loosely Lazy solves both of these problems with a server side compatible A
 - Preloading support
 - Works with both `React.render()` and `React.hydrate()`
 - Babel plugin that works on both client and server to ensure cleaner code and synchronous imports in Node
+- Webpack plugin to generate chunks manifest and load them ahead of time in SSR
+
+## Installation
+
+```sh
+npm i react-loosely-lazy
+# or
+yarn add react-loosely-lazy
+```
 
 ## Usage
 
@@ -44,62 +53,27 @@ const App = () => (
 );
 ```
 
-### In your webpack config
+### Babel configuration
 
-#### Server
-
-```
-module: {
-  rules: [{
-    test: /\.js$/,
-    use: [
-      {
-        loader: 'babel-loader',
-        options: {
-            presets: [...yourPresets],
-            plugins: [...yourOtherPlugins, ['react-loosely-lazy/babel-plugin']],
-        },
-      },
-    ]
-  }]
-}
-```
-
-#### Client
-
-```
-module: {
-  rules: [{
-    test: /\.js$/,
-    use: [
-      {
-        loader: 'babel-loader',
-        options: {
-            presets: [...yourPresets],
-            plugins: [...yourOtherPlugins, ['react-loosely-lazy/babel-plugin', { client: true }]],
-        },
-      },
-    ]
-  }]
-}
-```
-
-## Installation
-
-```sh
-npm i react-loosely-lazy
-# or
-yarn add react-loosely-lazy
-```
+Add to your Babel config (or webpack babel-loader config) `react-loosely-lazy/babel-plugin`.
+The plugin is meant to generate different outputs between client builds and server build, so on the client Babel config you have to specify `{ client: true }` otherwise generated imports will not be async.
 
 ## Documentation
 
-### Basic use case: SSR + async loading of a component required for the first meaningful paint
+### Basic use case: async loading of a component required for the first meaningful paint
+
+`lazyForPaint` defines components that are critical and should be loaded as soon as possible. By default, they are also rendered on SSR.
 
 ```js
 import { lazyForPaint, LazySuspense } from 'react-loosely-lazy';
 
+// by default this will be rendered in SSR
 const AsyncMyComponent = lazyForPaint(() => import('./MyComponent'));
+// but you can skip SSR and render just the fallback by configuring ssr: false
+const AsyncMyComponent = lazyForPaint(() => import('./MyComponent'), {
+  ssr: false,
+});
+
 const App = () => (
   <LazySuspense fallback="...">
     <AsyncMyComponent />
@@ -107,22 +81,9 @@ const App = () => (
 );
 ```
 
-### No SSR use case: Fallback on SSR + async loading the component on the client
+### Phase loading use case: deferred loading
 
-```js
-import { lazyAfterPaint, LazySuspense } from 'react-loosely-lazy';
-
-const AsyncMyComponent = lazyAfterPaint(() => import('./MyComponent'), {
-  ssr: false,
-});
-const App = () => (
-  <LazySuspense fallback={<MyComponentSkeleton />}>
-    <AsyncMyComponent />
-  </LazySuspense>
-);
-```
-
-### Phase loading use case: SSR + specific phase loading
+`lazyAfterPaint` defines components that should load during a secondary phase that should be manually started by the consumers. By default, these components are also rendered on SSR.
 
 ```js
 import { lazyAfterPaint, useLazyPhase, LazySuspense } from 'react-loosely-lazy';
@@ -144,7 +105,9 @@ const App = () => {
 };
 ```
 
-### Trigger loading use case: No SSR & loading on user iteraction
+### Trigger loading use case: loading on user iteraction
+
+`lazy` should be used to define components that should be loaded only when rendered. If used in conjunction with `LazyWait`, it allows the async code to be requested only when a specific condition is thruty. That is great to dynamically load and render components without breaking CSS animations for instance.
 
 ```js
 import { lazy, LazyWait, LazySuspense } from 'react-loosely-lazy';
@@ -166,9 +129,7 @@ const App = () => {
 };
 ```
 
-## Examples (currently broken)
-
-> Note: The examples are currently not working as intended so it's best not to use them for now. We will be fixing these shortly!
+## Playground
 
 See `react-loosely-lazy` in action: run `npm run start` and then go and check: `http://localhost:8080/`
 

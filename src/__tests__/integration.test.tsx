@@ -40,7 +40,7 @@ const createApp = ({
     ssr,
   });
 
-  LooselyLazy.init(hydrate ? MODE.HYDRATE : MODE.RENDER);
+  LooselyLazy.init({ mode: hydrate ? MODE.HYDRATE : MODE.RENDER });
 
   const App = () => (
     <LazySuspense fallback={<Fallback />}>

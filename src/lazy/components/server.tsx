@@ -1,7 +1,8 @@
 import React, { ComponentProps, ComponentType, useContext } from 'react';
+import { PHASE, SETTINGS } from '../../constants';
 import { LazySuspenseContext } from '../../suspense';
-import { LoaderError } from '../errors/loader-error';
 import { getExport } from '../../utils';
+import { LoaderError } from '../errors/loader-error';
 import { ServerLoader } from '../loader';
 
 function load<C>(moduleId: string, loader: ServerLoader<C>) {
@@ -14,11 +15,13 @@ function load<C>(moduleId: string, loader: ServerLoader<C>) {
 
 export function createComponentServer<C extends ComponentType<any>>({
   dataLazyId,
+  defer,
   loader,
   moduleId,
   ssr,
 }: {
   dataLazyId: string;
+  defer: number;
   loader: ServerLoader<C>;
   moduleId: string;
   ssr: boolean;
@@ -30,6 +33,11 @@ export function createComponentServer<C extends ComponentType<any>>({
     return (
       <>
         <input type="hidden" data-lazy-begin={dataLazyId} />
+        {defer !== PHASE.LAZY &&
+          SETTINGS.MANIFEST[moduleId] &&
+          SETTINGS.MANIFEST[moduleId].map(url => (
+            <link key={url} rel="preload" href={url} as="script" />
+          ))}
         {Resolved ? <Resolved {...props} /> : fallback}
         <input type="hidden" data-lazy-end={dataLazyId} />
       </>

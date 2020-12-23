@@ -25,3 +25,18 @@ export const isNodeEnvironment = () => {
 
   return false;
 };
+
+export function attrToProp(props: { [k: string]: string }, attr: Attr) {
+  switch (attr.name) {
+    case 'style':
+      // ignore style attr as react does not allow string values
+      break;
+    case 'class':
+      props.className = attr.value;
+      break;
+    default:
+      props[attr.name] = attr.value;
+  }
+
+  return props;
+}
