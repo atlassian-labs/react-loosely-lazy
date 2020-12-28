@@ -1,5 +1,5 @@
 import React, { ComponentType } from 'react';
-import { lazyForPaint } from 'react-loosely-lazy';
+import { lazyForPaint, PRIORITY } from 'react-loosely-lazy';
 import { FooProps } from './__fixtures__/foo';
 
 const UntypedEmptyPropsTestComponent = lazyForPaint(() =>
@@ -103,14 +103,8 @@ const TestComponent = lazyForPaint<ComponentType<FooProps>>(() =>
   import('./__fixtures__/foo')
 );
 
-// @ts-expect-error Missing manifest argument
 TestComponent.getAssetUrls();
 
-TestComponent.getAssetUrls({
-  // @ts-expect-error Type '{}' is missing the following properties from type 'string[]'
-  './src/app/foo.js': {},
-});
+TestComponent.preload();
 
-TestComponent.getAssetUrls({
-  './src/app/foo.js': ['https://cdn.com/async-foo.js'],
-});
+TestComponent.preload(PRIORITY.HIGH);

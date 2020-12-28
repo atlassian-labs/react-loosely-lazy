@@ -1,4 +1,4 @@
-export { MODE, SETTINGS } from './constants';
+export { MODE, SETTINGS, PRIORITY } from './constants';
 
 export { LooselyLazy as default } from './init';
 

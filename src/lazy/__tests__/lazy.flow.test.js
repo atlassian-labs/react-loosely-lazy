@@ -1,7 +1,7 @@
 // @flow strict
 
 import React, { type ComponentType } from 'react';
-import { lazyForPaint } from 'react-loosely-lazy';
+import { lazyForPaint, PRIORITY } from 'react-loosely-lazy';
 import type { FooProps } from './__fixtures__/foo';
 
 const UntypedEmptyPropsTestComponent = lazyForPaint(() =>
@@ -104,3 +104,5 @@ const TestComponent = lazyForPaint<ComponentType<FooProps>>(() =>
 TestComponent.getAssetUrls();
 
 TestComponent.preload();
+
+TestComponent.preload(PRIORITY.HIGH);

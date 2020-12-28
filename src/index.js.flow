@@ -16,6 +16,11 @@ declare export var SETTINGS: {
   MANIFEST: Manifest,
 };
 
+declare export var PRIORITY: {
+  LOW: number,
+  HIGH: number,
+};
+
 declare export var LooselyLazy: {
   init(options: {
     mode?: typeof SETTINGS.CURRENT_MODE,
@@ -27,7 +32,7 @@ declare export default typeof LooselyLazy;
 
 export type LazyComponent<C> = ComponentType<ElementConfig<C>> & {
   getAssetUrls(): string[] | void,
-  preload(): void,
+  preload: (priority?: typeof PRIORITY.HIGH | typeof PRIORITY.LOW) => void,
 };
 
 type Options = {

@@ -29,11 +29,11 @@ describe('lazy', () => {
   };
 
   beforeEach(() => {
-    LooselyLazy.init({ manifest: {} });
     restoreConsoleErrors = jest.fn();
   });
 
   afterEach(() => {
+    LooselyLazy.init({}); // reset settings
     restoreConsoleErrors();
   });
 

@@ -109,8 +109,7 @@ export class ReactLooselyLazyPlugin {
           let modSource = source;
           if (source.includes('function jsonpScriptSrc')) {
             modSource +=
-              '\n window.__webpack_get_script_filename__ = jsonpScriptSrc;' +
-              '\n window.__webpack_installed_chunks__ = installedChunks;';
+              '\n window.__webpack_get_script_filename__ = jsonpScriptSrc;';
           }
 
           return modSource;

@@ -18,7 +18,7 @@ export const Result = ({ isFallback, hasSsr }: Props) => {
       <h4>{hasSsr ? 'With ssr' : 'Without ssr'}</h4>
       <ul style={{ display: 'flex', margin: 0 }}>
         <li style={{ paddingRight: '1em' }}>
-          reactive: {isServer() ? '🅾️' : '✅'}
+          reactive: {isServer() ? '🅾️' : isFallback ? '☑️' : '✅'}
         </li>
         <li style={{ paddingRight: '1em' }}>
           content: {isFallback ? '🅾️' : isServer() ? '☑️' : '✅'}

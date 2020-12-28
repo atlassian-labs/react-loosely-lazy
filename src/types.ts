@@ -1,4 +1,6 @@
-import { MODE } from './constants';
+import { MODE, PRIORITY } from './constants';
+
+export type PreloadPriority = typeof PRIORITY.HIGH | typeof PRIORITY.LOW;
 
 export type Asset = string;
 

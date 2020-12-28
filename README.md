@@ -105,9 +105,9 @@ const App = () => {
 };
 ```
 
-### Trigger loading use case: loading on user iteraction
+### Trigger loading use case: loading on user interaction
 
-`lazy` should be used to define components that should be loaded only when rendered. If used in conjunction with `LazyWait`, it allows the async code to be requested only when a specific condition is thruty. That is great to dynamically load and render components without breaking CSS animations for instance.
+`lazy` should be used to define components that should be loaded only when rendered. If used in conjunction with `LazyWait`, it allows the async code to be requested only when a specific condition is truthy. That is great to dynamically load and render components without breaking CSS animations for instance.
 
 ```js
 import { lazy, LazyWait, LazySuspense } from 'react-loosely-lazy';

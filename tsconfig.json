@@ -6,6 +6,7 @@
     "outDir": "lib",
     "esModuleInterop": true,
     "moduleResolution": "node",
+    "resolveJsonModule": true,
     "strict": true,
     "preserveConstEnums": true,
     "jsx": "preserve",

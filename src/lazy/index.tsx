@@ -1,6 +1,7 @@
 import { ComponentProps, ComponentType, FunctionComponent } from 'react';
 
-import { PHASE, SETTINGS } from '../constants';
+import { PHASE, PRIORITY, SETTINGS } from '../constants';
+import { PreloadPriority } from '../types';
 import { hash, displayNameFromId, isNodeEnvironment } from '../utils';
 import { Asset, Manifest } from '../webpack';
 
@@ -8,8 +9,8 @@ import { createComponentClient } from './components/client';
 import { createComponentServer } from './components/server';
 import { createDeferred } from './deferred';
 import { ClientLoader, Loader, ServerLoader } from './loader';
+import { preloadAsset } from './preload';
 import { LazyOptions, LazyComponent } from './types';
-import { preloadAsset } from './utils';
 
 export { Asset, Manifest, LazyOptions, LazyComponent };
 
@@ -50,10 +51,12 @@ function lazyProxy<C extends ComponentType<any>>(
   };
 
   /**
-   * Allows imperatively preload the module chunk asset
+   * Allows imperatively preload/ prefetch the module chunk asset
    */
-  const preload = () => {
-    preloadAsset(loader);
+  const preload = (priority?: PreloadPriority) => {
+    const p =
+      priority || (defer === PHASE.PAINT ? PRIORITY.HIGH : PRIORITY.LOW);
+    preloadAsset(loader, { moduleId, priority: p });
   };
 
   return Object.assign(LazyInternal, {

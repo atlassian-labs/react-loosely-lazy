@@ -1,3 +1,4 @@
+// Enable importing ReactLooselyLazyPlugin directly from src
 require('@babel/register')({
   extensions: ['.jsx', '.js', '.ts', '.tsx'],
   presets: ['@babel/preset-env', '@babel/preset-typescript'],
