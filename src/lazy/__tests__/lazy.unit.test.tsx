@@ -1,10 +1,11 @@
 import React from 'react';
 import { render, waitForElementToBeRemoved } from '@testing-library/react';
-import { lazyForPaint } from '..';
+import { PRIORITY } from '../../constants';
 import { LooselyLazy } from '../../init';
 import { LazySuspense } from '../../suspense';
 import { isNodeEnvironment } from '../../utils';
 import { LoaderError } from '../errors/loader-error';
+import { lazyForPaint, lazyAfterPaint, lazy } from '..';
 import {
   createDefaultServerImport,
   createNamedServerImport,
@@ -27,15 +28,6 @@ describe('lazy', () => {
       .spyOn(console, 'error')
       .mockImplementation(jest.fn);
   };
-
-  beforeEach(() => {
-    restoreConsoleErrors = jest.fn();
-  });
-
-  afterEach(() => {
-    LooselyLazy.init({}); // reset settings
-    restoreConsoleErrors();
-  });
 
   const testErrorBubbling = async (ssr: boolean) => {
     const error = new Error('ChunkLoadError');
@@ -76,6 +68,16 @@ describe('lazy', () => {
     expect(onError).toHaveBeenCalledTimes(1);
     expect(onError).toHaveBeenCalledWith(loaderError);
   };
+
+  beforeEach(() => {
+    restoreConsoleErrors = jest.fn();
+  });
+
+  afterEach(() => {
+    LooselyLazy.init({}); // reset settings
+    window.document.head.innerHTML = ''; // reset head
+    restoreConsoleErrors();
+  });
 
   describe('on the server', () => {
     beforeEach(() => {
@@ -194,6 +196,81 @@ describe('lazy', () => {
 
     it('should bubble a LoaderError in the component lifecycle when the loader fails', () => {
       return testErrorBubbling(true);
+    });
+
+    it('should render preload link tags to chunks for paint component', () => {
+      const manifest = { [lazyOptions.moduleId]: ['/1.js', '/2.js'] };
+      LooselyLazy.init({ manifest });
+      const DefaultComponent = () => <div>Default Component</div>;
+      const LazyTestComponent = lazyForPaint(
+        () => createDefaultServerImport({ DefaultComponent }),
+        lazyOptions
+      );
+
+      const { container } = render(
+        <LazySuspense fallback={<div>Loading...</div>}>
+          <LazyTestComponent />
+        </LazySuspense>
+      );
+
+      expect(container.querySelectorAll('link')).toMatchInlineSnapshot(`
+        NodeList [
+          <link
+            as="script"
+            href="/1.js"
+            rel="preload"
+          />,
+          <link
+            as="script"
+            href="/2.js"
+            rel="preload"
+          />,
+        ]
+      `);
+    });
+
+    it('should render prefetch link tags to chunks for afterPaint component', () => {
+      const manifest = { [lazyOptions.moduleId]: ['/1.js'] };
+      LooselyLazy.init({ manifest });
+      const DefaultComponent = () => <div>Default Component</div>;
+      const LazyTestComponent = lazyAfterPaint(
+        () => createDefaultServerImport({ DefaultComponent }),
+        lazyOptions
+      );
+
+      const { container } = render(
+        <LazySuspense fallback={<div>Loading...</div>}>
+          <LazyTestComponent />
+        </LazySuspense>
+      );
+
+      expect(container.querySelectorAll('link')).toMatchInlineSnapshot(`
+        NodeList [
+          <link
+            as="script"
+            href="/1.js"
+            rel="prefetch"
+          />,
+        ]
+      `);
+    });
+
+    it('should not render link tags to chunks for lazy component', () => {
+      const manifest = { [lazyOptions.moduleId]: ['/1.js', '/2.js'] };
+      LooselyLazy.init({ manifest });
+      const DefaultComponent = () => <div>Default Component</div>;
+      const LazyTestComponent = lazy(
+        () => createDefaultServerImport({ DefaultComponent }),
+        lazyOptions
+      );
+
+      const { container } = render(
+        <LazySuspense fallback={<div>Loading...</div>}>
+          <LazyTestComponent />
+        </LazySuspense>
+      );
+
+      expect(container.querySelectorAll('link')).toHaveLength(0);
     });
   });
 
@@ -346,6 +423,80 @@ describe('lazy', () => {
       expect(queryByText('Loading...')).not.toBeInTheDocument();
       expect(component).toBeInTheDocument();
       expect(component).toHaveTextContent('Component render pass (2)');
+    });
+
+    it('should prefetch afterPaint component ahead of require', async () => {
+      const manifest = { [lazyOptions.moduleId]: ['/1.js', '/2.js'] };
+      LooselyLazy.init({ manifest });
+
+      const DefaultComponent = () => <div>Component</div>;
+      const LazyTestComponent = lazyAfterPaint(
+        () => Promise.resolve({ default: DefaultComponent }),
+        lazyOptions
+      );
+
+      render(
+        <LazySuspense fallback={<div>Loading...</div>}>
+          <LazyTestComponent />
+        </LazySuspense>
+      );
+
+      expect(window.document.head).toMatchInlineSnapshot(`
+        <head>
+          <link
+            href="/1.js"
+            rel="prefetch"
+          />
+          <link
+            href="/2.js"
+            rel="prefetch"
+          />
+        </head>
+      `);
+    });
+
+    it('should support imperative preloading with auto priority', async () => {
+      const manifest = { [lazyOptions.moduleId]: ['/1.js'] };
+      LooselyLazy.init({ manifest });
+
+      const DefaultComponent = () => <div>Component</div>;
+      const LazyTestComponent = lazyAfterPaint(
+        () => Promise.resolve({ default: DefaultComponent }),
+        lazyOptions
+      );
+
+      LazyTestComponent.preload();
+
+      expect(window.document.head).toMatchInlineSnapshot(`
+        <head>
+          <link
+            href="/1.js"
+            rel="prefetch"
+          />
+        </head>
+      `);
+    });
+
+    it('should support imperative preloading with provided priority', async () => {
+      const manifest = { [lazyOptions.moduleId]: ['/1.js'] };
+      LooselyLazy.init({ manifest });
+
+      const DefaultComponent = () => <div>Component</div>;
+      const LazyTestComponent = lazyAfterPaint(
+        () => Promise.resolve({ default: DefaultComponent }),
+        lazyOptions
+      );
+
+      LazyTestComponent.preload(PRIORITY.HIGH);
+
+      expect(window.document.head).toMatchInlineSnapshot(`
+        <head>
+          <link
+            href="/1.js"
+            rel="preload"
+          />
+        </head>
+      `);
     });
 
     it('should bubble a LoaderError in the component lifecycle when the loader fails', () => {

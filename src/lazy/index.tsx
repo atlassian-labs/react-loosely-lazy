@@ -55,7 +55,7 @@ function lazyProxy<C extends ComponentType<any>>(
    */
   const preload = (priority?: PreloadPriority) => {
     const p =
-      priority || (defer === PHASE.PAINT ? PRIORITY.HIGH : PRIORITY.LOW);
+      priority ?? (defer === PHASE.PAINT ? PRIORITY.HIGH : PRIORITY.LOW);
     preloadAsset(loader, { moduleId, priority: p });
   };
 

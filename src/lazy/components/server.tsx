@@ -34,11 +34,10 @@ export function createComponentServer<C extends ComponentType<any>>({
       <>
         <input type="hidden" data-lazy-begin={dataLazyId} />
         {defer !== PHASE.LAZY &&
-          SETTINGS.MANIFEST[moduleId] &&
-          SETTINGS.MANIFEST[moduleId].map(url => (
+          SETTINGS.MANIFEST[moduleId]?.map(url => (
             <link
               key={url}
-              rel={PHASE.PAINT ? 'preload' : 'prefetch'}
+              rel={defer === PHASE.PAINT ? 'preload' : 'prefetch'}
               href={url}
               as="script"
             />
