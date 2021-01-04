@@ -60,6 +60,7 @@
     "@babel/preset-flow": "^7.9.0",
     "@babel/preset-react": "^7.9.4",
     "@babel/preset-typescript": "^7.9.0",
+    "@babel/register": "^7.12.10",
     "@babel/runtime": "^7.9.6",
     "@testing-library/jest-dom": "^5.8.0",
     "@testing-library/react": "^10.0.4",

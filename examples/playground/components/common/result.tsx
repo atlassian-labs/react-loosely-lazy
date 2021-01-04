@@ -11,11 +11,14 @@ type Props = {
 
 export const Result = ({ isFallback, hasSsr }: Props) => {
   return (
-    <div style={{ background: hasSsr && isFallback ? '#E11' : '' }}>
+    <div
+      className="result"
+      style={{ background: hasSsr && isFallback ? '#E11' : 'none' }}
+    >
       <h4>{hasSsr ? 'With ssr' : 'Without ssr'}</h4>
       <ul style={{ display: 'flex', margin: 0 }}>
         <li style={{ paddingRight: '1em' }}>
-          reactive: {isServer() ? '🅾️' : '✅'}
+          reactive: {isServer() ? '🅾️' : isFallback ? '☑️' : '✅'}
         </li>
         <li style={{ paddingRight: '1em' }}>
           content: {isFallback ? '🅾️' : isServer() ? '☑️' : '✅'}

@@ -38,9 +38,12 @@ const createApp = ({
   // @ts-ignore - We are mocking the import
   const AsyncComponent = lazyFn(() => mockImport, {
     ssr,
+    moduleId: './mock',
   });
 
-  LooselyLazy.init(hydrate ? MODE.HYDRATE : MODE.RENDER);
+  const mode = hydrate ? MODE.HYDRATE : MODE.RENDER;
+  const manifest = { './mock': [''] };
+  LooselyLazy.init({ mode, manifest });
 
   const App = () => (
     <LazySuspense fallback={<Fallback />}>

@@ -1,6 +1,6 @@
 import { Compiler, compilation as webpackCompilation } from 'webpack';
 import { PACKAGE_NAME } from '../constants';
-import { Asset, Manifest } from './manifest';
+import { Asset, Manifest } from '../types';
 import { buildManifest } from './utils';
 
 type Parser = webpackCompilation.normalModuleFactory.Parser;
@@ -97,6 +97,24 @@ export class ReactLooselyLazyPlugin {
       };
 
       callback();
+    });
+
+    compiler.hooks.thisCompilation.tap(name, compilation => {
+      // modifies the webpack bootstrap code generated to expose jsonpScriptSrc
+      // only needed on Webpack 4.x as Webpack 5+ has official support.
+      // use stage 1 to ensure this executes after webpack/lib/web/JsonpMainTemplatePlugin.js
+      compilation.mainTemplate.hooks.localVars.tap(
+        { name, stage: 1 },
+        source => {
+          let modSource = source;
+          if (source.includes('function jsonpScriptSrc')) {
+            modSource +=
+              '\n window.__webpack_get_script_filename__ = jsonpScriptSrc;';
+          }
+
+          return modSource;
+        }
+      );
     });
   }
 }

@@ -12,10 +12,10 @@ const props = {
 export const buildForPaintComponents = {
   server: () => {
     const WithSSR = lazyForPaint(() => require('./with-ssr'), {
-      moduleId: './for-paint/with-ssr',
+      moduleId: './examples/playground/components/for-paint/with-ssr.tsx',
     });
     const WithoutSSR = lazyForPaint(() => import('./without-ssr'), {
-      moduleId: './for-paint/without-ssr',
+      moduleId: './examples/playground/components/for-paint/without-ssr.tsx',
       ssr: false,
     });
 
@@ -23,11 +23,14 @@ export const buildForPaintComponents = {
   },
   client: () => {
     const WithSSR = lazyForPaint(() => import('./with-ssr').then(controlLoad), {
-      moduleId: './for-paint/with-ssr',
+      moduleId: './examples/playground/components/for-paint/with-ssr.tsx',
     });
     const WithoutSSR = lazyForPaint(
       () => import('./without-ssr').then(controlLoad),
-      { moduleId: './for-paint/without-ssr', ssr: false }
+      {
+        moduleId: './examples/playground/components/for-paint/without-ssr.tsx',
+        ssr: false,
+      }
     );
 
     return () => <Section components={{ WithSSR, WithoutSSR }} {...props} />;

@@ -1,9 +1,10 @@
 // @flow strict
 
 import type { ComponentType, ElementConfig, Node } from 'react';
-import type { Asset, Manifest } from './webpack';
 
-export type { Asset, Manifest };
+export type Asset = string;
+
+export type Manifest = { [key: string]: Asset[] };
 
 declare export var MODE: {
   RENDER: string,
@@ -12,17 +13,26 @@ declare export var MODE: {
 
 declare export var SETTINGS: {
   CURRENT_MODE: typeof MODE.RENDER | typeof MODE.HYDRATE,
+  MANIFEST: Manifest,
+};
+
+declare export var PRIORITY: {
+  LOW: number,
+  HIGH: number,
 };
 
 declare export var LooselyLazy: {
-  init(mode: typeof SETTINGS.CURRENT_MODE): void,
+  init(options: {
+    mode?: typeof SETTINGS.CURRENT_MODE,
+    manifest?: Manifest,
+  }): void,
 };
 
 declare export default typeof LooselyLazy;
 
 export type LazyComponent<C> = ComponentType<ElementConfig<C>> & {
-  getAssetUrls(manifest: Manifest): string[] | void,
-  preload(): void,
+  getAssetUrls(): string[] | void,
+  preload: (priority?: typeof PRIORITY.HIGH | typeof PRIORITY.LOW) => void,
 };
 
 type Options = {

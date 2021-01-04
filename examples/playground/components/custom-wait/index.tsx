@@ -12,10 +12,10 @@ const props = {
 export const buildCustomWaitComponents = {
   server: () => {
     const WithSSR = lazyForPaint(() => require('./with-ssr'), {
-      moduleId: './custom-wait/with-ssr',
+      moduleId: './examples/playground/components/custom-wait/with-ssr.tsx',
     });
     const WithoutSSR = lazyForPaint(() => import('./without-ssr'), {
-      moduleId: './custom-wait/without-ssr',
+      moduleId: './examples/playground/components/custom-wait/without-ssr.tsx',
       ssr: false,
     });
 
@@ -29,11 +29,15 @@ export const buildCustomWaitComponents = {
   },
   client: () => {
     const WithSSR = lazyForPaint(() => import('./with-ssr').then(controlLoad), {
-      moduleId: './custom-wait/with-ssr',
+      moduleId: './examples/playground/components/custom-wait/with-ssr.tsx',
     });
     const WithoutSSR = lazyForPaint(
       () => import('./without-ssr').then(controlLoad),
-      { moduleId: './custom-wait/without-ssr', ssr: false }
+      {
+        moduleId:
+          './examples/playground/components/custom-wait/without-ssr.tsx',
+        ssr: false,
+      }
     );
 
     return ({ step }: { step: string }) => (

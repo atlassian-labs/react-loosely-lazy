@@ -1,5 +1,12 @@
+// Enable importing ReactLooselyLazyPlugin directly from src
+require('@babel/register')({
+  extensions: ['.jsx', '.js', '.ts', '.tsx'],
+  presets: ['@babel/preset-env', '@babel/preset-typescript'],
+});
+
 const { lstatSync, readdirSync } = require('fs');
 const { resolve, basename } = require('path');
+const { ReactLooselyLazyPlugin } = require('./src/webpack');
 
 // This function generates configuration for files in the
 // ./src/examples/ folder
@@ -55,6 +62,12 @@ module.exports = {
       },
     ],
   },
+
+  plugins: [
+    new ReactLooselyLazyPlugin({
+      filename: './examples/playground/manifest.json',
+    }),
+  ],
 
   resolve: {
     alias: {

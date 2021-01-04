@@ -12,7 +12,7 @@ const props = {
 export const buildLazyComponents = {
   server: () => {
     const WithoutSSR = lazy(() => import('./without-ssr'), {
-      moduleId: './lazy/without-ssr',
+      moduleId: './examples/playground/components/lazy/without-ssr.tsx',
       ssr: false,
     });
 
@@ -20,9 +20,11 @@ export const buildLazyComponents = {
   },
   client: () => {
     const WithoutSSR = lazy(() => import('./without-ssr').then(controlLoad), {
-      moduleId: './lazy/without-ssr',
+      moduleId: './examples/playground/components/lazy/without-ssr.tsx',
       ssr: false,
     });
+    // manual trigger preload
+    WithoutSSR.preload();
 
     return () => <Section components={{ WithoutSSR }} {...props} />;
   },

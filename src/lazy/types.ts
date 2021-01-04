@@ -1,5 +1,5 @@
 import { ComponentProps, ComponentType, FunctionComponent } from 'react';
-import { Manifest } from '../webpack';
+import { PreloadPriority } from '../types';
 
 export type LazyOptions = {
   /**
@@ -21,6 +21,6 @@ export type LazyOptions = {
 export type LazyComponent<C extends ComponentType<any>> = FunctionComponent<
   ComponentProps<C>
 > & {
-  preload: () => void;
-  getAssetUrls: (manifest: Manifest) => string[] | undefined;
+  preload: (priority?: PreloadPriority) => void;
+  getAssetUrls: () => string[] | undefined;
 };

@@ -13,10 +13,16 @@ export const PHASE = {
   LAZY: 2,
 };
 
+export const PRIORITY = {
+  HIGH: 0,
+  LOW: 2,
+};
+
 export const PHASE_LAZY_DELAY = 50;
 
 export const COLLECTED = new Map();
 
 export const SETTINGS: Settings = {
   CURRENT_MODE: MODE.HYDRATE,
+  MANIFEST: {},
 };

@@ -1,4 +1,5 @@
 import LooselyLazy, { MODE } from 'react-loosely-lazy';
+import manifest from '../manifest.json';
 
 import { buildAfterPaintComponents } from './after-paint';
 import { buildForPaintComponents } from './for-paint';
@@ -8,7 +9,7 @@ import { buildLazyComponents } from './lazy';
 export function buildServerComponents(mode: keyof typeof MODE) {
   // force components reset faking server/client
   window.name = 'nodejs';
-  LooselyLazy.init(mode);
+  LooselyLazy.init({ mode, manifest });
 
   return {
     ForPaint: buildForPaintComponents.server(),
@@ -21,7 +22,7 @@ export function buildServerComponents(mode: keyof typeof MODE) {
 export function buildClientComponents(mode: keyof typeof MODE) {
   // force components reset faking server/client
   window.name = '';
-  LooselyLazy.init(mode);
+  LooselyLazy.init({ mode });
 
   return {
     ForPaint: buildForPaintComponents.client(),
