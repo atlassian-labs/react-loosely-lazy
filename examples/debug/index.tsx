@@ -6,13 +6,26 @@ import { MODE } from 'react-loosely-lazy';
 
 import { buildClientApp, buildServerApp } from './ui';
 
+const setInnerHTML = (el: Element, html: string) => {
+  el.innerHTML = html;
+
+  for (const oldScript of Array.from(el.querySelectorAll('script'))) {
+    const newScript = document.createElement('script');
+    for (const attr of Array.from(oldScript.attributes)) {
+      newScript.setAttribute(attr.name, attr.value);
+    }
+    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+    oldScript.parentNode!.replaceChild(newScript, oldScript);
+  }
+};
+
 const main = (container: Element) => {
   const mode = MODE.RENDER;
 
   const ServerApp = buildServerApp(mode);
   const ssr = ReactDOMServer.renderToString(<ServerApp />);
 
-  container.innerHTML = `<div>${ssr}</div>`;
+  setInnerHTML(container, `<div>${ssr}</div>`);
 
   setTimeout(() => {
     const ClientApp = buildClientApp(mode);

@@ -101,7 +101,7 @@ export class AsyncComponentConsumer extends Component<Props, State> {
         loading: false,
         error,
       });
-      log.safeError(
+      console.warn(
         'async-component',
         `Failed to load async component: ${
           bundleName !== undefined ? bundleName : 'unknown'
@@ -128,7 +128,7 @@ export class AsyncComponentConsumer extends Component<Props, State> {
         } catch (e) {
           /* node already gone */
           const msg = `${e.message} [in ${bundleName || ''}]`;
-          log.safeError('async-component', msg, e);
+          console.error('async-component', msg, e);
         }
       });
       ssrDomNodes.length = 0;
@@ -168,7 +168,6 @@ export class AsyncComponentConsumer extends Component<Props, State> {
         {children({ component, loading, error })}
         <script
           data-id={bundleName}
-          data-defer-skip
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
             __html: `
