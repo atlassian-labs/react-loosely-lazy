@@ -30,20 +30,22 @@ export function createComponentClient<C extends ComponentType<any>>({
   moduleId: string;
   ssr: boolean;
 }) {
-  const ResolvedLazy = lazy(() => deferred.promise);
+  // const ResolvedLazy = lazy(() => deferred.promise);
 
   return (props: ComponentProps<C>) => {
     const { setFallback } = useContext(LazySuspenseContext);
-    const [, setState] = useState();
+    const [component, setComponent] = useState();
     const isOwnPhase = usePhaseSubscription(defer);
 
     useMemo(() => {
       if (isOwnPhase) {
         console.log('deferred.start()', Date.now() - window.start);
-        deferred.start().catch((err: Error) => {
+        deferred.start().then(() => {
+          setComponent(1);
+        }).catch((err: Error) => {
           // Throw the error within the component lifecycle
           // refer to https://github.com/facebook/react/issues/11409
-          setState(() => {
+          setComponent(() => {
             throw new LoaderError(moduleId, err);
           });
         });
@@ -54,21 +56,22 @@ export function createComponentClient<C extends ComponentType<any>>({
       }
     }, [isOwnPhase]);
 
-    useMemo(() => {
+    const fallback = useMemo(() => {
       // find SSR content (or fallbacks) wrapped in inputs based on lazyId
       const content = (COLLECTED.get(dataLazyId) || []).shift();
       if (!content) return;
 
       // override Suspense fallback with magic input wrappers
-      const component =
+      const fallbackComponent =
         SETTINGS.CURRENT_MODE === MODE.RENDER ? (
           <PlaceholderFallbackRender id={dataLazyId} content={content} />
         ) : (
           <PlaceholderFallbackHydrate id={dataLazyId} content={content} />
         );
-      console.log('setting fallback', Date.now() - window.start);
-      setFallback(component);
-    }, [setFallback]);
+      console.log('returning lazy fallback', Date.now() - window.start);
+
+      return fallbackComponent;
+    }, []);
 
     if (!ssr) {
       // as the fallback is SSRd too, we want to discard it as soon as this
@@ -78,6 +81,13 @@ export function createComponentClient<C extends ComponentType<any>>({
       }, [setFallback]);
     }
 
-    return <ResolvedLazy {...props} />;
+    if (fallback && !component) {
+      console.log('rendering lazy fallback', Date.now() - window.start);
+      return fallback;
+    }
+
+    console.log('rendering lazy component', Date.now() - window.start);
+    const Component = deferred.result.default || deferred.result;
+    return <Component {...props} />;
   };
 }

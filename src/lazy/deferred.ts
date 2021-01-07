@@ -23,6 +23,8 @@ export const createDeferred = <C extends ComponentType<any>>(
         }
 
         res(withDefault ? withDefault : m);
+
+        return m.default || m;
       };
     }),
     result: undefined,

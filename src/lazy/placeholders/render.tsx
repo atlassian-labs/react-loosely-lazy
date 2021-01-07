@@ -80,4 +80,4 @@ const PlaceholderFallbackRenderNew = ({
   return <input type="hidden" data-lazy-begin={id} ref={placeholderRef} />;
 };
 
-export const PlaceholderFallbackRender = PlaceholderFallbackRenderNew;
+export const PlaceholderFallbackRender = PlaceholderFallbackRenderOriginal;
