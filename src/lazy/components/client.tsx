@@ -39,6 +39,7 @@ export function createComponentClient<C extends ComponentType<any>>({
 
     useMemo(() => {
       if (isOwnPhase) {
+        console.log('deferred.start()', Date.now() - window.start);
         deferred.start().catch((err: Error) => {
           // Throw the error within the component lifecycle
           // refer to https://github.com/facebook/react/issues/11409
@@ -65,6 +66,7 @@ export function createComponentClient<C extends ComponentType<any>>({
         ) : (
           <PlaceholderFallbackHydrate id={dataLazyId} content={content} />
         );
+      console.log('setting fallback', Date.now() - window.start);
       setFallback(component);
     }, [setFallback]);
 

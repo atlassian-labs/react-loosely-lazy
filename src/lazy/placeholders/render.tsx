@@ -32,7 +32,7 @@ export type PlaceholderFallbackRenderProps = {
   content: HTMLElement[];
 };
 
-export const PlaceholderFallbackRender = ({
+const PlaceholderFallbackRenderOriginal = ({
   id,
   content,
 }: PlaceholderFallbackRenderProps) => {
@@ -40,3 +40,44 @@ export const PlaceholderFallbackRender = ({
 
   return <input type="hidden" data-lazy-begin={id} ref={placeholderRef} />;
 };
+
+const PlaceholderFallbackRenderNew = ({
+  id,
+  content,
+}: PlaceholderFallbackRenderProps) => {
+  const placeholderRef = (element: Element | null) => {
+    const { parentNode } = element || content[0] || {};
+
+    if (!parentNode) {
+      return;
+    }
+
+    if (!element) {
+      // on async-bundle/input removal
+      content.forEach((node) => {
+        try {
+          parentNode.removeChild(node);
+        } catch (e) {
+
+        }
+      });
+      content.length = 0;
+      return;
+    }
+
+    if (parentNode.contains(content[0])) {
+      return;
+    }
+
+    console.log('inserting lazy placeholder', Date.now() - window.start);
+    content
+      .reverse()
+      .forEach((node: HTMLElement) =>
+        parentNode.insertBefore(node, (element as any).nextSibling)
+      );
+  };
+
+  return <input type="hidden" data-lazy-begin={id} ref={placeholderRef} />;
+};
+
+export const PlaceholderFallbackRender = PlaceholderFallbackRenderNew;
