@@ -1,52 +1,19 @@
 import React, { useRef, useLayoutEffect, useCallback } from 'react';
 
-const usePlaceholderRender = (resolveId: string, content: HTMLElement[]) => {
+const usePlaceholderRender = (_resolveId: string, content: HTMLElement[]) => {
   const hydrationRef = useRef<HTMLInputElement | null>(null);
   const { current: ssrDomNodes } = useRef(content || ([] as HTMLElement[]));
 
-  const insertBeforeParentDom = ({ parentNode, element }: any) => {
+  useLayoutEffect(() => {
+    const element = hydrationRef.current;
+    const { parentNode } = element || {};
+
     if (parentNode && !parentNode.contains(ssrDomNodes[0])) {
       ssrDomNodes
         .reverse()
         .forEach((node: HTMLElement) =>
           parentNode.insertBefore(node, (element as any).nextSibling)
         );
-    }
-  };
-
-  const insertBeforeParentDomCallback = useCallback(
-    ({ parentNode, element }: any) => {
-      if (parentNode && !parentNode.contains(ssrDomNodes[0])) {
-        ssrDomNodes
-          .reverse()
-          .forEach((node: HTMLElement) =>
-            parentNode.insertBefore(node, (element as any).nextSibling)
-          );
-      }
-    },
-    [ssrDomNodes]
-  );
-
-  useLayoutEffect(() => {
-    const element = hydrationRef.current;
-    const { parentNode } = element || {};
-
-    if (
-      (window as any).performance &&
-      (window as any).performance.mark &&
-      (window as any).isLoadingPhasesForRllMarksEnabled &&
-      (window as any).isLoadingPhasesForRllMarksEnabled()
-    ) {
-      window.performance.mark('jira-spa/rll-component.start');
-    }
-
-    if (
-      (window as any).isLoadingPhasesForRllRefEnabled &&
-      (window as any).isLoadingPhasesForRllRefEnabled()
-    ) {
-      insertBeforeParentDomCallback({ parentNode, element });
-    } else {
-      insertBeforeParentDom({ parentNode, element });
     }
 
     return () => {
@@ -65,11 +32,80 @@ export type PlaceholderFallbackRenderProps = {
   content: HTMLElement[];
 };
 
-export const PlaceholderFallbackRender = ({
+const PlaceholderFallbackRenderOriginal = ({
   id,
   content,
 }: PlaceholderFallbackRenderProps) => {
+  if (
+    (window as any).performance &&
+    (window as any).performance.mark &&
+    (window as any).isLoadingPhasesForRllMarksEnabled &&
+    (window as any).isLoadingPhasesForRllMarksEnabled()
+  ) {
+    window.performance.mark(
+      'jira-spa/rll-PlaceholderFallbackRenderOriginal.start'
+    );
+  }
+
   const placeholderRef = usePlaceholderRender(id, content);
 
   return <input type="hidden" data-lazy-begin={id} ref={placeholderRef} />;
 };
+
+const PlaceholderFallbackRenderNew = ({
+  id,
+  content,
+}: PlaceholderFallbackRenderProps) => {
+  const placeholderRef = useCallback(
+    (element: Element | null) => {
+      const { parentNode } = element || content[0] || {};
+
+      if (!parentNode) {
+        return;
+      }
+
+      if (!element) {
+        // on async-bundle/input removal
+        content.forEach(node => {
+          try {
+            parentNode.removeChild(node);
+            // eslint-disable-next-line no-empty
+          } catch (e) {}
+        });
+        content.length = 0;
+
+        return;
+      }
+
+      if (parentNode.contains(content[0])) {
+        return;
+      }
+
+      if (
+        (window as any).performance &&
+        (window as any).performance.mark &&
+        (window as any).isLoadingPhasesForRllMarksEnabled &&
+        (window as any).isLoadingPhasesForRllMarksEnabled()
+      ) {
+        window.performance.mark(
+          'jira-spa/rll-PlaceholderFallbackRenderNew.start'
+        );
+      }
+
+      content
+        .reverse()
+        .forEach((node: HTMLElement) =>
+          parentNode.insertBefore(node, (element as any).nextSibling)
+        );
+    },
+    [content]
+  );
+
+  return <input type="hidden" data-lazy-begin={id} ref={placeholderRef} />;
+};
+
+export const PlaceholderFallbackRender =
+  (window as any).isLoadingPhasesForRllRefEnabled &&
+  (window as any).isLoadingPhasesForRllRefEnabled()
+    ? PlaceholderFallbackRenderNew
+    : PlaceholderFallbackRenderOriginal;
