@@ -38,13 +38,23 @@ export function createComponentClient<C extends ComponentType<any>>({
 
     useMemo(() => {
       if (isOwnPhase)
-        deferred.start().catch((err: Error) => {
-          // Throw the error within the component lifecycle
-          // refer to https://github.com/facebook/react/issues/11409
-          setState(() => {
-            throw new LoaderError(moduleId, err);
+        deferred
+          .start()
+          .then(() => {
+            if (
+              (window as any).isLoadingPhasesForRllForceUpdateStateEnabled &&
+              (window as any).isLoadingPhasesForRllForceUpdateStateEnabled()
+            ) {
+              setState({} as any);
+            }
+          })
+          .catch((err: Error) => {
+            // Throw the error within the component lifecycle
+            // refer to https://github.com/facebook/react/issues/11409
+            setState(() => {
+              throw new LoaderError(moduleId, err);
+            });
           });
-        });
     }, [isOwnPhase]);
 
     useMemo(() => {
