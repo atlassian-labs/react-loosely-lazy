@@ -33,14 +33,32 @@ export function createComponentClient<C extends ComponentType<any>>({
 
   return (props: ComponentProps<C>) => {
     const { setFallback } = useContext(LazySuspenseContext);
-    const [, setState] = useState();
+    const [componentState, setState] = useState();
     const isOwnPhase = usePhaseSubscription(defer);
 
     useMemo(() => {
-      if (isOwnPhase)
+      if (isOwnPhase) {
+        if (
+          (window as any).performance &&
+          (window as any).performance.mark &&
+          (window as any).isLoadingPhasesForRllMarksEnabled &&
+          (window as any).isLoadingPhasesForRllMarksEnabled()
+        ) {
+          window.performance.mark(`RLL_Request[${moduleId}]`);
+        }
+
         deferred
           .start()
           .then(() => {
+            if (
+              (window as any).performance &&
+              (window as any).performance.mark &&
+              (window as any).isLoadingPhasesForRllMarksEnabled &&
+              (window as any).isLoadingPhasesForRllMarksEnabled()
+            ) {
+              window.performance.mark(`RLL_Resolved[${moduleId}]`);
+            }
+
             if (
               (window as any).isLoadingPhasesForRllForceUpdateStateEnabled &&
               (window as any).isLoadingPhasesForRllForceUpdateStateEnabled()
@@ -55,6 +73,7 @@ export function createComponentClient<C extends ComponentType<any>>({
               throw new LoaderError(moduleId, err);
             });
           });
+      }
     }, [isOwnPhase]);
 
     useMemo(() => {
@@ -78,6 +97,16 @@ export function createComponentClient<C extends ComponentType<any>>({
       useEffect(() => {
         setFallback(null);
       }, [setFallback]);
+    }
+
+    if (
+      componentState &&
+      (window as any).performance &&
+      (window as any).performance.mark &&
+      (window as any).isLoadingPhasesForRllMarksEnabled &&
+      (window as any).isLoadingPhasesForRllMarksEnabled()
+    ) {
+      window.performance.mark(`RLL_Render[${moduleId}]`);
     }
 
     return <ResolvedLazy {...props} />;
