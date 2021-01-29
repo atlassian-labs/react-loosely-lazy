@@ -1,5 +1,5 @@
 import { lazyForPaint } from 'react-loosely-lazy';
-const ExplicitNoSsr = lazyForPaint(() => import('react'), {
+const ExplicitNoSsr = lazyForPaint(() => () => null, {
   ssr: false,
   moduleId: './node_modules/react/index.js',
 });
