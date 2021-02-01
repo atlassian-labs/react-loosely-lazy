@@ -139,12 +139,14 @@ export default function ({
           return;
         }
 
-        // When on the server, either do nothing or replace the import with a noop
+        // When on the server, either do nothing or replace the loader with a noop
         if (!ssr) {
           if (noopRedundantLoaders) {
-            nodePath.parentPath.replaceWith(
-              t.arrowFunctionExpression([], t.nullLiteral())
+            const noopComponent = t.arrowFunctionExpression(
+              [],
+              t.nullLiteral()
             );
+            loader.replaceWith(t.arrowFunctionExpression([], noopComponent));
           }
 
           return;
