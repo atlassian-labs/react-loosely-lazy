@@ -16,6 +16,7 @@ export type ModulePathReplacer = {
 export type BabelPluginOptions = Partial<{
   client: boolean;
   modulePathReplacer: ModulePathReplacer;
+  noopRedundantLoaders: boolean;
 }>;
 
 export default function ({
@@ -101,12 +102,20 @@ export default function ({
     return value.value;
   }
 
-  // TODO Remove this hack when this library drops non-streaming support
-  function transformLoader(
-    loader: NodePath<BabelTypes.Function>,
-    env: 'client' | 'server',
-    ssr: boolean
-  ): { importPath: string | void } {
+  type TransformLoaderOptions = {
+    env: 'client' | 'server';
+    loader: NodePath<BabelTypes.Function>;
+    noopRedundantLoaders: boolean;
+    ssr: boolean;
+  };
+
+  // TODO Remove the require hack when this library drops non-streaming support
+  function transformLoader({
+    env,
+    loader,
+    noopRedundantLoaders,
+    ssr,
+  }: TransformLoaderOptions): { importPath: string | void } {
     let importPath;
 
     loader.traverse({
@@ -125,9 +134,21 @@ export default function ({
           importPath = maybeImportPath.node.value;
         }
 
-        // Only transform the loader when we are on the server and SSR is
-        // enabled for the component
-        if (env === 'client' || !ssr) {
+        // Do not transform the loader on the client
+        if (env === 'client') {
+          return;
+        }
+
+        // When on the server, either do nothing or replace the loader with a noop
+        if (!ssr) {
+          if (noopRedundantLoaders) {
+            const noopComponent = t.arrowFunctionExpression(
+              [],
+              t.nullLiteral()
+            );
+            loader.replaceWith(t.arrowFunctionExpression([], noopComponent));
+          }
+
           return;
         }
 
@@ -225,7 +246,8 @@ export default function ({
           filename?: string;
         }
       ) {
-        const { client, modulePathReplacer } = state.opts || {};
+        const { client, modulePathReplacer, noopRedundantLoaders = true } =
+          state.opts || {};
         const { filename } = state;
         const source = path.node.source.value;
 
@@ -250,11 +272,12 @@ export default function ({
             const [loader, lazyOptions] = getLazyArguments(callExpression);
             const propertiesMap = getPropertiesMap(lazyOptions);
 
-            const { importPath } = transformLoader(
+            const { importPath } = transformLoader({
+              env: client ? 'client' : 'server',
               loader,
-              client ? 'client' : 'server',
-              getSSR(propertiesMap, lazyMethodName)
-            );
+              noopRedundantLoaders,
+              ssr: getSSR(propertiesMap, lazyMethodName),
+            });
 
             if (!importPath) {
               return;

@@ -1,4 +1,4 @@
 import { lazy } from 'react-loosely-lazy';
-const ImplicitNoSsr = lazy(() => () => null, {
+const NamedImport = lazy(() => () => null, {
   moduleId: './node_modules/react/index.js',
 });

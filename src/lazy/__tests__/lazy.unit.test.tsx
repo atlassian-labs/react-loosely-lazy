@@ -122,6 +122,42 @@ describe('lazy', () => {
       });
     });
 
+    it('should render the fallback when ssr is false', () => {
+      const DefaultComponent = () => <div>Component</div>;
+      const LazyTestComponent = lazyForPaint(
+        () => createDefaultServerImport({ DefaultComponent }),
+        {
+          ...lazyOptions,
+          ssr: false,
+        }
+      );
+
+      const { queryByText } = render(
+        <LazySuspense fallback={<div>Loading...</div>}>
+          <LazyTestComponent />
+        </LazySuspense>
+      );
+
+      expect(queryByText('Loading...')).toBeInTheDocument();
+      expect(queryByText('Component')).not.toBeInTheDocument();
+    });
+
+    it('should render the fallback when ssr is false and the loader has been transformed by the babel plugin', () => {
+      const NoopComponent = () => null;
+      const LazyTestComponent = lazyForPaint(() => NoopComponent, {
+        ...lazyOptions,
+        ssr: false,
+      });
+
+      const { queryByText } = render(
+        <LazySuspense fallback={<div>Loading...</div>}>
+          <LazyTestComponent />
+        </LazySuspense>
+      );
+
+      expect(queryByText('Loading...')).toBeInTheDocument();
+    });
+
     it('should render the default component correctly when there is only a default export', async () => {
       const DefaultComponent = () => <div>Component</div>;
       const LazyTestComponent = lazyForPaint(
