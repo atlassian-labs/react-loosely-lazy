@@ -1,6 +1,6 @@
 {
   "name": "react-loosely-lazy",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Suspense enable and SSR compatible async components with priorities",
   "keywords": [
     "React",
