@@ -34,18 +34,39 @@ export function createComponentClient<C extends ComponentType<any>>({
 
   return (props: ComponentProps<C>) => {
     const { setFallback } = useContext(LazySuspenseContext);
-    const [, setState] = useState();
+    const [componentState, setState] = useState();
     const isOwnPhase = usePhaseSubscription(defer);
 
     useMemo(() => {
       if (isOwnPhase) {
-        deferred.start().catch((err: Error) => {
-          // Throw the error within the component lifecycle
-          // refer to https://github.com/facebook/react/issues/11409
-          setState(() => {
-            throw new LoaderError(moduleId, err);
+        if (
+          (window as any).performance &&
+          (window as any).performance.mark &&
+          (window as any).isLoadingPhasesForRllMarksEnabled &&
+          (window as any).isLoadingPhasesForRllMarksEnabled()
+        ) {
+          window.performance.mark(`RLL_Request[${moduleId}]`);
+        }
+
+        deferred
+          .start()
+          .then(() => {
+            if (
+              (window as any).performance &&
+              (window as any).performance.mark &&
+              (window as any).isLoadingPhasesForRllMarksEnabled &&
+              (window as any).isLoadingPhasesForRllMarksEnabled()
+            ) {
+              window.performance.mark(`RLL_Resolved[${moduleId}]`);
+            }
+          })
+          .catch((err: Error) => {
+            // Throw the error within the component lifecycle
+            // refer to https://github.com/facebook/react/issues/11409
+            setState(() => {
+              throw new LoaderError(moduleId, err);
+            });
           });
-        });
       }
     }, [isOwnPhase]);
 
@@ -79,6 +100,16 @@ export function createComponentClient<C extends ComponentType<any>>({
           preloadAsset(deferred.start, { moduleId, priority: PRIORITY.LOW });
         }
       }, [isOwnPhase]);
+    }
+
+    if (
+      componentState &&
+      (window as any).performance &&
+      (window as any).performance.mark &&
+      (window as any).isLoadingPhasesForRllMarksEnabled &&
+      (window as any).isLoadingPhasesForRllMarksEnabled()
+    ) {
+      window.performance.mark(`RLL_Render[${moduleId}]`);
     }
 
     return <ResolvedLazy {...props} />;
