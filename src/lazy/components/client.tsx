@@ -46,10 +46,6 @@ export function createComponentClient<C extends ComponentType<any>>({
             throw new LoaderError(moduleId, err);
           });
         });
-      } else {
-        if (defer === PHASE.AFTER_PAINT) {
-          preloadAsset(deferred.start, { moduleId, priority: PRIORITY.LOW });
-        }
       }
     }, [isOwnPhase]);
 
@@ -74,6 +70,15 @@ export function createComponentClient<C extends ComponentType<any>>({
       useEffect(() => {
         setFallback(null);
       }, [setFallback]);
+    }
+
+    if (defer === PHASE.AFTER_PAINT) {
+      // start preloading as will be needed soon
+      useEffect(() => {
+        if (!isOwnPhase) {
+          preloadAsset(deferred.start, { moduleId, priority: PRIORITY.LOW });
+        }
+      }, [isOwnPhase]);
     }
 
     return <ResolvedLazy {...props} />;
