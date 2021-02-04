@@ -25,4 +25,5 @@ export const COLLECTED = new Map();
 export const SETTINGS: Settings = {
   CURRENT_MODE: MODE.HYDRATE,
   MANIFEST: {},
+  CROSS_ORIGIN: undefined,
 };

@@ -82,27 +82,25 @@ const expectedManifest = {
 };
 
 describe('ReactLooselyLazyPlugin', () => {
-  it('should create the manifest', done => {
-    webpack(config, (err, stats) => {
-      if (err) {
-        done(err);
-      }
+  it('should create the manifest', async () => {
+    const { info, manifest } = await new Promise((resolve, reject) => {
+      webpack(config, (err, stats) => {
+        if (err) reject(err);
 
-      const info = stats.toJson();
-
-      expect(info).toMatchObject({
-        errors: [],
-        warnings: [],
+        const asset = stats.compilation.assets[manifestFilename];
+        resolve({
+          info: stats.toJson(),
+          manifest: JSON.parse(asset.source()),
+        });
       });
-
-      const asset = stats.compilation.assets[manifestFilename];
-      const manifest = JSON.parse(asset.source());
-
-      expect(manifest).toEqual(expectedManifest);
-
-      done();
     });
-  }, 10000);
+
+    expect(info).toMatchObject({
+      errors: [],
+      warnings: [],
+    });
+    expect(manifest).toEqual(expectedManifest);
+  });
 });
 
 describe('getAssets', () => {

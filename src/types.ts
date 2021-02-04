@@ -9,4 +9,5 @@ export type Manifest = { [key: string]: Asset[] };
 export type Settings = {
   CURRENT_MODE: typeof MODE.HYDRATE | typeof MODE.RENDER;
   MANIFEST: Manifest;
+  CROSS_ORIGIN: 'anonymous' | 'use-credentials' | undefined;
 };

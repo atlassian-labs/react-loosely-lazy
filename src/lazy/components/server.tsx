@@ -39,6 +39,7 @@ export function createComponentServer<C extends ComponentType<any>>({
               key={url}
               rel={defer === PHASE.PAINT ? 'preload' : 'prefetch'}
               href={url}
+              crossOrigin={SETTINGS.CROSS_ORIGIN}
               as="script"
             />
           ))}

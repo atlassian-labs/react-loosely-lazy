@@ -34,6 +34,9 @@ export function attrToProp(props: { [k: string]: string }, attr: Attr) {
     case 'class':
       props.className = attr.value;
       break;
+    case 'crossorigin':
+      props.crossOrigin = attr.value;
+      break;
     default:
       props[attr.name] = attr.value;
   }

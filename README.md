@@ -129,6 +129,30 @@ const App = () => {
 };
 ```
 
+### Customisation
+
+The library supports some level of configuration to adapt the capabilities to more use cases:
+
+```js
+import LooselyLazy, { MODE } from 'react-loosely-lazy';
+import webpackManifest from './rll-manifest.json';
+
+// Call this before rendering any component
+LooselyLazy.init({
+  // If your app does not support hydration, you can enable render mode support
+  // needs to be set to the same value between client and SSR
+  mode: MODE.RENDER,
+
+  // Provides a way to preload/prefetch bundles. It is recommended providing it on SSR
+  // as allows the lib to print link tags. It's superfluous on the client
+  manifest: webpackManifest,
+
+  // Set it to be the same value as webpack output.crossOriginLoading otherwise
+  // preload/prefetch link tags will not work and resources will be requested twice
+  crossOrigin: 'anonymous',
+});
+```
+
 ## Playground
 
 See `react-loosely-lazy` in action: run `npm run start` and then go and check: `http://localhost:8080/`
