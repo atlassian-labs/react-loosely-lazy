@@ -12,7 +12,8 @@ import { ClientLoader, Loader, ServerLoader } from './loader';
 import { preloadAsset } from './preload';
 import { LazyOptions, LazyComponent } from './types';
 
-export { Asset, Manifest, LazyOptions, LazyComponent };
+export { Asset, Manifest };
+export type { LazyOptions, LazyComponent };
 
 function lazyProxy<C extends ComponentType<any>>(
   loader: Loader<C>,

@@ -1,6 +1,7 @@
 .idea
 .local
 .vscode
+.history
 
 coverage
 node_modules

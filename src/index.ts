@@ -10,17 +10,12 @@ export {
   LoaderError,
 } from './lazy';
 
-export {
-  ClientLoader,
-  Loader,
-  LazyOptions,
-  ServerLoader,
-  LazyComponent,
-} from './lazy';
+export { ClientLoader, Loader, ServerLoader } from './lazy';
+export type { LazyOptions, LazyComponent } from './lazy';
 
 export { LazySuspense } from './suspense';
-export { Fallback, LazySuspenseProps } from './suspense';
+export type { Fallback, LazySuspenseProps } from './suspense';
 
 export { LazyWait, useLazyPhase } from './phase';
 export { LazyWaitProps } from './phase';
-export { Settings } from './types';
+export type { Settings } from './types';
