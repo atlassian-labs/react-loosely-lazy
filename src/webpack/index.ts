@@ -126,4 +126,4 @@ export const getAssets = (manifest: Manifest, moduleIds: string[]) =>
     []
   );
 
-export { Asset, Manifest };
+export type { Asset, Manifest };
