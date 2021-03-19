@@ -1,4 +1,4 @@
-# Contributing to react-loosely-lazy
+# Contributing
 
 Thank you for considering a contribution to react-loosely-lazy! Pull requests, issues and comments are welcome. For pull requests, please:
 
