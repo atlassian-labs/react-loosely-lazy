@@ -1,24 +1,27 @@
 import { Compiler, compilation as webpackCompilation } from 'webpack';
 import { PACKAGE_NAME } from '../constants';
-import { Asset, Manifest } from '../types';
+import { Asset, Manifest } from '../manifest';
 import { buildManifest } from './utils';
 
 type Parser = webpackCompilation.normalModuleFactory.Parser;
 
 export type ReactLooselyLazyPluginOptions = {
   filename: string;
+  publicPath?: string;
 };
 
 export class ReactLooselyLazyPlugin {
   name: string = ReactLooselyLazyPlugin.name;
   filename: string;
+  publicPath: string | undefined;
 
   constructor(opts: ReactLooselyLazyPluginOptions) {
     this.filename = opts.filename;
+    this.publicPath = opts.publicPath;
   }
 
   apply(compiler: Compiler) {
-    const { name } = this;
+    const { name, publicPath } = this;
     // A mapping of module paths to the set of raw requests that stem from the react-loosely-lazy library
     const moduleImports = new Map<string, Set<string>>();
 
@@ -84,7 +87,10 @@ export class ReactLooselyLazyPlugin {
     });
 
     compiler.hooks.emit.tapAsync(name, (compilation, callback) => {
-      const manifest = buildManifest(compiler, compilation, moduleImports);
+      const manifest = buildManifest(compiler, compilation, {
+        moduleImports,
+        publicPath,
+      });
       const json = JSON.stringify(manifest, null, 2);
 
       compilation.assets[this.filename] = {
@@ -118,12 +124,5 @@ export class ReactLooselyLazyPlugin {
     });
   }
 }
-
-export const getAssets = (manifest: Manifest, moduleIds: string[]) =>
-  // TODO use flatMap once Node 10 support is dropped
-  moduleIds.reduce<Array<string | undefined>>(
-    (assets, id) => assets.concat(manifest[id]),
-    []
-  );
 
 export type { Asset, Manifest };

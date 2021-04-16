@@ -4,7 +4,12 @@ import type { ComponentType, ElementConfig, Node } from 'react';
 
 export type Asset = string;
 
-export type Manifest = { [key: string]: Asset[] };
+export type Manifest = {
+  publicPath: string,
+  assets: {
+    [id: string]: Asset[],
+  },
+};
 
 declare export var MODE: {
   RENDER: string,
@@ -90,3 +95,8 @@ declare export function useLazyPhase(): {
   startNextPhase(): void,
   resetPhase(): void,
 };
+
+declare export function getAssetUrlsFromId(
+  manifest: Manifest,
+  id: string
+): Asset[] | void;

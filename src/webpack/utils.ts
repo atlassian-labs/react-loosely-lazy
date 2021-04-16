@@ -1,6 +1,5 @@
 import { Compiler, compilation as webpackCompilation } from 'webpack';
-import { Manifest } from '../types';
-import url from 'url';
+import { Manifest } from '../manifest';
 
 type Compilation = webpackCompilation.Compilation;
 type Module = webpackCompilation.Module;
@@ -41,76 +40,79 @@ type OriginRecord = {
 export const buildManifest = (
   compiler: Compiler,
   compilation: Compilation,
-  moduleImports: Map<string, Set<string>>
+  config: {
+    moduleImports: Map<string, Set<string>>;
+    publicPath: string | undefined;
+  }
 ): Manifest => {
   const { context } = compiler.options;
-  const { chunkGroups } = compilation;
+  const { chunkGroups, outputOptions } = compilation;
 
-  return (chunkGroups as ChunkGroup[]).reduce<Manifest>((manifest, group) => {
-    const { chunks, origins } = group;
-    for (const origin of origins) {
-      const { module: originModule, request } = origin;
-      if (!originModule) {
-        continue;
-      }
+  const publicPath = config.publicPath ?? outputOptions.publicPath;
 
-      const { resource } = originModule;
-      const rawRequests = moduleImports.get(resource) || new Set();
-      if (!rawRequests.has(request)) {
-        continue;
-      }
-
-      const block = originModule.blocks.find(
-        b => b.request === request && b.module === originModule
-      );
-
-      if (!block) {
-        continue;
-      }
-
-      const dependency = block.dependencies.find(
-        (dep: any) =>
-          dep.request === request && dep.originModule === originModule
-      );
-
-      if (!dependency) {
-        continue;
-      }
-
-      const { module } = dependency;
-      if (!module || !module.libIdent) {
-        continue;
-      }
-
-      const name = module.libIdent({ context });
-      if (!name || manifest[name]) {
-        continue;
-      }
-
-      for (const chunk of chunks) {
-        if (chunk.isOnlyInitial()) {
+  return (chunkGroups as ChunkGroup[]).reduce<Manifest>(
+    (manifest, group) => {
+      const { chunks, origins } = group;
+      for (const origin of origins) {
+        const { module: originModule, request } = origin;
+        if (!originModule) {
           continue;
         }
 
-        for (const file of chunk.files) {
-          if (file.endsWith('.map')) {
+        const { resource } = originModule;
+        const rawRequests = config.moduleImports.get(resource) || new Set();
+        if (!rawRequests.has(request)) {
+          continue;
+        }
+
+        const block = originModule.blocks.find(
+          b => b.request === request && b.module === originModule
+        );
+
+        if (!block) {
+          continue;
+        }
+
+        const dependency = block.dependencies.find(
+          (dep: any) =>
+            dep.request === request && dep.originModule === originModule
+        );
+
+        if (!dependency) {
+          continue;
+        }
+
+        const { module } = dependency;
+        if (!module || !module.libIdent) {
+          continue;
+        }
+
+        const name = module.libIdent({ context });
+        if (!name || manifest.assets[name]) {
+          continue;
+        }
+
+        for (const chunk of chunks) {
+          if (chunk.isOnlyInitial()) {
             continue;
           }
 
-          const publicPath = url.resolve(
-            compilation.outputOptions.publicPath || '',
-            file
-          );
+          for (const file of chunk.files) {
+            if (file.endsWith('.map')) {
+              continue;
+            }
 
-          if (!manifest[name]) {
-            manifest[name] = [];
+            if (!manifest.assets[name]) {
+              manifest.assets[name] = [];
+            }
+
+            manifest.assets[name].push(file);
           }
-
-          manifest[name].push(publicPath);
         }
       }
-    }
 
-    return manifest;
-  }, {} as Manifest);
+      return manifest;
+    },
+    { publicPath, assets: {} }
+  );
 };

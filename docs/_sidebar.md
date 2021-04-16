@@ -19,6 +19,7 @@
   * [`LazySuspense`](/api/lazy-suspense)
   * [`LazyWait`](/api/lazy-wait)
   * [`useLazyPhase`](/api/use-lazy-phase)
+  * [`getAssetUrlsFromId`](/api/get-asset-urls-from-id)
   
 ---
 

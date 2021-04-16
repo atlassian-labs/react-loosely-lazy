@@ -1,10 +1,7 @@
 import { MODE, PRIORITY } from './constants';
+import { Manifest } from './manifest';
 
 export type PreloadPriority = typeof PRIORITY.HIGH | typeof PRIORITY.LOW;
-
-export type Asset = string;
-
-export type Manifest = { [key: string]: Asset[] };
 
 export type Settings = {
   CURRENT_MODE: typeof MODE.HYDRATE | typeof MODE.RENDER;
