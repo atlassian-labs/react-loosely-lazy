@@ -11,12 +11,24 @@ jest.mock('../utils');
 describe('preload strategies', () => {
   describe('preloadAssetViaManifest', () => {
     afterEach(() => {
-      LooselyLazy.init({ manifest: {} });
+      LooselyLazy.init({
+        manifest: {
+          publicPath: '/',
+          assets: {},
+        },
+      });
     });
 
     it('should add link tags and return true if module found', () => {
       const loader = jest.fn();
-      LooselyLazy.init({ manifest: { '@foo/bar': ['/1.js'] } });
+      LooselyLazy.init({
+        manifest: {
+          publicPath: '/',
+          assets: {
+            '@foo/bar': ['1.js'],
+          },
+        },
+      });
 
       const result = preloadAssetViaManifest(loader, {
         moduleId: '@foo/bar',
@@ -29,8 +41,24 @@ describe('preload strategies', () => {
 
     it('should return false if module not found', () => {
       const loader = jest.fn();
-      LooselyLazy.init({ manifest: {} });
+      LooselyLazy.init({
+        manifest: {
+          publicPath: '/',
+          assets: {},
+        },
+      });
 
+      const result = preloadAssetViaManifest(loader, {
+        moduleId: '@foo/bar',
+        rel: 'preload',
+      });
+
+      expect(insertLinkTag).not.toHaveBeenCalled();
+      expect(result).toBe(false);
+    });
+
+    it('should return false when the manifest is not initialised', () => {
+      const loader = jest.fn();
       const result = preloadAssetViaManifest(loader, {
         moduleId: '@foo/bar',
         rel: 'preload',
@@ -67,7 +95,12 @@ describe('preload strategies', () => {
 
     it('should return false if webpack not defined', () => {
       const loader = jest.fn();
-      LooselyLazy.init({ manifest: {} });
+      LooselyLazy.init({
+        manifest: {
+          publicPath: '/',
+          assets: {},
+        },
+      });
 
       const result = preloadAssetViaWebpack(loader, {
         moduleId: '@foo/bar',

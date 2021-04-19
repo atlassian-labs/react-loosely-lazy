@@ -1,7 +1,7 @@
 import { SETTINGS, MODE } from './constants';
 import { collect } from './collect';
+import { Manifest } from './manifest';
 import { LISTENERS, setCurrent } from './phase';
-import { Manifest } from './types';
 import { isNodeEnvironment } from './utils';
 
 type InitOptions = {

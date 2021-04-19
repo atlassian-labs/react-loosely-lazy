@@ -60,7 +60,7 @@ Since the dynamic links are rendered in the React root, the performance will alw
 > The default mechanism for preloading and prefetching will render the `link` elements in the React root, which is typically in the [`Document#body`](https://developer.mozilla.org/en-US/docs/Web/API/Document/body)
 
 ### Static links
-It is possible to render the links statically in the [`Document#head`](https://developer.mozilla.org/en-US/docs/Web/API/Document/head) by retrieving the necessary assets through [`LazyComponent#getAssetUrls`](api/lazy-component?id=getasseturls)
+It is possible to render the links statically in the [`Document#head`](https://developer.mozilla.org/en-US/docs/Web/API/Document/head) by retrieving the necessary assets through [`LazyComponent#getAssetUrls`](api/lazy-component?id=getasseturls) or [`getAssetUrlsFromId`](api/get-asset-urls-from-id).
 
 To generate static links in single-page applications, a mapping between the matched route and its lazy component dependencies, needs to be available in a static context. This mapping can either be specified manually or generated via some custom automation.
 

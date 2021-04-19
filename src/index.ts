@@ -13,6 +13,9 @@ export {
 export type { ClientLoader, Loader, ServerLoader } from './lazy';
 export type { LazyOptions, LazyComponent } from './lazy';
 
+export { getAssetUrlsFromId } from './manifest';
+export type { Asset, Manifest } from './manifest';
+
 export { LazySuspense } from './suspense';
 export type { Fallback, LazySuspenseProps } from './suspense';
 

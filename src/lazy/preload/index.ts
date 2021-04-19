@@ -1,7 +1,10 @@
 import { PRIORITY, SETTINGS } from '../../constants';
+import { getAssetUrlsFromId } from '../../manifest';
 import { PreloadPriority } from '../../types';
 import { isNodeEnvironment } from '../../utils';
+
 import { Loader } from '../loader';
+
 import { insertLinkTag } from './utils';
 
 declare const __webpack_require__: any;
@@ -18,10 +21,12 @@ export function preloadAssetViaManifest(
   loader: Loader<unknown>,
   { moduleId, rel }: PreloadAssetOptions
 ) {
-  if (!SETTINGS.MANIFEST[moduleId]) {
+  const assets = getAssetUrlsFromId(SETTINGS.MANIFEST, moduleId);
+  if (!assets) {
     return false;
   }
-  SETTINGS.MANIFEST[moduleId].forEach(url => insertLinkTag(url, rel));
+
+  assets.forEach(url => insertLinkTag(url, rel));
 
   return true;
 }

@@ -1,9 +1,9 @@
 import { ComponentProps, ComponentType, FunctionComponent } from 'react';
 
 import { PHASE, PRIORITY, SETTINGS } from '../constants';
+import { getAssetUrlsFromId } from '../manifest';
 import { PreloadPriority } from '../types';
 import { hash, displayNameFromId, isNodeEnvironment } from '../utils';
-import { Asset, Manifest } from '../webpack';
 
 import { createComponentClient } from './components/client';
 import { createComponentServer } from './components/server';
@@ -12,7 +12,6 @@ import { ClientLoader, Loader, ServerLoader } from './loader';
 import { preloadAsset } from './preload';
 import { LazyOptions, LazyComponent } from './types';
 
-export type { Asset, Manifest };
 export type { LazyOptions, LazyComponent };
 
 function lazyProxy<C extends ComponentType<any>>(
@@ -44,11 +43,7 @@ function lazyProxy<C extends ComponentType<any>>(
    * Allows getting module chunks urls
    */
   const getAssetUrls = () => {
-    if (!SETTINGS.MANIFEST[moduleId]) {
-      return;
-    }
-
-    return SETTINGS.MANIFEST[moduleId];
+    return getAssetUrlsFromId(SETTINGS.MANIFEST, moduleId);
   };
 
   /**

@@ -41,9 +41,15 @@ const createApp = ({
     moduleId: './mock',
   });
 
-  const mode = hydrate ? MODE.HYDRATE : MODE.RENDER;
-  const manifest = { './mock': [''] };
-  LooselyLazy.init({ mode, manifest });
+  LooselyLazy.init({
+    mode: hydrate ? MODE.HYDRATE : MODE.RENDER,
+    manifest: {
+      publicPath: '/',
+      assets: {
+        './mock': [''],
+      },
+    },
+  });
 
   const App = () => (
     <LazySuspense fallback={<Fallback />}>

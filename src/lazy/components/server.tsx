@@ -1,7 +1,10 @@
 import React, { ComponentProps, ComponentType, useContext } from 'react';
+
 import { PHASE, SETTINGS } from '../../constants';
+import { getAssetUrlsFromId } from '../../manifest';
 import { LazySuspenseContext } from '../../suspense';
 import { getExport } from '../../utils';
+
 import { LoaderError } from '../errors/loader-error';
 import { ServerLoader } from '../loader';
 
@@ -34,7 +37,7 @@ export function createComponentServer<C extends ComponentType<any>>({
       <>
         <input type="hidden" data-lazy-begin={dataLazyId} />
         {defer !== PHASE.LAZY &&
-          SETTINGS.MANIFEST[moduleId]?.map(url => (
+          getAssetUrlsFromId(SETTINGS.MANIFEST, moduleId)?.map(url => (
             <link
               key={url}
               rel={defer === PHASE.PAINT ? 'preload' : 'prefetch'}

@@ -79,47 +79,68 @@ describe('lazy', () => {
     restoreConsoleErrors();
   });
 
+  describe('getAssetUrls', () => {
+    const createComponent = (moduleId: string) =>
+      lazyForPaint(
+        () => createDefaultServerImport({ DefaultComponent: () => <div /> }),
+        {
+          ...lazyOptions,
+          moduleId,
+        }
+      );
+
+    it('should return undefined when given an empty manifest', () => {
+      LooselyLazy.init({
+        manifest: {
+          publicPath: '/',
+          assets: {},
+        },
+      });
+
+      const TestComponent = createComponent('./src/app/foo.tsx');
+
+      expect(TestComponent.getAssetUrls()).toBeUndefined();
+    });
+
+    it('should return undefined when given a manifest that does not contain the component moduleId', () => {
+      LooselyLazy.init({
+        manifest: {
+          publicPath: '/',
+          assets: {
+            './src/app/bar.tsx': ['async-bar.js'],
+          },
+        },
+      });
+
+      const TestComponent = createComponent('./src/app/foo.tsx');
+
+      expect(TestComponent.getAssetUrls()).toBeUndefined();
+    });
+
+    it('should return the assets when given a manifest that contains the component moduleId', () => {
+      const moduleId = './src/app/foo.tsx';
+
+      LooselyLazy.init({
+        manifest: {
+          publicPath: 'https://cdn.example.com/',
+          assets: {
+            [moduleId]: ['async-bar.js', 'async-baz.js'],
+          },
+        },
+      });
+
+      const TestComponent = createComponent(moduleId);
+
+      expect(TestComponent.getAssetUrls()).toEqual([
+        'https://cdn.example.com/async-bar.js',
+        'https://cdn.example.com/async-baz.js',
+      ]);
+    });
+  });
+
   describe('on the server', () => {
     beforeEach(() => {
       (isNodeEnvironment as any).mockImplementation(() => true);
-    });
-
-    describe('getAssetUrls', () => {
-      const createComponent = (moduleId: string) =>
-        lazyForPaint(
-          () => createDefaultServerImport({ DefaultComponent: () => <div /> }),
-          {
-            ...lazyOptions,
-            moduleId,
-          }
-        );
-
-      it('should return undefined when given an empty manifest', () => {
-        const manifest = {};
-        LooselyLazy.init({ manifest });
-        const TestComponent = createComponent('./src/app/foo.tsx');
-        expect(TestComponent.getAssetUrls()).toBeUndefined();
-      });
-
-      it('should return undefined when given a manifest that does not contain the component moduleId', () => {
-        const manifest = {
-          './src/app/bar.tsx': ['https://cdn.com/async-bar.js'],
-        };
-        LooselyLazy.init({ manifest });
-        const TestComponent = createComponent('./src/app/foo.tsx');
-        expect(TestComponent.getAssetUrls()).toBeUndefined();
-      });
-
-      it('should return the module public paths when given a manifest that contains the component moduleId', () => {
-        const publicPath = 'https://cdn.com/async-foo.js';
-        const moduleId = './src/app/foo.tsx';
-        const manifest = {
-          [`${moduleId}`]: [publicPath],
-        };
-        LooselyLazy.init({ manifest });
-        const TestComponent = createComponent(moduleId);
-        expect(TestComponent.getAssetUrls()).toEqual([publicPath]);
-      });
     });
 
     it('should render the fallback when ssr is false', () => {
@@ -235,8 +256,15 @@ describe('lazy', () => {
     });
 
     it('should render preload link tags to chunks for paint component', () => {
-      const manifest = { [lazyOptions.moduleId]: ['/1.js', '/2.js'] };
-      LooselyLazy.init({ manifest });
+      LooselyLazy.init({
+        manifest: {
+          publicPath: '/',
+          assets: {
+            [lazyOptions.moduleId]: ['1.js', '2.js'],
+          },
+        },
+      });
+
       const DefaultComponent = () => <div>Default Component</div>;
       const LazyTestComponent = lazyForPaint(
         () => createDefaultServerImport({ DefaultComponent }),
@@ -266,8 +294,15 @@ describe('lazy', () => {
     });
 
     it('should render prefetch link tags to chunks for afterPaint component', () => {
-      const manifest = { [lazyOptions.moduleId]: ['/1.js'] };
-      LooselyLazy.init({ manifest });
+      LooselyLazy.init({
+        manifest: {
+          publicPath: '/',
+          assets: {
+            [lazyOptions.moduleId]: ['1.js'],
+          },
+        },
+      });
+
       const DefaultComponent = () => <div>Default Component</div>;
       const LazyTestComponent = lazyAfterPaint(
         () => createDefaultServerImport({ DefaultComponent }),
@@ -292,8 +327,15 @@ describe('lazy', () => {
     });
 
     it('should not render link tags to chunks for lazy component', () => {
-      const manifest = { [lazyOptions.moduleId]: ['/1.js', '/2.js'] };
-      LooselyLazy.init({ manifest });
+      LooselyLazy.init({
+        manifest: {
+          publicPath: '/',
+          assets: {
+            [lazyOptions.moduleId]: ['1.js', '2.js'],
+          },
+        },
+      });
+
       const DefaultComponent = () => <div>Default Component</div>;
       const LazyTestComponent = lazy(
         () => createDefaultServerImport({ DefaultComponent }),
@@ -462,8 +504,14 @@ describe('lazy', () => {
     });
 
     it('should prefetch afterPaint component ahead of require', async () => {
-      const manifest = { [lazyOptions.moduleId]: ['/1.js', '/2.js'] };
-      LooselyLazy.init({ manifest });
+      LooselyLazy.init({
+        manifest: {
+          publicPath: '/',
+          assets: {
+            [lazyOptions.moduleId]: ['1.js', '2.js'],
+          },
+        },
+      });
 
       const DefaultComponent = () => <div>Component</div>;
       const LazyTestComponent = lazyAfterPaint(
@@ -492,8 +540,14 @@ describe('lazy', () => {
     });
 
     it('should support imperative preloading with auto priority', async () => {
-      const manifest = { [lazyOptions.moduleId]: ['/1.js'] };
-      LooselyLazy.init({ manifest });
+      LooselyLazy.init({
+        manifest: {
+          publicPath: '/',
+          assets: {
+            [lazyOptions.moduleId]: ['1.js'],
+          },
+        },
+      });
 
       const DefaultComponent = () => <div>Component</div>;
       const LazyTestComponent = lazyAfterPaint(
@@ -514,8 +568,14 @@ describe('lazy', () => {
     });
 
     it('should support imperative preloading with provided priority', async () => {
-      const manifest = { [lazyOptions.moduleId]: ['/1.js'] };
-      LooselyLazy.init({ manifest });
+      LooselyLazy.init({
+        manifest: {
+          publicPath: '/',
+          assets: {
+            [lazyOptions.moduleId]: ['1.js'],
+          },
+        },
+      });
 
       const DefaultComponent = () => <div>Component</div>;
       const LazyTestComponent = lazyAfterPaint(
