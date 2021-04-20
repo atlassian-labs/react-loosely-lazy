@@ -33,3 +33,10 @@ export default {
 `string`
 
 Specifies the file name to use for the output manifest
+
+---
+
+### `publicPath`
+`string = compilation.output.publicPath`
+
+A path stored in the manifest, that is used to prefix asset paths in [`getAssetUrlsFromId`](api/get-asset-urls-from-id)
