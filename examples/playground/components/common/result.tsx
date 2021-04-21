@@ -3,10 +3,8 @@ import React from 'react';
 import { isServer } from '../../utils';
 
 type Props = {
-  step: string;
   isFallback?: boolean;
   hasSsr?: boolean;
-  isDone?: boolean;
 };
 
 export const Result = ({ isFallback, hasSsr }: Props) => {

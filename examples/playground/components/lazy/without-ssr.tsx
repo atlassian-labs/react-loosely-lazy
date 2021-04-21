@@ -10,6 +10,6 @@ const ComponentWithSSR = () => {
     throw controlFetch(true);
   }
 
-  return <Result step="AF" isDone />;
+  return <Result />;
 };
 export default ComponentWithSSR;

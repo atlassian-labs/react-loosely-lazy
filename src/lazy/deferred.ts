@@ -4,6 +4,7 @@ import { ClientLoader, JavaScriptModule } from './loader';
 export type Deferred<C> = {
   promise: Promise<JavaScriptModule<C>>;
   result: JavaScriptModule<C> | void;
+  preload(): void;
   start(): Promise<void>;
 };
 
@@ -26,7 +27,21 @@ export const createDeferred = <C extends ComponentType<any>>(
       };
     }),
     result: undefined,
-    start: () => loader().then(resolve),
+    preload: () => {
+      loader().then((m: any) => {
+        deferred.result = m;
+      });
+    },
+    start: () => {
+      if (deferred.result) {
+        resolve(deferred.result);
+
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        return deferred.promise.then(() => {});
+      } else {
+        return loader().then(resolve);
+      }
+    },
   };
 
   return deferred;

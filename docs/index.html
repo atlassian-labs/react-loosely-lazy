@@ -338,16 +338,28 @@
 
     <style type="text/css">
         .phases {
-            display: flex;
+            margin: 2rem auto;
+        }
+
+        .phases__row-1, .phases__row-2 {
+            margin: 1rem 0;
             gap: 0.2rem;
-            margin: 2rem auto 1rem auto;
+        }
+
+        .phases__row-1 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .phases__row-2 {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
         }
 
         .phase {
-            align-items: center;
             display: flex;
             flex: 1 1 0;
-            flex-direction: column;
+            flex-direction: column-reverse;
         }
 
         .phase__step {
@@ -357,26 +369,25 @@
             width: 100%;
         }
 
-        .phase:nth-child(1) .phase__step {
+        .phase--initial .phase__step {
             background: var(--primary-400);
         }
 
-        .phase:nth-child(2) .phase__step {
+        .phase--paint .phase__step {
             background: var(--primary-500);
         }
 
-        .phase:nth-child(3) .phase__step {
+        .phase--after-paint .phase__step {
             background: var(--primary-600);
         }
 
-        .phase:nth-child(4) .phase__step {
+        .phase--lazy .phase__step {
             background: var(--primary-700);
         }
 
         .phase__name {
             font-weight: 500;
             letter-spacing: 0.03rem;
-            margin-top: 0.5rem;
         }
 
         .phase-comparisons {

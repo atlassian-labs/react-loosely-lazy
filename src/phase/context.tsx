@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 
-import { PHASE, PHASE_LAZY_DELAY } from '../constants';
+import { PHASE } from '../constants';
 import { Listener, LISTENERS } from './listeners';
 import { createSubscribe } from './utils';
 
@@ -17,7 +17,6 @@ export const LazyPhaseContext = createContext({
   api: {
     startNextPhase: () => {
       setCurrent(PHASE.AFTER_PAINT);
-      setTimeout(() => setCurrent(PHASE.LAZY), PHASE_LAZY_DELAY);
     },
     resetPhase: () => setCurrent(PHASE.PAINT),
   },

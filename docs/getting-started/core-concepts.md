@@ -59,24 +59,29 @@ export const App = () => {
 `react-loosely-lazy` aims to bridge this gap by providing three explicit loading priorities to lazy load components, known as *loading phases*, that in turn impact the delivery and size of the imported assets. The declarative and statically analysable API we have designed seamlessly handles server-side rendering, facilitating greater control over the delivery and size of the document; is capable of smartly preloading code automatically; and exposes a way to manually preload components for granular control over resource load priority.
 
 ## Loading phases
-There are three explicit loading phases: *paint*, *after paint*, and *lazy*; that are preceded by an implicit *initial* phase. Each phase will occur one after the other, in the following order from left to right:
+There are three explicit loading phases: *paint*, *after paint*, and *lazy*; that are preceded by an implicit *initial* phase. Once the initial phase completes, the paint phase is prioritised first, followed by the after paint phase. Meanwhile, components in the lazy phase will load when they are rendered, which may occur within either the paint or after paint phase. This ordering can be seen in the following chart:
 
 <div class="phases">
-    <div class="phase">
-        <span class="phase__step">0</span>
-        <span class="phase__name">initial</span>
+    <div class="phases__row-1">
+        <div class="phase phase--initial">
+            <span class="phase__step">0</span>
+            <span class="phase__name">initial</span>
+        </div>
+        <div class="phase phase--paint">
+            <span class="phase__step">1</span>
+            <span class="phase__name">paint</span>
+        </div>
+        <div class="phase phase--after-paint">
+            <span class="phase__step">2</span>
+            <span class="phase__name">after paint</span>
+        </div>
     </div>
-    <div class="phase">
-        <span class="phase__step">1</span>
-        <span class="phase__name">paint</span>
-    </div>
-    <div class="phase">
-        <span class="phase__step">2</span>
-        <span class="phase__name">after paint</span>
-    </div>
-    <div class="phase">
-        <span class="phase__step">3</span>
-        <span class="phase__name">lazy</span>
+    <div class="phases__row-2">
+        <div></div>
+        <div class="phase phase--lazy">
+            <span class="phase__step">1-2</span>
+            <span class="phase__name">lazy</span>
+        </div>
     </div>
 </div>
 
@@ -286,7 +291,7 @@ const App = () => {
 ```
 
 ### Lazy
-The lazy phase is the final phase, loading in shortly after the *after paint* phase. It is also the only phase that does not render on the server by default. Components declared using [`lazy`](api/lazy) should be reserved for features that become visible through a user interaction (e.g. dropdowns, modals, drawers, etc):
+The lazy phase is similar to [`React.lazy`](https://reactjs.org/docs/code-splitting.html#reactlazy), and loads when the component is rendered. It is also the only phase that does not render on the server by default. Components declared using [`lazy`](api/lazy) should be reserved for features that become visible through a user interaction (e.g. dropdowns, modals, drawers, etc):
 
 ```jsx
 import { useState } from 'react';

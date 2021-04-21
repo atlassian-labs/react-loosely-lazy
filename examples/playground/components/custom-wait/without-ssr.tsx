@@ -11,7 +11,7 @@ const ComponentWithoutSSR = () => {
     throw controlFetch(true);
   }
 
-  return <Result step="CUSTOM" isDone />;
+  return <Result />;
 };
 
 export default ComponentWithoutSSR;

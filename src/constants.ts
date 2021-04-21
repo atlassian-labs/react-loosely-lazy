@@ -18,11 +18,9 @@ export const PRIORITY = {
   LOW: 2,
 };
 
-export const PHASE_LAZY_DELAY = 50;
-
 export const COLLECTED = new Map();
 
-export const SETTINGS: Settings = {
+export const DEFAULT_SETTINGS: Settings = {
   CURRENT_MODE: MODE.HYDRATE,
   MANIFEST: {
     publicPath: '/',
@@ -30,3 +28,5 @@ export const SETTINGS: Settings = {
   },
   CROSS_ORIGIN: undefined,
 };
+
+export const SETTINGS: Settings = Object.assign({}, DEFAULT_SETTINGS);
