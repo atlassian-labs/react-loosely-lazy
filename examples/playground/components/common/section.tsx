@@ -30,12 +30,12 @@ export const Section = memo(
       </h3>
       <Wrapper until={(currentStep || '').includes(step)}>
         {WithSSR != null && (
-          <LazySuspense fallback={<Result step={step} isFallback hasSsr />}>
+          <LazySuspense fallback={<Result isFallback hasSsr />}>
             <WithSSR />
           </LazySuspense>
         )}
         {WithoutSSR != null && (
-          <LazySuspense fallback={<Result step={step} isFallback />}>
+          <LazySuspense fallback={<Result isFallback />}>
             <WithoutSSR />
           </LazySuspense>
         )}

@@ -11,7 +11,7 @@ const ComponentNoSSR = () => {
     throw controlFetch(true);
   }
 
-  return <Result step="PAINT" isDone />;
+  return <Result />;
 };
 
 export default ComponentNoSSR;

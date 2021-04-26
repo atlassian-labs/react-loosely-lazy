@@ -1,4 +1,5 @@
-import { PRIORITY, SETTINGS } from '../../constants';
+import { getConfig } from '../../config';
+import { PRIORITY } from '../../constants';
 import { getAssetUrlsFromId } from '../../manifest';
 import { PreloadPriority } from '../../types';
 import { isNodeEnvironment } from '../../utils';
@@ -21,7 +22,8 @@ export function preloadAssetViaManifest(
   loader: Loader<unknown>,
   { moduleId, rel }: PreloadAssetOptions
 ) {
-  const assets = getAssetUrlsFromId(SETTINGS.MANIFEST, moduleId);
+  const { manifest } = getConfig();
+  const assets = getAssetUrlsFromId(manifest, moduleId);
   if (!assets) {
     return false;
   }

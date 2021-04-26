@@ -1,20 +1,15 @@
-import { SETTINGS, MODE } from './constants';
 import { collect } from './collect';
-import { Manifest } from './manifest';
+import { setConfig } from './config';
 import { LISTENERS, setCurrent } from './phase';
 import { isNodeEnvironment } from './utils';
+import { Config } from './types';
 
-type InitOptions = {
-  mode?: keyof typeof MODE;
-  manifest?: Manifest;
-  crossOrigin?: typeof SETTINGS.CROSS_ORIGIN;
-};
+type InitOptions = Partial<Config>;
 
 export const LooselyLazy = {
-  init: ({ mode, manifest, crossOrigin }: InitOptions) => {
-    if (mode != null) SETTINGS.CURRENT_MODE = mode;
-    if (manifest != null) SETTINGS.MANIFEST = manifest;
-    if (crossOrigin != null) SETTINGS.CROSS_ORIGIN = crossOrigin;
+  init: (config: InitOptions) => {
+    setConfig(config);
+
     LISTENERS.length = 0;
     setCurrent(0);
 

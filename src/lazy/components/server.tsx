@@ -1,6 +1,7 @@
 import React, { ComponentProps, ComponentType, useContext } from 'react';
 
-import { PHASE, SETTINGS } from '../../constants';
+import { getConfig } from '../../config';
+import { PHASE } from '../../constants';
 import { getAssetUrlsFromId } from '../../manifest';
 import { LazySuspenseContext } from '../../suspense';
 import { getExport } from '../../utils';
@@ -32,17 +33,18 @@ export function createComponentServer<C extends ComponentType<any>>({
   return (props: ComponentProps<C>) => {
     const Resolved = ssr ? load(moduleId, loader) : null;
     const { fallback } = useContext(LazySuspenseContext);
+    const { crossOrigin, manifest } = getConfig();
 
     return (
       <>
         <input type="hidden" data-lazy-begin={dataLazyId} />
         {defer !== PHASE.LAZY &&
-          getAssetUrlsFromId(SETTINGS.MANIFEST, moduleId)?.map(url => (
+          getAssetUrlsFromId(manifest, moduleId)?.map(url => (
             <link
               key={url}
               rel={defer === PHASE.PAINT ? 'preload' : 'prefetch'}
               href={url}
-              crossOrigin={SETTINGS.CROSS_ORIGIN}
+              crossOrigin={crossOrigin}
               as="script"
             />
           ))}

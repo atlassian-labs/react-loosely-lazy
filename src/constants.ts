@@ -1,5 +1,3 @@
-import { Settings } from './types';
-
 export const PACKAGE_NAME = 'react-loosely-lazy';
 
 export const MODE = {
@@ -18,15 +16,4 @@ export const PRIORITY = {
   LOW: 2,
 };
 
-export const PHASE_LAZY_DELAY = 50;
-
 export const COLLECTED = new Map();
-
-export const SETTINGS: Settings = {
-  CURRENT_MODE: MODE.HYDRATE,
-  MANIFEST: {
-    publicPath: '/',
-    assets: {},
-  },
-  CROSS_ORIGIN: undefined,
-};

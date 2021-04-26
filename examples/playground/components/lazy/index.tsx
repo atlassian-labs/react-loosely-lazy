@@ -5,7 +5,7 @@ import { controlLoad } from '../../utils';
 import { Section } from '../common/section';
 
 const props = {
-  step: 'AF',
+  step: 'PAINT',
   title: 'Lazy',
 };
 

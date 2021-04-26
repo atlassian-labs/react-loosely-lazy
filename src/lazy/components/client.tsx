@@ -8,7 +8,7 @@ import React, {
   useState,
 } from 'react';
 
-import { COLLECTED, SETTINGS, MODE, PHASE, PRIORITY } from '../../constants';
+import { COLLECTED, MODE, PHASE, PRIORITY } from '../../constants';
 import { LazySuspenseContext } from '../../suspense';
 import { usePhaseSubscription } from '../../phase';
 import { Deferred } from '../deferred';
@@ -16,6 +16,7 @@ import { LoaderError } from '../errors/loader-error';
 import { PlaceholderFallbackRender } from '../placeholders/render';
 import { PlaceholderFallbackHydrate } from '../placeholders/hydrate';
 import { preloadAsset } from '../preload';
+import { getConfig } from '../../config';
 
 export function createComponentClient<C extends ComponentType<any>>({
   defer,
@@ -35,10 +36,35 @@ export function createComponentClient<C extends ComponentType<any>>({
   return (props: ComponentProps<C>) => {
     const { setFallback } = useContext(LazySuspenseContext);
     const [, setState] = useState();
-    const isOwnPhase = usePhaseSubscription(defer);
 
-    useMemo(() => {
-      if (isOwnPhase) {
+    if (defer !== PHASE.LAZY) {
+      const isOwnPhase = usePhaseSubscription(defer);
+
+      useMemo(() => {
+        if (isOwnPhase) {
+          deferred.start().catch((err: Error) => {
+            // Throw the error within the component lifecycle
+            // refer to https://github.com/facebook/react/issues/11409
+            setState(() => {
+              throw new LoaderError(moduleId, err);
+            });
+          });
+        }
+      }, [isOwnPhase]);
+
+      if (defer === PHASE.AFTER_PAINT) {
+        // Start preloading as will be needed soon
+        useEffect(() => {
+          if (!isOwnPhase) {
+            preloadAsset(deferred.preload, {
+              moduleId,
+              priority: PRIORITY.LOW,
+            });
+          }
+        }, [isOwnPhase]);
+      }
+    } else {
+      useEffect(() => {
         deferred.start().catch((err: Error) => {
           // Throw the error within the component lifecycle
           // refer to https://github.com/facebook/react/issues/11409
@@ -46,8 +72,8 @@ export function createComponentClient<C extends ComponentType<any>>({
             throw new LoaderError(moduleId, err);
           });
         });
-      }
-    }, [isOwnPhase]);
+      }, []);
+    }
 
     useMemo(() => {
       // find SSR content (or fallbacks) wrapped in inputs based on lazyId
@@ -55,8 +81,9 @@ export function createComponentClient<C extends ComponentType<any>>({
       if (!content) return;
 
       // override Suspense fallback with magic input wrappers
+      const { mode } = getConfig();
       const component =
-        SETTINGS.CURRENT_MODE === MODE.RENDER ? (
+        mode === MODE.RENDER ? (
           <PlaceholderFallbackRender id={dataLazyId} content={content} />
         ) : (
           <PlaceholderFallbackHydrate id={dataLazyId} content={content} />
@@ -70,15 +97,6 @@ export function createComponentClient<C extends ComponentType<any>>({
       useEffect(() => {
         setFallback(null);
       }, [setFallback]);
-    }
-
-    if (defer === PHASE.AFTER_PAINT) {
-      // start preloading as will be needed soon
-      useEffect(() => {
-        if (!isOwnPhase) {
-          preloadAsset(deferred.start, { moduleId, priority: PRIORITY.LOW });
-        }
-      }, [isOwnPhase]);
     }
 
     return <ResolvedLazy {...props} />;

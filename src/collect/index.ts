@@ -1,4 +1,5 @@
-import { MODE, COLLECTED, SETTINGS } from '../constants';
+import { getConfig } from '../config';
+import { MODE, COLLECTED } from '../constants';
 import { cloneElements } from './render';
 import { refElements } from './hydrate';
 
@@ -6,11 +7,12 @@ export const collect = () => {
   const markers = document.querySelectorAll<HTMLInputElement>(
     'input[data-lazy-begin]'
   );
+  const { mode } = getConfig();
   for (let i = 0, j = markers.length; i < j; i += 1) {
     const el = markers[i];
     const { lazyBegin } = el.dataset || {};
     const value =
-      SETTINGS.CURRENT_MODE === MODE.RENDER
+      mode === MODE.RENDER
         ? cloneElements(markers[i], lazyBegin)
         : refElements(markers[i], lazyBegin);
 

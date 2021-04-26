@@ -11,7 +11,7 @@ const ComponentWithSSR = () => {
     throw controlFetch(true);
   }
 
-  return <Result step="AFTER" hasSsr isDone />;
+  return <Result hasSsr />;
 };
 
 export default ComponentWithSSR;

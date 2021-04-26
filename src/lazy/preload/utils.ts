@@ -1,4 +1,4 @@
-import { SETTINGS } from '../../constants';
+import { getConfig } from '../../config';
 
 export function insertLinkTag(href: string, rel: string) {
   // if already preloaded/prefetched/loaded, skip
@@ -8,10 +8,13 @@ export function insertLinkTag(href: string, rel: string) {
   )
     return;
 
+  const { crossOrigin } = getConfig();
   const link = document.createElement('link');
+
   link.rel = rel;
   link.as = 'script';
-  if (SETTINGS.CROSS_ORIGIN) link.crossOrigin = SETTINGS.CROSS_ORIGIN;
+  if (crossOrigin) link.crossOrigin = crossOrigin;
   link.href = href;
+
   document.head?.appendChild(link);
 }
