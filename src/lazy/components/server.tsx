@@ -6,14 +6,14 @@ import { getAssetUrlsFromId } from '../../manifest';
 import { LazySuspenseContext } from '../../suspense';
 import { getExport } from '../../utils';
 
-import { LoaderError } from '../errors/loader-error';
+import { createLoaderError } from '../errors';
 import { ServerLoader } from '../loader';
 
 function load<C>(moduleId: string, loader: ServerLoader<C>) {
   try {
     return getExport(loader());
   } catch (err) {
-    throw new LoaderError(moduleId, err);
+    throw createLoaderError(err);
   }
 }
 

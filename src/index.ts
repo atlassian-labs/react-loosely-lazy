@@ -2,13 +2,7 @@ export { MODE, PRIORITY } from './constants';
 
 export { LooselyLazy as default } from './init';
 
-export {
-  isLoaderError,
-  lazyForPaint,
-  lazyAfterPaint,
-  lazy,
-  LoaderError,
-} from './lazy';
+export { isLoaderError, lazyForPaint, lazyAfterPaint, lazy } from './lazy';
 
 export type { ClientLoader, Loader, ServerLoader } from './lazy';
 export type { LazyOptions, LazyComponent } from './lazy';
