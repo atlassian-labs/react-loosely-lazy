@@ -28,6 +28,10 @@ export const createDeferred = <C extends ComponentType<any>>(
     }),
     result: undefined,
     preload: () => {
+      if (deferred.result) {
+        return;
+      }
+
       loader().then((m: any) => {
         deferred.result = m;
       });

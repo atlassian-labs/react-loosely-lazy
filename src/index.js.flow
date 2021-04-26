@@ -16,12 +16,6 @@ declare export var MODE: {
   HYDRATE: string,
 };
 
-declare export var SETTINGS: {
-  CURRENT_MODE: typeof MODE.RENDER | typeof MODE.HYDRATE,
-  MANIFEST: Manifest,
-  CROSS_ORIGIN: 'anonymous' | 'use-credentials' | void,
-};
-
 declare export var PRIORITY: {
   LOW: number,
   HIGH: number,
@@ -29,9 +23,9 @@ declare export var PRIORITY: {
 
 declare export var LooselyLazy: {
   init(options: {
-    mode?: typeof SETTINGS.CURRENT_MODE,
+    crossOrigin?: 'anonymous' | 'use-credentials' | void,
+    mode?: typeof MODE.RENDER | typeof MODE.HYDRATE,
     manifest?: Manifest,
-    crossOrigin?: typeof SETTINGS.CROSS_ORIGIN,
   }): void,
 };
 

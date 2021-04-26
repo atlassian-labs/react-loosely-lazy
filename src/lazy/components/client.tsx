@@ -8,7 +8,7 @@ import React, {
   useState,
 } from 'react';
 
-import { COLLECTED, SETTINGS, MODE, PHASE, PRIORITY } from '../../constants';
+import { COLLECTED, MODE, PHASE, PRIORITY } from '../../constants';
 import { LazySuspenseContext } from '../../suspense';
 import { usePhaseSubscription } from '../../phase';
 import { Deferred } from '../deferred';
@@ -16,6 +16,7 @@ import { LoaderError } from '../errors/loader-error';
 import { PlaceholderFallbackRender } from '../placeholders/render';
 import { PlaceholderFallbackHydrate } from '../placeholders/hydrate';
 import { preloadAsset } from '../preload';
+import { getConfig } from '../../config';
 
 export function createComponentClient<C extends ComponentType<any>>({
   defer,
@@ -80,8 +81,9 @@ export function createComponentClient<C extends ComponentType<any>>({
       if (!content) return;
 
       // override Suspense fallback with magic input wrappers
+      const { mode } = getConfig();
       const component =
-        SETTINGS.CURRENT_MODE === MODE.RENDER ? (
+        mode === MODE.RENDER ? (
           <PlaceholderFallbackRender id={dataLazyId} content={content} />
         ) : (
           <PlaceholderFallbackHydrate id={dataLazyId} content={content} />

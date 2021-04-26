@@ -1,4 +1,4 @@
-export { MODE, SETTINGS, PRIORITY } from './constants';
+export { MODE, PRIORITY } from './constants';
 
 export { LooselyLazy as default } from './init';
 
@@ -21,4 +21,4 @@ export type { Fallback, LazySuspenseProps } from './suspense';
 
 export { LazyWait, useLazyPhase } from './phase';
 export type { LazyWaitProps } from './phase';
-export type { Settings } from './types';
+export type { Config } from './types';
