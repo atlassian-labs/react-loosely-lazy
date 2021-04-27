@@ -1,9 +1,15 @@
 import { NodePath, PluginObj, types as BabelTypes } from '@babel/core';
 // TODO Remove when @babel/core exposes this type
 import { Binding } from '@babel/traverse';
+import { ResolveOptions } from 'enhanced-resolve';
 import { PACKAGE_NAME } from '../constants';
 import { DEFAULT_OPTIONS } from '../lazy';
-import { getModulePath, GetModulePathOptions, isPresent } from './utils';
+import {
+  createCustomResolver,
+  getModulePath,
+  GetModulePathOptions,
+  isPresent,
+} from './utils';
 
 const MODULE_ID_KEY = 'moduleId';
 const LAZY_METHODS = Object.keys(DEFAULT_OPTIONS);
@@ -17,6 +23,7 @@ export type BabelPluginOptions = Partial<{
   client: boolean;
   modulePathReplacer: ModulePathReplacer;
   noopRedundantLoaders: boolean;
+  resolverOptions: Partial<ResolveOptions> | undefined;
 }>;
 
 export default function ({
@@ -246,10 +253,15 @@ export default function ({
           filename?: string;
         }
       ) {
-        const { client, modulePathReplacer, noopRedundantLoaders = true } =
-          state.opts || {};
+        const {
+          client,
+          modulePathReplacer,
+          noopRedundantLoaders = true,
+          resolverOptions = {},
+        } = state.opts || {};
         const { filename } = state;
         const source = path.node.source.value;
+        const customResolver = createCustomResolver(resolverOptions);
 
         if (source !== PACKAGE_NAME) {
           return;
@@ -295,6 +307,7 @@ export default function ({
                 filename,
                 importPath,
                 modulePathReplacer,
+                resolver: customResolver,
               })
             );
           });

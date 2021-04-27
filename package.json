@@ -43,7 +43,6 @@
     "types:watch": "tsc --noEmit --watch",
     "preversion": "npm run lint -s && npm run types:check -s && npm run test -s"
   },
-  "dependencies": {},
   "peerDependencies": {
     "react": "^16.9.0 || ^17.0.0-0"
   },
@@ -98,5 +97,8 @@
     "webpack": "^4.43.0",
     "webpack-cli": "^3.3.6",
     "webpack-dev-server": "^3.11.0"
+  },
+  "dependencies": {
+    "enhanced-resolve": "^5.8.0"
   }
 }
