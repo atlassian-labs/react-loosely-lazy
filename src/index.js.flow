@@ -94,3 +94,5 @@ declare export function getAssetUrlsFromId(
   manifest: Manifest,
   id: string
 ): Asset[] | void;
+
+declare export function isLoaderError(error: mixed): boolean;

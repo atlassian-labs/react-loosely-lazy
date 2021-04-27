@@ -103,4 +103,4 @@ export function lazy<C extends ComponentType<any>>(
 }
 
 export type { ClientLoader, Loader, ServerLoader };
-export { LoaderError, isLoaderError } from './errors/loader-error';
+export { isLoaderError } from './errors';

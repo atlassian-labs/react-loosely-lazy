@@ -12,7 +12,7 @@ import { COLLECTED, MODE, PHASE, PRIORITY } from '../../constants';
 import { LazySuspenseContext } from '../../suspense';
 import { usePhaseSubscription } from '../../phase';
 import { Deferred } from '../deferred';
-import { LoaderError } from '../errors/loader-error';
+import { createLoaderError } from '../errors';
 import { PlaceholderFallbackRender } from '../placeholders/render';
 import { PlaceholderFallbackHydrate } from '../placeholders/hydrate';
 import { preloadAsset } from '../preload';
@@ -46,7 +46,7 @@ export function createComponentClient<C extends ComponentType<any>>({
             // Throw the error within the component lifecycle
             // refer to https://github.com/facebook/react/issues/11409
             setState(() => {
-              throw new LoaderError(moduleId, err);
+              throw createLoaderError(err);
             });
           });
         }
@@ -69,7 +69,7 @@ export function createComponentClient<C extends ComponentType<any>>({
           // Throw the error within the component lifecycle
           // refer to https://github.com/facebook/react/issues/11409
           setState(() => {
-            throw new LoaderError(moduleId, err);
+            throw createLoaderError(err);
           });
         });
       }, []);

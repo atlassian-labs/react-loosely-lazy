@@ -5,7 +5,7 @@ import { PHASE } from '../../constants';
 import { useLazyPhase } from '../../phase';
 import { LazySuspense } from '../../suspense';
 
-import { lazyForPaint, LoaderError } from '../';
+import { isLoaderError, lazyForPaint } from '../';
 import { Loader } from '../loader';
 import { isNodeEnvironment } from '../../utils';
 
@@ -81,18 +81,23 @@ export const createErrorTests = ({
   lazyMethod,
   phase = PHASE.PAINT,
 }: TestErrorBubblingOptions) => {
-  it('bubbles a LoaderError in the component lifecycle when the loader fails', async () => {
-    const error = new Error('ChunkLoadError');
+  it('bubbles a loader error in the component lifecycle when the loader fails', async () => {
+    const clientError = new Error('ChunkLoadError');
     const moduleId = '@foo/bar';
     const LazyTestComponent = lazyMethod(
-      () => (isNodeEnvironment() ? require('404') : Promise.reject(error)),
+      () =>
+        isNodeEnvironment() ? require('404') : Promise.reject(clientError),
       {
         moduleId,
         ssr: true,
       }
     );
 
-    const onError = jest.fn();
+    const errors: Error[] = [];
+    const onError = (error: Error) => {
+      errors.push(error);
+    };
+
     const spy = jest.spyOn(console, 'error').mockImplementation(jest.fn);
 
     const { queryByText } = render(
@@ -118,8 +123,21 @@ export const createErrorTests = ({
     spy.mockRestore();
 
     expect(queryByText('Component failed to load')).toBeInTheDocument();
-    expect(onError).toHaveBeenCalledTimes(1);
-    expect(onError).toHaveBeenCalledWith(new LoaderError(moduleId, error));
+    expect(
+      errors.map(error => ({
+        error,
+        isLoaderError: isLoaderError(error),
+      }))
+    ).toEqual([
+      {
+        error: isNodeEnvironment()
+          ? expect.objectContaining({
+              code: 'MODULE_NOT_FOUND',
+            })
+          : clientError,
+        isLoaderError: true,
+      },
+    ]);
   });
 };
 
