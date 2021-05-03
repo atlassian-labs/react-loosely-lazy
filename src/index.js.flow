@@ -31,9 +31,11 @@ declare export var LooselyLazy: {
 
 declare export default typeof LooselyLazy;
 
+export type Cleanup = () => void;
+
 export type LazyComponent<C> = ComponentType<ElementConfig<C>> & {
   getAssetUrls(): string[] | void,
-  preload: (priority?: typeof PRIORITY.HIGH | typeof PRIORITY.LOW) => void,
+  preload: (priority?: typeof PRIORITY.HIGH | typeof PRIORITY.LOW) => Cleanup,
 };
 
 type Options = {

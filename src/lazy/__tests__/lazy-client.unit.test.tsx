@@ -27,7 +27,7 @@ describe('lazy* on the client', () => {
 
   afterEach(() => {
     LooselyLazy.init({}); // reset settings
-    window.document.head.innerHTML = ''; // reset head
+    document.head.innerHTML = ''; // reset head
   });
 
   beforeEach(() => {
@@ -189,14 +189,7 @@ describe('lazy* on the client', () => {
     };
 
     describe('in the first phase', () => {
-      it('renders the fallback', async () => {
-        await testFallbackRender({
-          ...opts,
-          phase: PHASE.PAINT,
-        });
-      });
-
-      it('prefetches the component ahead of require', async () => {
+      beforeEach(() => {
         LooselyLazy.init({
           manifest: {
             publicPath: '/',
@@ -205,7 +198,16 @@ describe('lazy* on the client', () => {
             },
           },
         });
+      });
 
+      it('renders the fallback', async () => {
+        await testFallbackRender({
+          ...opts,
+          phase: PHASE.PAINT,
+        });
+      });
+
+      it('prefetches the component ahead of require', async () => {
         const LazyTestComponent = lazyAfterPaint(
           createClientLoader(),
           lazyOptions
@@ -217,7 +219,7 @@ describe('lazy* on the client', () => {
           </LazySuspense>
         );
 
-        expect(window.document.head).toMatchInlineSnapshot(`
+        expect(document.head).toMatchInlineSnapshot(`
           <head>
             <link
               href="/1.js"
@@ -229,6 +231,23 @@ describe('lazy* on the client', () => {
             />
           </head>
         `);
+      });
+
+      it('cleans up the inserted link tags when the component unmounts', async () => {
+        const LazyTestComponent = lazyAfterPaint(
+          createClientLoader(),
+          lazyOptions
+        );
+
+        const { unmount } = render(
+          <LazySuspense fallback="Loading...">
+            <LazyTestComponent />
+          </LazySuspense>
+        );
+
+        unmount();
+
+        expect(document.head).toMatchInlineSnapshot(`<head />`);
       });
     });
 
@@ -284,7 +303,7 @@ describe('lazy* on the client', () => {
 
     LazyTestComponent.preload();
 
-    expect(window.document.head).toMatchInlineSnapshot(`
+    expect(document.head).toMatchInlineSnapshot(`
       <head>
         <link
           href="/1.js"
@@ -308,7 +327,7 @@ describe('lazy* on the client', () => {
 
     LazyTestComponent.preload(PRIORITY.HIGH);
 
-    expect(window.document.head).toMatchInlineSnapshot(`
+    expect(document.head).toMatchInlineSnapshot(`
       <head>
         <link
           href="/1.js"

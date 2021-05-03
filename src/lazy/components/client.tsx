@@ -56,7 +56,8 @@ export function createComponentClient<C extends ComponentType<any>>({
         // Start preloading as will be needed soon
         useEffect(() => {
           if (!isOwnPhase) {
-            preloadAsset(deferred.preload, {
+            return preloadAsset({
+              loader: deferred.preload,
               moduleId,
               priority: PRIORITY.LOW,
             });
