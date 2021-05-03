@@ -59,3 +59,11 @@ The module path replacer transforms the output `moduleId`, by replacing any inst
 This option is a performance optimisation that removes the dynamic import in `lazyForPaint`, `lazyAfterPaint`, and `lazy` components when the following conditions are fulfilled:
 * The plugin is operating on the server (i.e. `client` is `false`)
 * The component is not server enabled (i.e. `ssr: false`)
+---
+
+### `resolverOptions?`
+`ResolverOptions = { extensions: ['.tsx', '.ts', '.jsx', '.js'] }`
+
+Overrides the options passed to [enhanced-resolve](https://github.com/webpack/enhanced-resolve), which is used to generate the [`moduleId`](api/lazy?id=moduleid) by resolving the path to the [loader](api/lazy?id=loader).
+
+This option should be configured to match any custom file resolution that occurs in your application. For example, in webpack the options defined in [`resolve`](https://webpack.js.org/configuration/resolve) should be passed into `resolverOptions`.
