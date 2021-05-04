@@ -1,10 +1,10 @@
 import LooselyLazy, { PRIORITY } from '../../..';
 import {
-  createLoaderPreloadStrategy,
-  createManifestPreloadStrategy,
-  createWebpackPreloadStrategy,
   preloadAsset,
-  PreloadStrategy,
+  loaderPreloadStrategy,
+  manifestPreloadStrategy,
+  webpackPreloadStrategy,
+  Cleanup,
 } from '..';
 
 let head: string;
@@ -27,6 +27,16 @@ afterEach(() => {
   });
 });
 
+const createManifest = (moduleId: string) => ({
+  publicPath: '/',
+  assets: {
+    [moduleId]: [
+      'async-manifest-strategy-1.js',
+      'async-manifest-strategy-2.js',
+    ],
+  },
+});
+
 const defineWebpack = () => {
   (window as any).__webpack_require__ = {
     e: () => Promise.reject(),
@@ -34,39 +44,29 @@ const defineWebpack = () => {
   (window as any).__webpack_get_script_filename__ = (id: string) => `/${id}.js`;
 };
 
-describe('createLoaderPreloadStrategy', () => {
-  it('returns the strategy', () => {
-    const loader = jest.fn();
-    const strategy = createLoaderPreloadStrategy({ loader });
+const moduleId = '@foo/bar';
 
-    expect(loader).not.toHaveBeenCalled();
-    expect(strategy).toEqual(expect.any(Function));
+describe('loaderPreloadStrategy', () => {
+  it('calls the loader', () => {
+    const loader = jest.fn();
+
+    loaderPreloadStrategy({ loader });
+
+    expect(loader).toHaveBeenCalled();
   });
 
-  describe('strategy', () => {
-    it('calls the loader', () => {
-      const loader = jest.fn();
-      const strategy = createLoaderPreloadStrategy({ loader });
+  it('returns a cleanup function that does nothing', () => {
+    const cleanup = loaderPreloadStrategy({ loader: jest.fn() });
 
-      strategy();
-
-      expect(loader).toHaveBeenCalled();
-    });
-
-    it('returns a cleanup function that does nothing', () => {
-      const strategy = createLoaderPreloadStrategy({ loader: jest.fn() });
-      const cleanup = strategy();
-
-      expect(cleanup).not.toThrow();
-    });
+    expect(cleanup).not.toThrow();
   });
 });
 
-describe('createManifestPreloadStrategy', () => {
+describe('manifestPreloadStrategy', () => {
   it('throws an unsupported error when the manifest is not initialised', () => {
     expect(() =>
-      createManifestPreloadStrategy({
-        moduleId: '@foo/bar',
+      manifestPreloadStrategy({
+        moduleId,
         rel: 'preload',
       })
     ).toThrow('Unsupported preload strategy');
@@ -81,57 +81,28 @@ describe('createManifestPreloadStrategy', () => {
     });
 
     expect(() =>
-      createManifestPreloadStrategy({
-        moduleId: '@foo/bar',
+      manifestPreloadStrategy({
+        moduleId,
         rel: 'preload',
       })
     ).toThrow('Unsupported preload strategy');
   });
 
-  it('returns the strategy when the module is in the manifest', () => {
-    LooselyLazy.init({
-      manifest: {
-        publicPath: '/',
-        assets: {
-          '@foo/bar': ['1.js'],
-        },
-      },
-    });
-
-    const strategy = createManifestPreloadStrategy({
-      moduleId: '@foo/bar',
-      rel: 'preload',
-    });
-
-    expect(document.head).toMatchInlineSnapshot(`<head />`);
-    expect(strategy).toEqual(expect.any(Function));
-  });
-
-  describe('strategy', () => {
-    let strategy: PreloadStrategy;
+  describe('when the manifest is initialised with the loader module assets', () => {
+    let cleanup: Cleanup;
 
     beforeEach(() => {
       LooselyLazy.init({
-        manifest: {
-          publicPath: '/',
-          assets: {
-            '@foo/bar': [
-              'async-manifest-strategy-1.js',
-              'async-manifest-strategy-2.js',
-            ],
-          },
-        },
+        manifest: createManifest(moduleId),
       });
 
-      strategy = createManifestPreloadStrategy({
-        moduleId: '@foo/bar',
+      cleanup = manifestPreloadStrategy({
+        moduleId,
         rel: 'preload',
       });
     });
 
     it('inserts the manifest module assets as link tags', () => {
-      strategy();
-
       expect(document.head).toMatchInlineSnapshot(`
         <head>
           <link
@@ -147,8 +118,6 @@ describe('createManifestPreloadStrategy', () => {
     });
 
     it('returns a function that cleans up inserted link tags', () => {
-      const cleanup = strategy();
-
       cleanup();
 
       expect(document.head).toMatchInlineSnapshot(`<head />`);
@@ -156,32 +125,19 @@ describe('createManifestPreloadStrategy', () => {
   });
 });
 
-describe('createWebpackPreloadStrategy', () => {
+describe('webpackPreloadStrategy', () => {
   it('throws an unsupported error when webpack is not defined', () => {
     expect(() =>
-      createWebpackPreloadStrategy({
+      webpackPreloadStrategy({
         loader: jest.fn(),
-        rel: 'prefetch',
+        rel: 'preload',
       })
     ).toThrow('Unsupported preload strategy');
   });
 
-  it('returns the strategy when webpack is defined', () => {
-    defineWebpack();
-
-    const loader = jest.fn();
-    const strategy = createWebpackPreloadStrategy({
-      loader,
-      rel: 'preload',
-    });
-
-    expect(loader).not.toHaveBeenCalled();
-    expect(strategy).toEqual(expect.any(Function));
-  });
-
-  describe('strategy', () => {
+  describe('when webpack is defined', () => {
+    let cleanup: Cleanup;
     let loader: jest.Mock;
-    let strategy: PreloadStrategy;
 
     beforeEach(() => {
       defineWebpack();
@@ -193,15 +149,13 @@ describe('createWebpackPreloadStrategy', () => {
         ])
       );
 
-      strategy = createWebpackPreloadStrategy({
+      cleanup = webpackPreloadStrategy({
         loader,
         rel: 'preload',
       });
     });
 
     it('inserts the link tags for the asset', () => {
-      strategy();
-
       expect(loader).toHaveBeenCalled();
       expect(document.head).toMatchInlineSnapshot(`
         <head>
@@ -218,8 +172,6 @@ describe('createWebpackPreloadStrategy', () => {
     });
 
     it('returns a function that cleans up inserted link tags', () => {
-      const cleanup = strategy();
-
       cleanup();
 
       expect(document.head).toMatchInlineSnapshot(`<head />`);
@@ -228,38 +180,30 @@ describe('createWebpackPreloadStrategy', () => {
 });
 
 describe('preloadAsset', () => {
+  let cleanup: Cleanup;
+
   const webpackLoader = () =>
     Promise.all([
       (window as any).__webpack_require__.e('async-webpack-strategy-1'),
       (window as any).__webpack_require__.e('async-webpack-strategy-2'),
     ]);
 
-  const moduleId = '@foo/bar';
-
   describe('when all strategies are available', () => {
     beforeEach(() => {
       LooselyLazy.init({
-        manifest: {
-          publicPath: '/',
-          assets: {
-            [moduleId]: [
-              'async-manifest-strategy-1.js',
-              'async-manifest-strategy-2.js',
-            ],
-          },
-        },
+        manifest: createManifest(moduleId),
       });
 
       defineWebpack();
-    });
 
-    it('preloads the assets through the manifest strategy', () => {
-      preloadAsset({
+      cleanup = preloadAsset({
         loader: webpackLoader,
         moduleId,
         priority: PRIORITY.HIGH,
       });
+    });
 
+    it('preloads the assets through the manifest strategy', () => {
       expect(document.head).toMatchInlineSnapshot(`
         <head>
           <link
@@ -275,11 +219,7 @@ describe('preloadAsset', () => {
     });
 
     it('returns a function that cleans up inserted link tags', () => {
-      preloadAsset({
-        loader: webpackLoader,
-        moduleId,
-        priority: PRIORITY.HIGH,
-      })();
+      cleanup();
 
       expect(document.head).toMatchInlineSnapshot(`<head />`);
     });
@@ -288,15 +228,15 @@ describe('preloadAsset', () => {
   describe('when the manifest strategy is not available', () => {
     beforeEach(() => {
       defineWebpack();
-    });
 
-    it('preloads the assets through the webpack strategy', () => {
-      preloadAsset({
+      cleanup = preloadAsset({
         loader: webpackLoader,
         moduleId,
         priority: PRIORITY.HIGH,
       });
+    });
 
+    it('preloads the assets through the webpack strategy', () => {
       expect(document.head).toMatchInlineSnapshot(`
         <head>
           <link
@@ -312,11 +252,7 @@ describe('preloadAsset', () => {
     });
 
     it('returns a function that cleans up inserted link tags', () => {
-      preloadAsset({
-        loader: webpackLoader,
-        moduleId,
-        priority: PRIORITY.HIGH,
-      })();
+      cleanup();
 
       expect(document.head).toMatchInlineSnapshot(`<head />`);
     });
@@ -325,25 +261,17 @@ describe('preloadAsset', () => {
   describe('when the webpack strategy is not available', () => {
     beforeEach(() => {
       LooselyLazy.init({
-        manifest: {
-          publicPath: '/',
-          assets: {
-            [moduleId]: [
-              'async-manifest-strategy-1.js',
-              'async-manifest-strategy-2.js',
-            ],
-          },
-        },
+        manifest: createManifest(moduleId),
       });
-    });
 
-    it('preloads the assets through the manifest strategy', () => {
-      preloadAsset({
+      cleanup = preloadAsset({
         loader: jest.fn(),
         moduleId,
         priority: PRIORITY.HIGH,
       });
+    });
 
+    it('preloads the assets through the manifest strategy', () => {
       expect(document.head).toMatchInlineSnapshot(`
         <head>
           <link
@@ -359,36 +287,30 @@ describe('preloadAsset', () => {
     });
 
     it('returns a function that cleans up inserted link tags', () => {
-      preloadAsset({
-        loader: jest.fn(),
-        moduleId,
-        priority: PRIORITY.HIGH,
-      })();
+      cleanup();
 
       expect(document.head).toMatchInlineSnapshot(`<head />`);
     });
   });
 
   describe('when the manifest and webpack strategy are not available', () => {
-    it('preloads the assets through the loader strategy', () => {
-      const loader = jest.fn();
+    let loader: jest.Mock;
 
-      preloadAsset({
+    beforeEach(() => {
+      loader = jest.fn();
+
+      cleanup = preloadAsset({
         loader,
         moduleId,
         priority: PRIORITY.HIGH,
       });
+    });
 
+    it('preloads the assets through the loader strategy', () => {
       expect(loader).toHaveBeenCalled();
     });
 
     it('returns a cleanup function that does nothing', () => {
-      const cleanup = preloadAsset({
-        loader: jest.fn(),
-        moduleId,
-        priority: PRIORITY.HIGH,
-      });
-
       expect(cleanup).not.toThrow();
     });
   });

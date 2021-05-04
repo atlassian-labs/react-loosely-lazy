@@ -6,7 +6,7 @@ import { isNodeEnvironment } from '../../utils';
 
 import { Loader } from '../loader';
 
-import { insertLinkTag } from './utils';
+import { insertLinkTag, noopCleanup } from './utils';
 
 declare const __webpack_require__: any;
 declare function __webpack_get_script_filename__(chunkId: string): string;
@@ -18,26 +18,23 @@ type PreloadStrategyOptions = {
 };
 
 export type Cleanup = () => void;
-export type PreloadStrategy = () => Cleanup;
 
-export function createManifestPreloadStrategy({
+export function manifestPreloadStrategy({
   moduleId,
   rel,
-}: Pick<PreloadStrategyOptions, 'moduleId' | 'rel'>): PreloadStrategy {
+}: Pick<PreloadStrategyOptions, 'moduleId' | 'rel'>): Cleanup {
   const { manifest } = getConfig();
   const assets = getAssetUrlsFromId(manifest, moduleId);
   if (!assets) {
     throw new Error('Unsupported preload strategy');
   }
 
-  return () => {
-    const cleanupLinkTags = assets.map(url => insertLinkTag(url, rel));
+  const cleanupLinkTags = assets.map(url => insertLinkTag(url, rel));
 
-    return () => {
-      for (const cleanupLinkTag of cleanupLinkTags) {
-        cleanupLinkTag();
-      }
-    };
+  return () => {
+    for (const cleanupLinkTag of cleanupLinkTags) {
+      cleanupLinkTag();
+    }
   };
 }
 
@@ -47,58 +44,48 @@ const fakePromise = {
   finally: () => fakePromise,
 };
 
-export function createWebpackPreloadStrategy({
+export function webpackPreloadStrategy({
   loader,
   rel,
-}: Pick<PreloadStrategyOptions, 'loader' | 'rel'>): PreloadStrategy {
+}: Pick<PreloadStrategyOptions, 'loader' | 'rel'>): Cleanup {
   if (
     typeof __webpack_require__ === 'undefined' ||
     typeof __webpack_get_script_filename__ === 'undefined'
   )
     throw new Error('Unsupported preload strategy');
 
-  return () => {
-    // Replace requireEnsure to create link tags instead of scripts
-    const requireEnsure = __webpack_require__.e;
-    const cleanupLinkTags: Cleanup[] = [];
-    __webpack_require__.e = function requirePreload(chunkId: string) {
-      const href = __webpack_get_script_filename__(chunkId);
-      cleanupLinkTags.push(insertLinkTag(href, rel));
+  // Replace requireEnsure to create link tags instead of scripts
+  const requireEnsure = __webpack_require__.e;
+  const cleanupLinkTags: Cleanup[] = [];
+  __webpack_require__.e = function requirePreload(chunkId: string) {
+    const href = __webpack_get_script_filename__(chunkId);
+    cleanupLinkTags.push(insertLinkTag(href, rel));
 
-      return fakePromise;
-    };
-
-    try {
-      loader();
-    } catch (err) {
-      // Ignore any errors
-    }
-
-    // Restore real webpack require ensure
-    __webpack_require__.e = requireEnsure;
-
-    return () => {
-      for (const cleanupLinkTag of cleanupLinkTags) {
-        cleanupLinkTag();
-      }
-    };
+    return fakePromise;
   };
-}
 
-export function createLoaderPreloadStrategy({
-  loader,
-}: Pick<PreloadStrategyOptions, 'loader'>): PreloadStrategy {
-  return () => {
+  try {
     loader();
+  } catch (err) {
+    // Ignore any errors
+  }
 
-    return () => {
-      // Nothing to cleanup...
-    };
+  // Restore real webpack require ensure
+  __webpack_require__.e = requireEnsure;
+
+  return () => {
+    for (const cleanupLinkTag of cleanupLinkTags) {
+      cleanupLinkTag();
+    }
   };
 }
 
-function isPresent<T>(t: T | undefined | null | void): t is T {
-  return t !== undefined && t !== null;
+export function loaderPreloadStrategy({
+  loader,
+}: Pick<PreloadStrategyOptions, 'loader'>): Cleanup {
+  loader();
+
+  return noopCleanup;
 }
 
 export type PreloadAssetOptions = {
@@ -112,34 +99,22 @@ export function preloadAsset({
   moduleId,
   priority,
 }: PreloadAssetOptions): Cleanup {
-  if (isNodeEnvironment())
-    return () => {
-      // Nothing to cleanup...
-    };
+  if (isNodeEnvironment()) return noopCleanup;
 
   const rel = priority === PRIORITY.HIGH ? 'preload' : 'prefetch';
   const preloadStrategies = [
-    createManifestPreloadStrategy,
-    createWebpackPreloadStrategy,
-    createLoaderPreloadStrategy,
-  ]
-    .map(strategyFactory => {
-      try {
-        return strategyFactory({ loader, moduleId, rel });
-      } catch (_) {
-        return;
-      }
-    })
-    .filter(isPresent);
+    manifestPreloadStrategy,
+    webpackPreloadStrategy,
+    loaderPreloadStrategy,
+  ];
 
-  const noopPreloadStrategy = () => () => {
-    // Nothing to cleanup...
-  };
+  for (const strategy of preloadStrategies) {
+    try {
+      return strategy({ loader, moduleId, rel });
+    } catch (_) {
+      // Try next strategy...
+    }
+  }
 
-  const preloadStrategy = preloadStrategies[0] ?? noopPreloadStrategy;
-  const cleanupPreload = preloadStrategy();
-
-  return () => {
-    cleanupPreload();
-  };
+  return noopCleanup;
 }
