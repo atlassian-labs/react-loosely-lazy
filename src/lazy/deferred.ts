@@ -40,8 +40,9 @@ export const createDeferred = <C extends ComponentType<any>>(
       if (deferred.result) {
         resolve(deferred.result);
 
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        return deferred.promise.then(() => {});
+        return deferred.promise.then(() => {
+          // Return void...
+        });
       } else {
         return loader().then(resolve);
       }

@@ -6,11 +6,37 @@ import { isNodeEnvironment } from '../../utils';
 
 import { Loader } from '../loader';
 
-import { insertLinkTag } from './utils';
+import { insertLinkTag, noopCleanup } from './utils';
 
 declare const __webpack_require__: any;
 declare function __webpack_get_script_filename__(chunkId: string): string;
-type PreloadAssetOptions = { moduleId: string; rel: string };
+
+type PreloadStrategyOptions = {
+  loader: Loader<unknown>;
+  moduleId: string;
+  rel: string;
+};
+
+export type Cleanup = () => void;
+
+export function manifestPreloadStrategy({
+  moduleId,
+  rel,
+}: Pick<PreloadStrategyOptions, 'moduleId' | 'rel'>): Cleanup {
+  const { manifest } = getConfig();
+  const assets = getAssetUrlsFromId(manifest, moduleId);
+  if (!assets) {
+    throw new Error('Unsupported preload strategy');
+  }
+
+  const cleanupLinkTags = assets.map(url => insertLinkTag(url, rel));
+
+  return () => {
+    for (const cleanupLinkTag of cleanupLinkTags) {
+      cleanupLinkTag();
+    }
+  };
+}
 
 const fakePromise = {
   then: () => fakePromise,
@@ -18,36 +44,22 @@ const fakePromise = {
   finally: () => fakePromise,
 };
 
-export function preloadAssetViaManifest(
-  loader: Loader<unknown>,
-  { moduleId, rel }: PreloadAssetOptions
-) {
-  const { manifest } = getConfig();
-  const assets = getAssetUrlsFromId(manifest, moduleId);
-  if (!assets) {
-    return false;
-  }
-
-  assets.forEach(url => insertLinkTag(url, rel));
-
-  return true;
-}
-
-export function preloadAssetViaWebpack(
-  loader: Loader<unknown>,
-  { rel }: PreloadAssetOptions
-) {
+export function webpackPreloadStrategy({
+  loader,
+  rel,
+}: Pick<PreloadStrategyOptions, 'loader' | 'rel'>): Cleanup {
   if (
     typeof __webpack_require__ === 'undefined' ||
     typeof __webpack_get_script_filename__ === 'undefined'
   )
-    return false;
+    throw new Error('Unsupported preload strategy');
 
-  // replace requireEnsure to create link tags instead of scripts
+  // Replace requireEnsure to create link tags instead of scripts
   const requireEnsure = __webpack_require__.e;
+  const cleanupLinkTags: Cleanup[] = [];
   __webpack_require__.e = function requirePreload(chunkId: string) {
     const href = __webpack_get_script_filename__(chunkId);
-    insertLinkTag(href, rel);
+    cleanupLinkTags.push(insertLinkTag(href, rel));
 
     return fakePromise;
   };
@@ -55,29 +67,54 @@ export function preloadAssetViaWebpack(
   try {
     loader();
   } catch (err) {
-    // ignore
+    // Ignore any errors
   }
-  // restore real webpack require ensure
+
+  // Restore real webpack require ensure
   __webpack_require__.e = requireEnsure;
 
-  return true;
+  return () => {
+    for (const cleanupLinkTag of cleanupLinkTags) {
+      cleanupLinkTag();
+    }
+  };
 }
 
-export function preloadAssetViaLoader(loader: Loader<unknown>) {
+export function loaderPreloadStrategy({
+  loader,
+}: Pick<PreloadStrategyOptions, 'loader'>): Cleanup {
   loader();
 
-  return true;
+  return noopCleanup;
 }
 
-export function preloadAsset(
-  loader: Loader<unknown>,
-  { moduleId, priority }: { moduleId: string; priority?: PreloadPriority }
-) {
-  if (isNodeEnvironment()) return;
+export type PreloadAssetOptions = {
+  loader: Loader<unknown>;
+  moduleId: string;
+  priority?: PreloadPriority;
+};
+
+export function preloadAsset({
+  loader,
+  moduleId,
+  priority,
+}: PreloadAssetOptions): Cleanup {
+  if (isNodeEnvironment()) return noopCleanup;
+
   const rel = priority === PRIORITY.HIGH ? 'preload' : 'prefetch';
-  [
-    preloadAssetViaManifest,
-    preloadAssetViaWebpack,
-    preloadAssetViaLoader,
-  ].some(strategy => strategy(loader, { moduleId, rel }));
+  const preloadStrategies = [
+    manifestPreloadStrategy,
+    webpackPreloadStrategy,
+    loaderPreloadStrategy,
+  ];
+
+  for (const strategy of preloadStrategies) {
+    try {
+      return strategy({ loader, moduleId, rel });
+    } catch (_) {
+      // Try next strategy...
+    }
+  }
+
+  return noopCleanup;
 }

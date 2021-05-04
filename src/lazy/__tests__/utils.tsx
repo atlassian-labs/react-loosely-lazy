@@ -219,10 +219,11 @@ export const testFallbackRender = async ({
     expect(queryByText('Loading...')).toBeInTheDocument();
   } else {
     expect(queryByText('Loading...')).toBeInTheDocument();
-    await waitForElementToBeRemoved(
-      () => queryByText('Loading...')
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-    ).catch(() => {});
+    await waitForElementToBeRemoved(() => queryByText('Loading...')).catch(
+      () => {
+        // We expect the loading state to remain, and this should timeout
+      }
+    );
     expect(queryByText('Default Component')).not.toBeInTheDocument();
   }
 };

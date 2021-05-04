@@ -1,5 +1,6 @@
 import { ComponentProps, ComponentType, FunctionComponent } from 'react';
 import { PreloadPriority } from '../types';
+import { Cleanup } from './preload';
 
 export type LazyOptions = {
   /**
@@ -21,6 +22,6 @@ export type LazyOptions = {
 export type LazyComponent<C extends ComponentType<any>> = FunctionComponent<
   ComponentProps<C>
 > & {
-  preload: (priority?: PreloadPriority) => void;
+  preload: (priority?: PreloadPriority) => Cleanup;
   getAssetUrls: () => string[] | undefined;
 };

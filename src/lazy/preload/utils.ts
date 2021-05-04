@@ -1,12 +1,16 @@
 import { getConfig } from '../../config';
 
+export const noopCleanup = () => {
+  // Nothing to cleanup...
+};
+
 export function insertLinkTag(href: string, rel: string) {
-  // if already preloaded/prefetched/loaded, skip
+  // Skip if already preloaded, prefetched, or loaded
   if (
     document.querySelector(`link[href="${href}"]`) ||
     document.querySelector(`script[src="${href}"]`)
   )
-    return;
+    return noopCleanup;
 
   const { crossOrigin } = getConfig();
   const link = document.createElement('link');
@@ -17,4 +21,11 @@ export function insertLinkTag(href: string, rel: string) {
   link.href = href;
 
   document.head?.appendChild(link);
+
+  return () => {
+    // Remove the link if it is still in the document head
+    if (link.parentNode === document.head) {
+      document.head?.removeChild(link);
+    }
+  };
 }

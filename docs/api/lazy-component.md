@@ -26,6 +26,11 @@ If none of the above strategies are available, the [`loader`](api/lazy?id=loader
 #### Arguments
 1. `priority?: PreloadPriority` Specifies the priority that should be used to retrieve the assets. When the priority is high, the assets will be preloaded, otherwise they are prefetched.
 
+#### Return value
+`Cleanup: () => void`
+
+Returns a cleanup function that when called, will remove any inserted link tags from the document head
+
 #### Example
 
 ```jsx
