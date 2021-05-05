@@ -20,6 +20,15 @@ render(<App />, document.getElementById('root'));
 ```
 
 ## Options
+### `autoStart?`
+`boolean = false`
+
+This is an experimental option that when enabled, will automatically manage when [`lazy*`](api/lazy) components load.
+
+When this option is enabled, [`useLazyPhase`](api/use-lazy-phase) should not be used as it will eventually be removed, once `autoStart` becomes the default behaviour. 
+
+---
+
 ### `crossOrigin?`
 `typeof SETTINGS.CROSS_ORIGIN: 'anonymous'` | `'use-credentials'` | `undefined`
 

@@ -1,16 +1,22 @@
 import { ComponentType } from 'react';
 import { ClientLoader, JavaScriptModule } from './loader';
 
+export type CreateDeferredOptions<C> = {
+  loader: ClientLoader<C>;
+  preload: ClientLoader<C>;
+};
+
 export type Deferred<C> = {
+  preload(): void;
   promise: Promise<JavaScriptModule<C>>;
   result: JavaScriptModule<C> | void;
-  preload(): void;
   start(): Promise<void>;
 };
 
-export const createDeferred = <C extends ComponentType<any>>(
-  loader: ClientLoader<C>
-): Deferred<C> => {
+export const createDeferred = <C extends ComponentType<any>>({
+  loader,
+  preload,
+}: CreateDeferredOptions<C>): Deferred<C> => {
   let resolve: (m: any) => void;
 
   const deferred = {
@@ -32,9 +38,13 @@ export const createDeferred = <C extends ComponentType<any>>(
         return;
       }
 
-      loader().then((m: any) => {
-        deferred.result = m;
-      });
+      preload()
+        .then((m: any) => {
+          deferred.result = m;
+        })
+        .catch(() => {
+          // Do nothing...
+        });
     },
     start: () => {
       if (deferred.result) {
@@ -43,9 +53,10 @@ export const createDeferred = <C extends ComponentType<any>>(
         return deferred.promise.then(() => {
           // Return void...
         });
-      } else {
-        return loader().then(resolve);
       }
+
+      // Make a new loader request when none have started or resolved yet
+      return loader().then(resolve);
     },
   };
 

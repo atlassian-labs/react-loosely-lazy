@@ -9,6 +9,7 @@ import { hash, displayNameFromId, isNodeEnvironment } from '../utils';
 import { createComponentClient } from './components/client';
 import { createComponentServer } from './components/server';
 import { createDeferred } from './deferred';
+import { useFallback } from './fallback';
 import { ClientLoader, Loader, ServerLoader } from './loader';
 import { preloadAsset } from './preload';
 import { retry } from './retry';
@@ -32,19 +33,23 @@ function lazyProxy<C extends ComponentType<any>>(
         ssr,
       })
     : createComponentClient({
-        dataLazyId,
         defer,
-        deferred: createDeferred(() => {
-          const { retry: maxAttempts } = getConfig();
+        // We separate the preload from the retryable request, as we do not want the preload to contribute to retry
+        // attempts, when the the loader fallback is used
+        deferred: createDeferred({
+          loader: () => {
+            const { retry: maxAttempts } = getConfig();
 
-          return retry(loader as ClientLoader<C>, {
-            delay: RETRY_DELAY,
-            factor: RETRY_FACTOR,
-            maxAttempts,
-          });
+            return retry(loader as ClientLoader<C>, {
+              delay: RETRY_DELAY,
+              factor: RETRY_FACTOR,
+              maxAttempts,
+            });
+          },
+          preload: loader as ClientLoader<C>,
         }),
         moduleId,
-        ssr,
+        useFallback: () => useFallback({ id: dataLazyId, ssr }),
       });
 
   LazyInternal.displayName = `Lazy(${displayNameFromId(moduleId)})`;

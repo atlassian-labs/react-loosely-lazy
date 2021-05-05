@@ -1,6 +1,14 @@
 # `useLazyPhase()`
 This hook provides consumers with a means of controlling when the different loading phases are triggered.
 
+<div class="alert--warning">
+
+> **Warning**
+> 
+> This hook should not be used when [`autoStart`](api/init?id=autostart) is enabled, and will be removed once automatically managed phases becomes the default behaviour in the next major release
+
+</div>
+
 ## Example
 ```jsx
 import { useLazyPhase } from 'react-loosely-lazy';

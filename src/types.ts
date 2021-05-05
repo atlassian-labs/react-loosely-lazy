@@ -4,6 +4,7 @@ import type { Manifest } from './manifest';
 export type PreloadPriority = typeof PRIORITY.HIGH | typeof PRIORITY.LOW;
 
 export type Config = {
+  autoStart: boolean;
   crossOrigin: 'anonymous' | 'use-credentials' | undefined;
   manifest: Manifest;
   mode: typeof MODE.HYDRATE | typeof MODE.RENDER;

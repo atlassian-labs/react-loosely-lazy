@@ -35,6 +35,7 @@ describe('lazy* on the server', () => {
     describe('when ssr is false', () => {
       it('renders the fallback', async () => {
         await testFallbackRender({
+          autoStart: false,
           ssr: false,
           ...opts,
         });
@@ -43,6 +44,7 @@ describe('lazy* on the server', () => {
       it('renders the fallback when the loader has been transformed to a noop', async () => {
         const NoopComponent = () => null;
         await testFallbackRender({
+          autoStart: false,
           loader: () => NoopComponent,
           ssr: false,
           ...opts,
@@ -96,17 +98,16 @@ describe('lazy* on the server', () => {
   };
 
   describe('lazyForPaint', () => {
-    createRenderFallbackTests({
+    const opts = {
+      autoStart: false,
       lazyMethod: lazyForPaint,
-    });
+    };
 
-    createRenderTests({
-      lazyMethod: lazyForPaint,
-    });
+    createRenderFallbackTests(opts);
 
-    createErrorTests({
-      lazyMethod: lazyForPaint,
-    });
+    createRenderTests(opts);
+
+    createErrorTests(opts);
 
     it('renders preload link tags when a manifest is provided', () => {
       LooselyLazy.init({
@@ -144,17 +145,16 @@ describe('lazy* on the server', () => {
   });
 
   describe('lazyAfterPaint', () => {
-    createRenderFallbackTests({
+    const opts = {
+      autoStart: false,
       lazyMethod: lazyAfterPaint,
-    });
+    };
 
-    createRenderTests({
-      lazyMethod: lazyAfterPaint,
-    });
+    createRenderFallbackTests(opts);
 
-    createErrorTests({
-      lazyMethod: lazyAfterPaint,
-    });
+    createRenderTests(opts);
+
+    createErrorTests(opts);
 
     it('renders prefetch link tags when a manifest is provided', () => {
       LooselyLazy.init({
@@ -191,6 +191,7 @@ describe('lazy* on the server', () => {
 
   describe('lazy', () => {
     const opts = {
+      autoStart: false,
       lazyMethod: lazy,
     };
 
@@ -230,9 +231,7 @@ describe('lazy* on the server', () => {
         expect(container.querySelectorAll('link')).toHaveLength(0);
       });
 
-      createErrorTests({
-        lazyMethod: lazyAfterPaint,
-      });
+      createErrorTests(opts);
     });
   });
 
