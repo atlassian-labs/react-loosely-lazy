@@ -2,6 +2,7 @@ import { render, waitForElementToBeRemoved } from '@testing-library/react';
 import React, { Component, ComponentType, ReactNode } from 'react';
 
 import { PHASE } from '../../constants';
+import { LooselyLazy } from '../../init';
 import { useLazyPhase } from '../../phase';
 import { LazySuspense } from '../../suspense';
 
@@ -9,8 +10,12 @@ import { isLoaderError, lazyForPaint } from '../';
 import { Loader } from '../loader';
 import { isNodeEnvironment } from '../../utils';
 
-export const createClientLoader = () => {
-  const DefaultComponent = () => <div>Default Component</div>;
+export const createClientLoader = ({
+  text = 'Default Component',
+}: {
+  text?: string;
+} = {}) => {
+  const DefaultComponent = () => <div>{text}</div>;
 
   return () => Promise.resolve({ default: DefaultComponent });
 };
@@ -48,8 +53,13 @@ export const createNamedServerImport = <C1, C2>({
   return _temp2(_temp);
 };
 
-class ErrorBoundary extends Component<
-  { fallback: ReactNode; onError: (error: Error) => void },
+export type ErrorBoundaryProps = {
+  fallback: ReactNode;
+  onError?: (error: Error) => void;
+};
+
+export class ErrorBoundary extends Component<
+  ErrorBoundaryProps,
   { error: Error | void }
 > {
   state = {
@@ -57,9 +67,13 @@ class ErrorBoundary extends Component<
   };
 
   componentDidCatch(error: Error) {
-    this.props.onError(error);
+    this.props.onError?.(error);
     this.setState({ error });
   }
+
+  retry = () => {
+    this.setState({ error: undefined });
+  };
 
   render() {
     const { children, fallback } = this.props;
@@ -68,7 +82,12 @@ class ErrorBoundary extends Component<
       return children;
     }
 
-    return fallback;
+    return (
+      <>
+        {fallback}
+        <button onClick={this.retry}>Retry</button>
+      </>
+    );
   }
 }
 
@@ -81,8 +100,40 @@ export const createErrorTests = ({
   lazyMethod,
   phase = PHASE.PAINT,
 }: TestErrorBubblingOptions) => {
+  const clientError = new Error('ChunkLoadError');
+
+  if (!isNodeEnvironment()) {
+    it('does not retry when the global retry option is set to 0', async () => {
+      LooselyLazy.init({
+        retry: 0,
+      });
+
+      const loader = jest.fn(() => Promise.reject(clientError));
+      const LazyTestComponent = lazyMethod(loader);
+
+      const spy = jest.spyOn(console, 'error').mockImplementation(jest.fn);
+
+      const { queryByText } = render(
+        <ErrorBoundary fallback="Component failed to load...">
+          <App phase={phase}>
+            <LazySuspense fallback="Loading...">
+              <LazyTestComponent />
+            </LazySuspense>
+          </App>
+        </ErrorBoundary>
+      );
+
+      expect(queryByText('Loading...')).toBeInTheDocument();
+      await waitForElementToBeRemoved(() => queryByText('Loading...'));
+
+      spy.mockRestore();
+
+      expect(queryByText('Component failed to load...')).toBeInTheDocument();
+      expect(loader).toHaveBeenCalledTimes(1);
+    });
+  }
+
   it('bubbles a loader error in the component lifecycle when the loader fails', async () => {
-    const clientError = new Error('ChunkLoadError');
     const moduleId = '@foo/bar';
     const LazyTestComponent = lazyMethod(
       () =>
@@ -101,10 +152,7 @@ export const createErrorTests = ({
     const spy = jest.spyOn(console, 'error').mockImplementation(jest.fn);
 
     const { queryByText } = render(
-      <ErrorBoundary
-        fallback={<div>Component failed to load</div>}
-        onError={onError}
-      >
+      <ErrorBoundary fallback="Component failed to load..." onError={onError}>
         <App phase={phase}>
           <LazySuspense fallback="Loading...">
             <LazyTestComponent />
@@ -122,7 +170,7 @@ export const createErrorTests = ({
 
     spy.mockRestore();
 
-    expect(queryByText('Component failed to load')).toBeInTheDocument();
+    expect(queryByText('Component failed to load...')).toBeInTheDocument();
     expect(
       errors.map(error => ({
         error,

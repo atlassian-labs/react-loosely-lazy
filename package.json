@@ -99,6 +99,7 @@
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
+    "@lifeomic/attempt": "^3.0.0",
     "enhanced-resolve": "^5.8.0"
   }
 }

@@ -7,4 +7,5 @@ export type Config = {
   crossOrigin: 'anonymous' | 'use-credentials' | undefined;
   manifest: Manifest;
   mode: typeof MODE.HYDRATE | typeof MODE.RENDER;
+  retry: number;
 };

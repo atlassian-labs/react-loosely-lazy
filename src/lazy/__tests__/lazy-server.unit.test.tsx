@@ -13,21 +13,16 @@ import {
   testRender,
   TestRenderOptions,
 } from './utils';
-import { isNodeEnvironment } from '../../utils';
 
 jest.mock('../../utils', () => ({
   ...jest.requireActual<any>('../../utils'),
-  isNodeEnvironment: jest.fn(),
+  isNodeEnvironment: () => true,
 }));
 
 describe('lazy* on the server', () => {
   const lazyOptions = {
     moduleId: '@foo/bar',
   };
-
-  beforeEach(() => {
-    (isNodeEnvironment as any).mockImplementation(() => true);
-  });
 
   afterEach(() => {
     LooselyLazy.init({}); // reset settings

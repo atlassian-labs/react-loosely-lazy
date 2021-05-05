@@ -1,4 +1,5 @@
 import { ComponentProps, ComponentType, FunctionComponent } from 'react';
+
 import { PreloadPriority } from '../types';
 import { Cleanup } from './preload';
 

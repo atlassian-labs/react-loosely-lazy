@@ -1,4 +1,6 @@
 import { ComponentType } from 'react';
+import { retry } from '@lifeomic/attempt';
+import { getConfig } from '../config';
 import { ClientLoader, JavaScriptModule } from './loader';
 
 export type Deferred<C> = {
@@ -11,6 +13,15 @@ export type Deferred<C> = {
 export const createDeferred = <C extends ComponentType<any>>(
   loader: ClientLoader<C>
 ): Deferred<C> => {
+  const loaderWithRetry = () => {
+    const { retry: retryCount } = getConfig();
+
+    return retry(loader, {
+      delay: 200,
+      maxAttempts: retryCount + 1,
+    });
+  };
+
   let resolve: (m: any) => void;
 
   const deferred = {
@@ -32,7 +43,7 @@ export const createDeferred = <C extends ComponentType<any>>(
         return;
       }
 
-      loader().then((m: any) => {
+      loaderWithRetry().then((m: any) => {
         deferred.result = m;
       });
     },
@@ -44,7 +55,7 @@ export const createDeferred = <C extends ComponentType<any>>(
           // Return void...
         });
       } else {
-        return loader().then(resolve);
+        return loaderWithRetry().then(resolve);
       }
     },
   };

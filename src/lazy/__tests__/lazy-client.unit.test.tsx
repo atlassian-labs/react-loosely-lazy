@@ -3,13 +3,13 @@ import { render, waitForElementToBeRemoved } from '@testing-library/react';
 import { PHASE, PRIORITY } from '../../constants';
 import { LooselyLazy } from '../../init';
 import { LazySuspense } from '../../suspense';
-import { isNodeEnvironment } from '../../utils';
 
 import { lazyForPaint, lazyAfterPaint, lazy } from '..';
 import {
   App,
   createClientLoader,
   createErrorTests,
+  ErrorBoundary,
   testFallbackRender,
   testRender,
   TestRenderOptions,
@@ -17,7 +17,7 @@ import {
 
 jest.mock('../../utils', () => ({
   ...jest.requireActual<any>('../../utils'),
-  isNodeEnvironment: jest.fn(),
+  isNodeEnvironment: () => false,
 }));
 
 describe('lazy* on the client', () => {
@@ -30,20 +30,17 @@ describe('lazy* on the client', () => {
     document.head.innerHTML = ''; // reset head
   });
 
-  beforeEach(() => {
-    (isNodeEnvironment as any).mockImplementation(() => false);
-  });
-
   const createRenderTests = (
     opts: Required<Pick<TestRenderOptions, 'lazyMethod' | 'phase'>>
   ) => {
     const { lazyMethod, phase } = opts;
 
     it('renders the default component when there is only a default export', async () => {
+      const text = 'Default Component';
+
       await testRender({
-        loader: () =>
-          Promise.resolve({ default: () => <div>Default Component </div> }),
-        text: 'Default Component',
+        loader: createClientLoader({ text }),
+        text,
         ...opts,
       });
     });
@@ -85,11 +82,108 @@ describe('lazy* on the client', () => {
       });
     });
 
-    it('re-renders the component correctly', async () => {
-      const TestComponent = () => <div>Component</div>;
-      const LazyTestComponent = lazyMethod(() =>
-        Promise.resolve({ default: TestComponent })
+    it('renders the component when the loader resolves after a single failed attempt', async () => {
+      const text = 'Default Component';
+      const successfulLoader = createClientLoader({ text });
+
+      LooselyLazy.init({
+        retry: 1,
+      });
+
+      let shouldFail = true;
+
+      await testRender({
+        loader: () => {
+          if (shouldFail) {
+            shouldFail = false;
+
+            return Promise.reject(new Error('Failed to load module...'));
+          }
+
+          return successfulLoader();
+        },
+        text,
+        ...opts,
+      });
+    });
+
+    it('renders the component when the loader resolves after multiple failed attempts', async () => {
+      const text = 'Default Component';
+      const successfulLoader = createClientLoader({ text });
+
+      let attempt = 1;
+      const retryCount = 3;
+
+      LooselyLazy.init({
+        retry: retryCount,
+      });
+
+      await testRender({
+        loader: () => {
+          if (attempt <= retryCount) {
+            attempt += 1;
+
+            return Promise.reject(new Error('Failed to load module...'));
+          }
+
+          return successfulLoader();
+        },
+        text,
+        ...opts,
+      });
+    });
+
+    it('renders the component when the loader resolves after manually retrying', async () => {
+      const text = 'Default Component';
+      const successfulLoader = createClientLoader({ text });
+
+      let attempt = 1;
+      const retryCount = 3;
+
+      LooselyLazy.init({
+        retry: retryCount,
+      });
+
+      const LazyTestComponent = lazyMethod(() => {
+        if (attempt <= retryCount + 1) {
+          attempt += 1;
+
+          return Promise.reject(new Error('Failed to load module...'));
+        }
+
+        return successfulLoader();
+      });
+
+      const spy = jest.spyOn(console, 'error').mockImplementation(jest.fn);
+
+      const { getByText, queryByText } = render(
+        <App phase={phase}>
+          <ErrorBoundary fallback="Component failed to load...">
+            <LazySuspense fallback="Loading...">
+              <LazyTestComponent />
+            </LazySuspense>
+          </ErrorBoundary>
+        </App>
       );
+
+      expect(queryByText('Loading...')).toBeInTheDocument();
+      await waitForElementToBeRemoved(() => queryByText('Loading...'));
+
+      spy.mockRestore();
+
+      expect(queryByText('Component failed to load...')).toBeInTheDocument();
+
+      getByText('Retry').click();
+
+      expect(queryByText('Loading...')).toBeInTheDocument();
+      await waitForElementToBeRemoved(() => queryByText('Loading...'));
+
+      expect(queryByText(text)).toBeInTheDocument();
+    });
+
+    it('re-renders the component correctly', async () => {
+      const text = 'Default Component';
+      const LazyTestComponent = lazyMethod(createClientLoader({ text }));
 
       const { getByText, queryByText, rerender } = render(
         <App phase={phase}>
@@ -102,7 +196,7 @@ describe('lazy* on the client', () => {
       expect(queryByText('Loading...')).toBeInTheDocument();
       await waitForElementToBeRemoved(() => queryByText('Loading...'));
 
-      const component = getByText('Component');
+      const component = getByText(text);
 
       expect(component).toBeInTheDocument();
 
