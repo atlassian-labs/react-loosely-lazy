@@ -1,5 +1,6 @@
 import { ComponentProps, ComponentType, FunctionComponent } from 'react';
 
+import { getConfig } from '../config';
 import { PHASE, PRIORITY } from '../constants';
 import { getAssetUrlsFromId } from '../manifest';
 import { PreloadPriority } from '../types';
@@ -10,8 +11,8 @@ import { createComponentServer } from './components/server';
 import { createDeferred } from './deferred';
 import { ClientLoader, Loader, ServerLoader } from './loader';
 import { preloadAsset } from './preload';
+import { retry } from './retry';
 import { LazyOptions, LazyComponent } from './types';
-import { getConfig } from '../config';
 
 export type { LazyOptions, LazyComponent };
 
@@ -33,7 +34,14 @@ function lazyProxy<C extends ComponentType<any>>(
     : createComponentClient({
         dataLazyId,
         defer,
-        deferred: createDeferred(loader as ClientLoader<C>),
+        deferred: createDeferred(() => {
+          const { retry: maxAttempts } = getConfig();
+
+          return retry(loader as ClientLoader<C>, {
+            delay: 200,
+            maxAttempts,
+          });
+        }),
         moduleId,
         ssr,
       });
