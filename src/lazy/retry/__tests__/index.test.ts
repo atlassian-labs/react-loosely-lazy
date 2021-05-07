@@ -38,9 +38,9 @@ describe('retry', () => {
 
     it('does not retry when maxAttempts is -n', async () => {
       const n = -100;
-      for (const x of range(-1, n, -1)) {
+      for (const maxAttempts of range(-1, n, -1)) {
         const retryable = jest.fn(() => Promise.reject(error));
-        const promise = retry(retryable, { maxAttempts: x });
+        const promise = retry(retryable, { maxAttempts });
 
         await expect(promise).rejects.toEqual(error);
         expect(retryable).toHaveBeenCalledTimes(1);
@@ -73,12 +73,12 @@ describe('retry', () => {
 
     it('retries n times when maxAttempts is n', async () => {
       const n = 100;
-      for (const x of range(0, n)) {
+      for (const maxAttempts of range(0, n)) {
         const retryable = jest.fn(() => Promise.reject(error));
-        const promise = retry(retryable, { maxAttempts: x });
+        const promise = retry(retryable, { maxAttempts });
 
         await expect(promise).rejects.toEqual(error);
-        expect(retryable).toHaveBeenCalledTimes(x + 1);
+        expect(retryable).toHaveBeenCalledTimes(maxAttempts + 1);
       }
     });
   });
