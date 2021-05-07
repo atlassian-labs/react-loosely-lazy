@@ -1,22 +1,38 @@
 export type RetryPolicy = {
   delay: number;
-  maxAttempts: number | undefined;
+  factor: number;
+  maxAttempts: number;
 };
 
+export type RetryPolicyConfiguration = Omit<
+  Partial<RetryPolicy>,
+  'maxAttempts'
+> &
+  Partial<{
+    maxAttempts: number | undefined;
+  }>;
+
 type AttemptContext = {
+  attempt: number;
   attemptsRemaining: number;
 };
 
 export type Retryable<T> = () => Promise<T>;
 
 const calculateDelay = (context: AttemptContext, policy: RetryPolicy) => {
-  const { delay, maxAttempts } = policy;
+  const { attempt } = context;
+  const { delay, factor } = policy;
+
+  const retryAttempt = attempt - 1;
   // Do not use a delay on the first retry, or when the configured delay is 0
-  if (context.attemptsRemaining === maxAttempts || delay === 0) {
+  if (retryAttempt === 1 || delay === 0) {
     return 0;
   }
 
-  return delay;
+  // Linear factor, like: https://github.com/Polly-Contrib/Polly.Contrib.WaitAndRetry#wait-and-retry-with-linear-back-off
+  const add = factor * delay;
+
+  return delay + add * (retryAttempt - 2);
 };
 
 const sleep = (delay: number) =>
@@ -24,21 +40,23 @@ const sleep = (delay: number) =>
 
 const getPolicy = (configuration: Partial<RetryPolicy>): RetryPolicy => ({
   delay: Math.max(0, configuration.delay ?? 0),
+  factor: Math.max(0, configuration.factor ?? 0),
   maxAttempts:
     typeof configuration.maxAttempts === 'number'
       ? Math.max(0, configuration.maxAttempts)
-      : configuration.maxAttempts,
+      : Infinity,
 });
 
 export function retry<T>(
   retryable: Retryable<T>,
-  policyConfiguration: Partial<RetryPolicy> = { maxAttempts: 0 }
+  policyConfiguration: RetryPolicyConfiguration = { maxAttempts: 0 }
 ) {
   const policy = getPolicy(policyConfiguration);
 
   const { maxAttempts } = policy;
   const context: AttemptContext = {
-    attemptsRemaining: maxAttempts == null ? Infinity : maxAttempts,
+    attempt: 1,
+    attemptsRemaining: maxAttempts,
   };
 
   const onError = async (err: Error): Promise<T> => {
@@ -46,12 +64,13 @@ export function retry<T>(
       throw err;
     }
 
+    context.attempt += 1;
+    context.attemptsRemaining -= 1;
+
     const delay = calculateDelay(context, policy);
     if (delay) {
       await sleep(delay);
     }
-
-    context.attemptsRemaining -= 1;
 
     return retryable().catch(onError);
   };

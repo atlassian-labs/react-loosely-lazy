@@ -1,4 +1,4 @@
-import { retry } from '..';
+import { retry, Retryable, RetryPolicyConfiguration } from '..';
 
 describe('retry', () => {
   const error = new Error('An error occurred...');
@@ -8,6 +8,20 @@ describe('retry', () => {
       { length: (stop - start) / step + 1 },
       (_, i) => start + i * step
     );
+
+  const createRetryable = (retries: number) => {
+    let attempt = 0;
+
+    return jest.fn(() => {
+      if (attempt < retries) {
+        attempt += 1;
+
+        return Promise.reject(error);
+      }
+
+      return Promise.resolve('Success');
+    });
+  };
 
   it('does not retry by default', async () => {
     const retryable = jest.fn(() => Promise.reject(error));
@@ -86,57 +100,18 @@ describe('retry', () => {
   describe('delay', () => {
     const delay = 100;
 
-    beforeEach(() => {
-      jest.useFakeTimers();
-    });
+    type TestRetriesOptions = {
+      configuration: RetryPolicyConfiguration;
+      n: number;
+      retryable: Retryable<unknown>;
+    };
 
-    afterEach(() => {
-      jest.useRealTimers();
-    });
-
-    it('does not delay the initial attempt', async () => {
-      const retryable = jest.fn(() => Promise.resolve('Success'));
-
-      await retry(retryable, { delay });
-
-      expect(retryable).toHaveBeenCalledTimes(1);
-    });
-
-    it('does not delay the initial retry', async () => {
-      const retryable = jest.fn(() => Promise.reject(error));
-
-      await retry(retryable, { delay, maxAttempts: 1 }).catch(() => {
-        // Do nothing...
-      });
-
-      expect(retryable).toHaveBeenCalledTimes(2);
-    });
-
-    it('delays the second retry by the specified amount', async () => {
-      const retryable = jest.fn(() => Promise.reject(error));
-
-      retry(retryable, { delay, maxAttempts: 2 }).catch(() => {
-        // Do nothing...
-      });
-
-      expect(retryable).toHaveBeenCalledTimes(1);
-
-      await jest.runAllTicks();
-      expect(retryable).toHaveBeenCalledTimes(2);
-
-      // Check that we have not called the retryable before the delay elapses
-      await jest.runTimersToTime(delay - 1);
-      expect(retryable).toHaveBeenCalledTimes(2);
-
-      await jest.runTimersToTime(delay);
-      expect(retryable).toHaveBeenCalledTimes(3);
-    });
-
-    it('delays n retries after the initial retry by the specified amount', async () => {
-      const retryable = jest.fn(() => Promise.reject(error));
-      const n = 100;
-
-      retry(retryable, { delay, maxAttempts: n }).catch(() => {
+    const testRetries = async ({
+      configuration,
+      n,
+      retryable,
+    }: TestRetriesOptions) => {
+      retry(retryable, configuration).catch(() => {
         // Do nothing...
       });
 
@@ -158,6 +133,160 @@ describe('retry', () => {
         expectedCalls += 1;
         expect(retryable).toHaveBeenCalledTimes(expectedCalls);
       }
+    };
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    describe('with no maxAttempts', () => {
+      it('does not delay the initial attempt', async () => {
+        const retryable = jest.fn(() => Promise.resolve('Success'));
+
+        await retry(retryable, { delay });
+
+        expect(retryable).toHaveBeenCalledTimes(1);
+      });
+
+      it('does not delay the initial retry', async () => {
+        const retryable = createRetryable(1);
+
+        await retry(retryable, { delay }).catch(() => {
+          // Do nothing...
+        });
+
+        expect(retryable).toHaveBeenCalledTimes(2);
+      });
+
+      it('delays n retries after the initial retry by the specified amount', async () => {
+        const n = 100;
+        const retryable = createRetryable(n);
+
+        await testRetries({
+          configuration: {
+            delay,
+          },
+          n,
+          retryable,
+        });
+      });
+    });
+
+    describe('with a specified maxAttempts', () => {
+      it('does not delay the initial attempt', async () => {
+        const retryable = jest.fn(() => Promise.resolve('Success'));
+
+        await retry(retryable, { delay, maxAttempts: 0 });
+
+        expect(retryable).toHaveBeenCalledTimes(1);
+      });
+
+      it('does not delay the initial retry', async () => {
+        const retryable = jest.fn(() => Promise.reject(error));
+
+        await retry(retryable, { delay, maxAttempts: 1 }).catch(() => {
+          // Do nothing...
+        });
+
+        expect(retryable).toHaveBeenCalledTimes(2);
+      });
+
+      it('delays n retries after the initial retry by the specified amount', async () => {
+        const retryable = jest.fn(() => Promise.reject(error));
+        const n = 100;
+
+        await testRetries({
+          configuration: {
+            delay,
+            maxAttempts: n,
+          },
+          n,
+          retryable,
+        });
+      });
+    });
+  });
+
+  describe('factor', () => {
+    type TestFactorOptions = {
+      delay: number;
+      expectedDelays: number[];
+      factor?: number;
+    };
+
+    const testFactor = async ({
+      delay,
+      expectedDelays,
+      factor,
+    }: TestFactorOptions) => {
+      const retryable = createRetryable(expectedDelays.length + 1);
+
+      retry(retryable, { delay, factor });
+
+      let expectedCalls = 1;
+      expect(retryable).toHaveBeenCalledTimes(expectedCalls);
+
+      await jest.runAllTicks();
+      expectedCalls += 1;
+      expect(retryable).toHaveBeenCalledTimes(expectedCalls);
+
+      for (const expectedDelay of expectedDelays) {
+        await jest.runAllTicks();
+
+        await jest.advanceTimersByTime(expectedDelay - 1);
+        expect(retryable).toHaveBeenCalledTimes(expectedCalls);
+
+        await jest.advanceTimersByTime(1);
+        expectedCalls += 1;
+        expect(retryable).toHaveBeenCalledTimes(expectedCalls);
+      }
+    };
+
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('does not modify the delay when the factor is not provided', async () => {
+      await testFactor({
+        delay: 300,
+        expectedDelays: [300, 300, 300, 300, 300],
+      });
+    });
+
+    it('does not modify the delay when the factor is 0', async () => {
+      await testFactor({
+        delay: 300,
+        expectedDelays: [300, 300, 300, 300, 300],
+        factor: 0,
+      });
+    });
+
+    describe('increases the delay for each retry', () => {
+      it('by the delay when factor is 1', async () => {
+        // Linear factor of 1 increases the delay by 300 on each iteration
+        await testFactor({
+          delay: 300,
+          expectedDelays: [300, 600, 900, 1200, 1500],
+          factor: 1,
+        });
+      });
+
+      it('by the delay multiplied by the factor when the factor is >1', async () => {
+        // Linear factor of 2 increases the delay by 600 on each iteration
+        await testFactor({
+          delay: 300,
+          expectedDelays: [300, 900, 1500, 2100, 2700],
+          factor: 2,
+        });
+      });
     });
   });
 });

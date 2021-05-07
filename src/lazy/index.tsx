@@ -1,7 +1,7 @@
 import { ComponentProps, ComponentType, FunctionComponent } from 'react';
 
 import { getConfig } from '../config';
-import { PHASE, PRIORITY } from '../constants';
+import { PHASE, PRIORITY, RETRY_DELAY, RETRY_FACTOR } from '../constants';
 import { getAssetUrlsFromId } from '../manifest';
 import { PreloadPriority } from '../types';
 import { hash, displayNameFromId, isNodeEnvironment } from '../utils';
@@ -38,7 +38,8 @@ function lazyProxy<C extends ComponentType<any>>(
           const { retry: maxAttempts } = getConfig();
 
           return retry(loader as ClientLoader<C>, {
-            delay: 200,
+            delay: RETRY_DELAY,
+            factor: RETRY_FACTOR,
             maxAttempts,
           });
         }),
