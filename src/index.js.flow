@@ -26,6 +26,7 @@ declare export var LooselyLazy: {
     crossOrigin?: 'anonymous' | 'use-credentials' | void,
     mode?: typeof MODE.RENDER | typeof MODE.HYDRATE,
     manifest?: Manifest,
+    retry?: number | void,
   }): void,
 };
 

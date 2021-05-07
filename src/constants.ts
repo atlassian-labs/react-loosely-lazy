@@ -17,3 +17,6 @@ export const PRIORITY = {
 };
 
 export const COLLECTED = new Map();
+
+export const RETRY_DELAY = 300;
+export const RETRY_FACTOR = 1;

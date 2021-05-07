@@ -35,7 +35,13 @@ Any of the following formats are supported:
 ---
 
 ### `options?`
-`LazyOptions: { ssr?: boolean; moduleId?: string }`
+```
+LazyOptions<T>: {
+  ssr?: boolean;
+  moduleId?: string;
+}
+```
+
 #### `ssr`
 Specifies whether the component should be rendered on the server
 
