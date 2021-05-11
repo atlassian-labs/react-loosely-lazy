@@ -58,7 +58,7 @@ Specifies whether the library should run in render or hydrate mode, and should b
 </div>
 
 ### `retry?`
-`number | undefined = 2`
+`number = 2`
 
 Configures the amount of times to retry the [`loader`](api/lazy?id=loader), when it returns a rejected promise.
 
@@ -66,6 +66,6 @@ Configures the amount of times to retry the [`loader`](api/lazy?id=loader), when
 
 | Value     | Behaviour               |
 | --------- | ----------------------- |
-| undefined | Retry indefinitely      |
 | 0         | Do not retry on failure |
 | 1...n     | Retry n times           |
+| Infinity  | Retry indefinitely      |
