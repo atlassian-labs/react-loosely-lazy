@@ -4,13 +4,7 @@ export type RetryPolicy = {
   maxAttempts: number;
 };
 
-export type RetryPolicyConfiguration = Omit<
-  Partial<RetryPolicy>,
-  'maxAttempts'
-> &
-  Partial<{
-    maxAttempts: number | undefined;
-  }>;
+export type RetryPolicyConfiguration = Partial<RetryPolicy>;
 
 type AttemptContext = {
   attempt: number;
@@ -41,15 +35,12 @@ const sleep = (delay: number) =>
 const getPolicy = (configuration: Partial<RetryPolicy>): RetryPolicy => ({
   delay: Math.max(0, configuration.delay ?? 0),
   factor: Math.max(0, configuration.factor ?? 0),
-  maxAttempts:
-    typeof configuration.maxAttempts === 'number'
-      ? Math.max(0, configuration.maxAttempts)
-      : Infinity,
+  maxAttempts: Math.max(0, configuration.maxAttempts ?? 0),
 });
 
 export function retry<T>(
   retryable: Retryable<T>,
-  policyConfiguration: RetryPolicyConfiguration = { maxAttempts: 0 }
+  policyConfiguration: RetryPolicyConfiguration = {}
 ) {
   const policy = getPolicy(policyConfiguration);
 
