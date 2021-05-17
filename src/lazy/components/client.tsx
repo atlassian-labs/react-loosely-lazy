@@ -2,15 +2,18 @@ import React, {
   ComponentProps,
   ComponentType,
   lazy,
+  useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
 
+import { noopCleanup } from '../../cleanup';
 import { getConfig } from '../../config';
 import { PHASE, PRIORITY } from '../../constants';
-import { useUntil } from '../../lazy-wait';
+import { UntilContext, useUntil } from '../../lazy-wait';
 import { usePhaseSubscription } from '../../phase';
 import { TASK_PRIORITY, useScheduler } from '../../scheduler';
 
@@ -33,6 +36,7 @@ export function createComponentClient<C extends ComponentType<any>>({
 
   return (props: ComponentProps<C>) => {
     const isMounted = useRef(true);
+    const [, setState] = useState();
 
     useEffect(
       () => () => {
@@ -43,27 +47,45 @@ export function createComponentClient<C extends ComponentType<any>>({
 
     const { autoStart } = getConfig();
     if (autoStart) {
+      const until = useContext(UntilContext);
       const { schedule } = useScheduler();
-      const [unschedule, setState] = useState(() =>
-        schedule({
-          priority:
-            defer === PHASE.AFTER_PAINT
-              ? TASK_PRIORITY.NORMAL
-              : TASK_PRIORITY.IMMEDIATE,
-          task: () =>
-            deferred.start().catch((err: Error) => {
-              if (isMounted.current) {
-                // Throw the error within the component lifecycle
-                // refer to https://github.com/facebook/react/issues/11409
-                setState(() => {
-                  throw createLoaderError(err);
-                });
-              }
-            }),
-        })
-      );
 
-      useEffect(() => unschedule, [unschedule]);
+      useLayoutEffect(() => {
+        const scheduleTask = () =>
+          schedule({
+            priority:
+              defer === PHASE.AFTER_PAINT
+                ? TASK_PRIORITY.NORMAL
+                : TASK_PRIORITY.IMMEDIATE,
+            task: () =>
+              deferred.start().catch((err: Error) => {
+                if (isMounted.current) {
+                  // Throw the error within the component lifecycle
+                  // refer to https://github.com/facebook/react/issues/11409
+                  setState(() => {
+                    throw createLoaderError(err);
+                  });
+                }
+              }),
+          });
+
+        if (until.value.current) {
+          return scheduleTask();
+        }
+
+        let unschedule = noopCleanup;
+        const unsubscribe = until.subscribe(nextUntil => {
+          if (nextUntil) {
+            unsubscribe();
+            unschedule = scheduleTask();
+          }
+        });
+
+        return () => {
+          unsubscribe();
+          unschedule();
+        };
+      }, [schedule, until]);
 
       if (defer === PHASE.AFTER_PAINT) {
         useEffect(
@@ -83,7 +105,6 @@ export function createComponentClient<C extends ComponentType<any>>({
     }
 
     const started = useRef(false);
-    const [, setState] = useState();
     const until = useUntil();
 
     const load = useRef(() => {
@@ -93,11 +114,13 @@ export function createComponentClient<C extends ComponentType<any>>({
 
       started.current = true;
       deferred.start().catch((err: Error) => {
-        // Throw the error within the component lifecycle
-        // refer to https://github.com/facebook/react/issues/11409
-        setState(() => {
-          throw createLoaderError(err);
-        });
+        if (isMounted.current) {
+          // Throw the error within the component lifecycle
+          // refer to https://github.com/facebook/react/issues/11409
+          setState(() => {
+            throw createLoaderError(err);
+          });
+        }
       });
     });
 
