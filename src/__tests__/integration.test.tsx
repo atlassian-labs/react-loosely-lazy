@@ -74,7 +74,11 @@ describe('hydrate without priority', () => {
       // expect ssr to render content
       expect(document.body).toContainHTML('<p class="p">Content</p>');
 
-      const { App: ClientApp, Child, resolveImport } = createApp({
+      const {
+        App: ClientApp,
+        Child,
+        resolveImport,
+      } = createApp({
         server: false,
         ssr,
         hydrate,
@@ -107,7 +111,12 @@ describe('hydrate without priority', () => {
       // expect ssr to render fallback
       expect(document.body).toContainHTML('<i>Fallback</i>');
 
-      const { App: ClientApp, Fallback, Child, resolveImport } = createApp({
+      const {
+        App: ClientApp,
+        Fallback,
+        Child,
+        resolveImport,
+      } = createApp({
         server: false,
         ssr,
         hydrate,
@@ -147,7 +156,11 @@ describe('render without priority', () => {
       // expect ssr to render content
       expect(document.body).toContainHTML('<p class="p">Content</p>');
 
-      const { App: ClientApp, Child, resolveImport } = createApp({
+      const {
+        App: ClientApp,
+        Child,
+        resolveImport,
+      } = createApp({
         server: false,
         ssr,
         hydrate,
@@ -180,7 +193,12 @@ describe('render without priority', () => {
       // expect ssr to render fallback
       expect(document.body).toContainHTML('<i>Fallback</i>');
 
-      const { App: ClientApp, Fallback, Child, resolveImport } = createApp({
+      const {
+        App: ClientApp,
+        Fallback,
+        Child,
+        resolveImport,
+      } = createApp({
         server: false,
         ssr,
         hydrate,
@@ -239,7 +257,11 @@ describe('with static phase', () => {
       // expect ssr to render content
       expect(document.body).toContainHTML('<p class="p">Content</p>');
 
-      const { App: ClientApp, Child, resolveImport } = createApp({
+      const {
+        App: ClientApp,
+        Child,
+        resolveImport,
+      } = createApp({
         server: false,
         ssr,
         hydrate,
@@ -294,7 +316,12 @@ describe('with static phase', () => {
       // expect ssr to render fallback
       expect(document.body).toContainHTML('<i>Fallback</i>');
 
-      const { App: ClientApp, Fallback, Child, resolveImport } = createApp({
+      const {
+        App: ClientApp,
+        Fallback,
+        Child,
+        resolveImport,
+      } = createApp({
         server: false,
         ssr,
         hydrate,

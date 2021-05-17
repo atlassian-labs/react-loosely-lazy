@@ -76,13 +76,10 @@ describe('ReactLooselyLazyPlugin', () => {
     const expectedManifest = {
       publicPath: publicPath ?? '/output/',
       assets: {
-        './src/webpack/__tests__/__fixtures__/app/ui/concatenated-module/index.tsx': [
-          'async-concatenated-module.js',
-        ],
-        './src/webpack/__tests__/__fixtures__/app/ui/external-assets/index.tsx': [
-          'async-external-assets.css',
-          'async-external-assets.js',
-        ],
+        './src/webpack/__tests__/__fixtures__/app/ui/concatenated-module/index.tsx':
+          ['async-concatenated-module.js'],
+        './src/webpack/__tests__/__fixtures__/app/ui/external-assets/index.tsx':
+          ['async-external-assets.css', 'async-external-assets.js'],
         './src/webpack/__tests__/__fixtures__/app/ui/lazy-after-paint.tsx': [
           'async-lazy-after-paint.js',
         ],

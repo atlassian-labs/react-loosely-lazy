@@ -134,9 +134,8 @@ export default function ({
 
         // Get the import path when the parent is a CallExpression and its first
         // argument is a StringLiteral
-        const maybeImportPath = maybeImportCallExpression.get<'arguments'>(
-          'arguments'
-        )[0];
+        const maybeImportPath =
+          maybeImportCallExpression.get<'arguments'>('arguments')[0];
         if (maybeImportPath.isStringLiteral()) {
           importPath = maybeImportPath.node.value;
         }
