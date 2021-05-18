@@ -45,7 +45,8 @@ describe('ReactLooselyLazyPlugin', () => {
           filename: manifestFilename,
           publicPath,
         }),
-        new MiniCssExtractPlugin(),
+        // @ts-expected-error New types do not work with webpack 4
+        new MiniCssExtractPlugin() as any,
       ],
       resolve: {
         alias: {
