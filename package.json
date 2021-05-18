@@ -87,7 +87,7 @@
     "flow-bin": "^0.130.0",
     "jest": "^26.6.3",
     "mini-css-extract-plugin": "^1.6.0",
-    "outdent": "^0.7.1",
+    "outdent": "^0.8.0",
     "prettier": "^2.3.0",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
