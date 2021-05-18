@@ -6,6 +6,8 @@ export type BarProps = {
   bar: string,
 };
 
-export const Bar: ComponentType<BarProps> = ({ bar }) => <div>{bar}</div>;
+export const Bar: ComponentType<BarProps> = ({ bar }: BarProps) => (
+  <div>{bar}</div>
+);
 
 export default Bar;

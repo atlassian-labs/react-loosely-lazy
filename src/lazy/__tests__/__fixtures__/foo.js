@@ -6,6 +6,8 @@ export type FooProps = {
   foo: string,
 };
 
-export const Foo: ComponentType<FooProps> = ({ foo }) => <div>{foo}</div>;
+export const Foo: ComponentType<FooProps> = ({ foo }: FooProps) => (
+  <div>{foo}</div>
+);
 
 export default Foo;
