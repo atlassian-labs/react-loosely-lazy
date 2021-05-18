@@ -71,8 +71,10 @@ describe('hydrate without priority', () => {
       document.body.innerHTML = `<div>${ReactDOMServer.renderToString(
         <ServerApp />
       )}</div>`;
+
       // expect ssr to render content
       expect(document.body).toContainHTML('<p class="p">Content</p>');
+      expect(document.body.querySelector('input')).toBeInTheDocument();
 
       const {
         App: ClientApp,
@@ -83,20 +85,23 @@ describe('hydrate without priority', () => {
         ssr,
         hydrate,
       });
-      render(<ClientApp />, {
+
+      const { container } = render(<ClientApp />, {
         hydrate,
         container: document.body.firstChild as HTMLElement,
       });
+
       // expect client to use placeholder and persit ssr content
       expect(Child).not.toHaveBeenCalled();
-      expect(document.body).toContainHTML('<p class="p">Content</p>');
+      expect(container).toContainHTML('<p class="p">Content</p>');
+      expect(container.querySelector('input')).toBeInTheDocument();
 
       await act(resolveImport);
 
       // expect component to be live after being resolved
       expect(Child).toHaveBeenCalled();
-      expect(document.body).toContainHTML('<p class="p">Content</p>');
-      expect(document.body).not.toContainHTML('<input');
+      expect(container).toContainHTML('<p class="p">Content</p>');
+      expect(container.querySelector('input')).not.toBeInTheDocument();
     });
   });
 
@@ -108,8 +113,10 @@ describe('hydrate without priority', () => {
       document.body.innerHTML = `<div>${ReactDOMServer.renderToString(
         <ServerApp />
       )}</div>`;
+
       // expect ssr to render fallback
       expect(document.body).toContainHTML('<i>Fallback</i>');
+      expect(document.body.querySelector('input')).toBeInTheDocument();
 
       const {
         App: ClientApp,
@@ -122,7 +129,7 @@ describe('hydrate without priority', () => {
         hydrate,
       });
 
-      render(<ClientApp />, {
+      const { container } = render(<ClientApp />, {
         hydrate,
         container: document.body.firstChild as HTMLElement,
       });
@@ -130,14 +137,15 @@ describe('hydrate without priority', () => {
       // expect client to use live fallback ASAP
       expect(Child).not.toHaveBeenCalled();
       expect(Fallback).toHaveBeenCalled();
-      expect(document.body).toContainHTML('<i>Fallback</i>');
-      expect(document.body).not.toContainHTML('<input');
+      expect(container).toContainHTML('<i>Fallback</i>');
+      expect(container.querySelector('input')).not.toBeInTheDocument();
 
       await act(resolveImport);
 
       // expect component to be live after being resolved
       expect(Child).toHaveBeenCalled();
-      expect(document.body).toContainHTML('<p class="p">Content</p>');
+      expect(container).toContainHTML('<p class="p">Content</p>');
+      expect(container.querySelector('input')).not.toBeInTheDocument();
     });
   });
 });
@@ -153,6 +161,7 @@ describe('render without priority', () => {
       document.body.innerHTML = `<div>${ReactDOMServer.renderToString(
         <ServerApp />
       )}</div>`;
+
       // expect ssr to render content
       expect(document.body).toContainHTML('<p class="p">Content</p>');
 
@@ -165,20 +174,23 @@ describe('render without priority', () => {
         ssr,
         hydrate,
       });
-      render(<ClientApp />, {
+
+      const { container } = render(<ClientApp />, {
         hydrate,
         container: document.body.firstChild as HTMLElement,
       });
+
       // expect client to use placeholder and persit ssr content
       expect(Child).not.toHaveBeenCalled();
-      expect(document.body).toContainHTML('<p class="p">Content</p>');
+      expect(container).toContainHTML('<p class="p">Content</p>');
+      expect(container.querySelector('input')).toBeInTheDocument();
 
       await act(resolveImport);
 
       // expect component to be live after being resolved
       expect(Child).toHaveBeenCalled();
-      expect(document.body).toContainHTML('<p class="p">Content</p>');
-      expect(document.body).not.toContainHTML('<input');
+      expect(container).toContainHTML('<p class="p">Content</p>');
+      expect(container.querySelector('input')).not.toBeInTheDocument();
     });
   });
 
@@ -190,6 +202,7 @@ describe('render without priority', () => {
       document.body.innerHTML = `<div>${ReactDOMServer.renderToString(
         <ServerApp />
       )}</div>`;
+
       // expect ssr to render fallback
       expect(document.body).toContainHTML('<i>Fallback</i>');
 
@@ -203,21 +216,24 @@ describe('render without priority', () => {
         ssr,
         hydrate,
       });
-      render(<ClientApp />, {
+
+      const { container } = render(<ClientApp />, {
         hydrate,
         container: document.body.firstChild as HTMLElement,
       });
+
       // expect client to use live fallback ASAP
       expect(Child).not.toHaveBeenCalled();
       expect(Fallback).toHaveBeenCalled();
-      expect(document.body).toContainHTML('<i>Fallback</i>');
-      expect(document.body).not.toContainHTML('<input');
+      expect(container).toContainHTML('<i>Fallback</i>');
+      expect(container.querySelector('input')).not.toBeInTheDocument();
 
       await act(resolveImport);
 
       // expect component to be live after being resolved
       expect(Child).toHaveBeenCalled();
-      expect(document.body).toContainHTML('<p class="p">Content</p>');
+      expect(container).toContainHTML('<p class="p">Content</p>');
+      expect(container.querySelector('input')).not.toBeInTheDocument();
     });
   });
 });
@@ -254,6 +270,7 @@ describe('with static phase', () => {
           <ServerApp />
         </Wrapper>
       )}</div>`;
+
       // expect ssr to render content
       expect(document.body).toContainHTML('<p class="p">Content</p>');
 
@@ -267,7 +284,8 @@ describe('with static phase', () => {
         hydrate,
         phase: PHASE.AFTER_PAINT,
       });
-      const { rerender } = render(
+
+      const { container, rerender } = render(
         <Wrapper>
           <ClientApp />
         </Wrapper>,
@@ -281,7 +299,8 @@ describe('with static phase', () => {
 
       // expect client to use placeholder and persit ssr content regardless
       expect(Child).not.toHaveBeenCalled();
-      expect(document.body).toContainHTML('<p class="p">Content</p>');
+      expect(container).toContainHTML('<p class="p">Content</p>');
+      expect(container.querySelector('input')).toBeInTheDocument();
 
       rerender(
         <Wrapper phase={PHASE.AFTER_PAINT}>
@@ -292,8 +311,8 @@ describe('with static phase', () => {
 
       // expect component to be live after phase changed
       expect(Child).toHaveBeenCalled();
-      expect(document.body).toContainHTML('<p class="p">Content</p>');
-      expect(document.body).not.toContainHTML('<input');
+      expect(container).toContainHTML('<p class="p">Content</p>');
+      expect(container.querySelector('input')).not.toBeInTheDocument();
     });
   });
 
@@ -313,6 +332,7 @@ describe('with static phase', () => {
           <ServerApp />
         </Wrapper>
       )}</div>`;
+
       // expect ssr to render fallback
       expect(document.body).toContainHTML('<i>Fallback</i>');
 
@@ -327,7 +347,8 @@ describe('with static phase', () => {
         hydrate,
         phase: PHASE.AFTER_PAINT,
       });
-      const { rerender } = render(
+
+      const { container, rerender } = render(
         <Wrapper>
           <ClientApp />
         </Wrapper>,
@@ -343,8 +364,8 @@ describe('with static phase', () => {
       // expect client to use live fallback ASAP
       expect(Child).not.toHaveBeenCalled();
       expect(Fallback).toHaveBeenCalled();
-      expect(document.body).toContainHTML('<i>Fallback</i>');
-      expect(document.body).not.toContainHTML('<input');
+      expect(container).toContainHTML('<i>Fallback</i>');
+      expect(container.querySelector('input')).not.toBeInTheDocument();
 
       rerender(
         <Wrapper phase={PHASE.AFTER_PAINT}>
@@ -355,8 +376,8 @@ describe('with static phase', () => {
 
       // expect component to be live after phase changed
       expect(Child).toHaveBeenCalled();
-      expect(document.body).toContainHTML('<p class="p">Content</p>');
-      expect(document.body).not.toContainHTML('<input');
+      expect(container).toContainHTML('<p class="p">Content</p>');
+      expect(container.querySelector('input')).not.toBeInTheDocument();
     });
   });
 });
