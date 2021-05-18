@@ -25,5 +25,5 @@ export const setConfig = (nextConfig: Partial<Config>) => {
   config.crossOrigin = nextConfig.crossOrigin ?? DEFAULT_CROSS_ORIGIN;
   config.manifest = nextConfig.manifest ?? DEFAULT_MANIFEST;
   config.mode = nextConfig.mode ?? DEFAULT_MODE;
-  config.retry = 'retry' in nextConfig ? nextConfig.retry : DEFAULT_RETRY;
+  config.retry = nextConfig.retry ?? DEFAULT_RETRY;
 };
