@@ -97,6 +97,6 @@
     "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
-    "enhanced-resolve": "^5.8.0"
+    "enhanced-resolve": "^5.8.2"
   }
 }
