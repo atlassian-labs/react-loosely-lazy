@@ -3,7 +3,7 @@ import { listeners } from './constants';
 export const isServer = () => window.name === 'nodejs';
 
 export const controlLoad = <T>(result: T): Promise<T> => {
-  let resolve: (v?: T) => void;
+  let resolve: (v: T) => void;
   const deferred = new Promise<T>(r => {
     resolve = r;
   });
@@ -15,7 +15,7 @@ export const controlLoad = <T>(result: T): Promise<T> => {
 };
 
 export const controlFetch = <T>(result: T): Promise<T> => {
-  let resolve: (v?: T) => void;
+  let resolve: (v: T) => void;
   const deferred = new Promise<T>(r => {
     resolve = r;
   });
