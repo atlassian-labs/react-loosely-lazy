@@ -10,8 +10,9 @@ import LooselyLazy, {
   MODE,
 } from '..';
 import { PHASE } from '../constants';
-import { createMockImport, nextTick } from './utils';
 import { isNodeEnvironment } from '../utils';
+
+import { createMockImport, nextTick } from './test-utils';
 
 jest.mock('../utils', () => ({
   ...jest.requireActual<any>('../utils'),
