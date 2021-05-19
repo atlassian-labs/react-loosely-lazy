@@ -30,7 +30,7 @@
     "build:types-cjs": "npm run build:types-typescript -- --outDir lib/cjs && npm run copy:types-flow lib/cjs",
     "build:types-esm": "npm run build:types-typescript -- --outDir lib/esm && npm run copy:types-flow lib/esm",
     "build:types-typescript": "tsc --emitDeclarationOnly --project tsconfig.build.json",
-    "copy:types-flow": "rsync -R src/./index.js.flow src/./webpack/index.js.flow",
+    "copy:types-flow": "rsync -R src/./index.js.flow src/./manifest/index.js.flow src/./webpack/index.js.flow",
     "docs": "npx docsify-cli serve docs",
     "lint": "eslint --ext .ts,.tsx,.js .",
     "lint:fix": "npm run lint -- --fix",
