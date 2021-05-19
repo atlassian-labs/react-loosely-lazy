@@ -1,4 +1,4 @@
-import { createDefaultServerImport } from '../lazy/__tests__/utils';
+import { createDefaultServerImport } from '../lazy/__tests__/test-utils';
 
 export const createMockImport = (
   component: jest.Mock<JSX.Element, []>,

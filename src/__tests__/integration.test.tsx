@@ -10,8 +10,9 @@ import LooselyLazy, {
   MODE,
 } from '..';
 import { PHASE } from '../constants';
-import { createMockImport, nextTick } from './utils';
 import { isNodeEnvironment } from '../utils';
+
+import { createMockImport, nextTick } from './test-utils';
 
 jest.mock('../utils', () => ({
   ...jest.requireActual<any>('../utils'),
@@ -19,26 +20,25 @@ jest.mock('../utils', () => ({
 }));
 
 const createApp = ({
+  hydrate,
+  lazyMethod = lazyForPaint,
   server,
   ssr,
-  hydrate,
-  phase = undefined,
 }: {
+  hydrate: boolean;
+  lazyMethod?: typeof lazyForPaint;
   server: boolean;
   ssr: boolean;
-  hydrate: boolean;
-  phase?: number;
 }) => {
   (isNodeEnvironment as any).mockImplementation(() => server);
 
   const Child = jest.fn(() => <p className="p">Content</p>);
   const Fallback = jest.fn<any, void[]>(() => <i>Fallback</i>);
   const { mockImport, resolveImport } = createMockImport(Child, ssr && server);
-  const lazyFn = phase === PHASE.AFTER_PAINT ? lazyAfterPaint : lazyForPaint;
   // @ts-ignore - We are mocking the import
-  const AsyncComponent = lazyFn(() => mockImport, {
-    ssr,
+  const AsyncComponent = lazyMethod(() => mockImport, {
     moduleId: './mock',
+    ssr,
   });
 
   LooselyLazy.init({
@@ -51,195 +51,7 @@ const createApp = ({
     },
   });
 
-  const App = () => (
-    <LazySuspense fallback={<Fallback />}>
-      <AsyncComponent />
-    </LazySuspense>
-  );
-
-  return { App, resolveImport, Fallback, Child };
-};
-
-describe('hydrate without priority', () => {
-  const hydrate = true;
-
-  describe('with SSR', () => {
-    it('should render content in SSR, persist SSR output while loading, and finally replace', async () => {
-      const ssr = true;
-      const { App: ServerApp } = createApp({ server: true, ssr, hydrate });
-
-      document.body.innerHTML = `<div>${ReactDOMServer.renderToString(
-        <ServerApp />
-      )}</div>`;
-
-      // expect ssr to render content
-      expect(document.body).toContainHTML('<p class="p">Content</p>');
-      expect(document.body.querySelector('input')).toBeInTheDocument();
-
-      const {
-        App: ClientApp,
-        Child,
-        resolveImport,
-      } = createApp({
-        server: false,
-        ssr,
-        hydrate,
-      });
-
-      const { container } = render(<ClientApp />, {
-        hydrate,
-        container: document.body.firstChild as HTMLElement,
-      });
-
-      // expect client to use placeholder and persit ssr content
-      expect(Child).not.toHaveBeenCalled();
-      expect(container).toContainHTML('<p class="p">Content</p>');
-      expect(container.querySelector('input')).toBeInTheDocument();
-
-      await act(resolveImport);
-
-      // expect component to be live after being resolved
-      expect(Child).toHaveBeenCalled();
-      expect(container).toContainHTML('<p class="p">Content</p>');
-      expect(container.querySelector('input')).not.toBeInTheDocument();
-    });
-  });
-
-  describe('without SSR', () => {
-    it('should render fallback in SSR, persist SSR output initially, render fallback, and finally replace', async () => {
-      const ssr = false;
-      const { App: ServerApp } = createApp({ server: true, ssr, hydrate });
-
-      document.body.innerHTML = `<div>${ReactDOMServer.renderToString(
-        <ServerApp />
-      )}</div>`;
-
-      // expect ssr to render fallback
-      expect(document.body).toContainHTML('<i>Fallback</i>');
-      expect(document.body.querySelector('input')).toBeInTheDocument();
-
-      const {
-        App: ClientApp,
-        Fallback,
-        Child,
-        resolveImport,
-      } = createApp({
-        server: false,
-        ssr,
-        hydrate,
-      });
-
-      const { container } = render(<ClientApp />, {
-        hydrate,
-        container: document.body.firstChild as HTMLElement,
-      });
-
-      // expect client to use live fallback ASAP
-      expect(Child).not.toHaveBeenCalled();
-      expect(Fallback).toHaveBeenCalled();
-      expect(container).toContainHTML('<i>Fallback</i>');
-      expect(container.querySelector('input')).not.toBeInTheDocument();
-
-      await act(resolveImport);
-
-      // expect component to be live after being resolved
-      expect(Child).toHaveBeenCalled();
-      expect(container).toContainHTML('<p class="p">Content</p>');
-      expect(container.querySelector('input')).not.toBeInTheDocument();
-    });
-  });
-});
-
-describe('render without priority', () => {
-  const hydrate = false;
-
-  describe('with SSR', () => {
-    it('should render content in SSR, persist SSR output while loading, and finally replace', async () => {
-      const ssr = true;
-      const { App: ServerApp } = createApp({ server: true, ssr, hydrate });
-
-      document.body.innerHTML = `<div>${ReactDOMServer.renderToString(
-        <ServerApp />
-      )}</div>`;
-
-      // expect ssr to render content
-      expect(document.body).toContainHTML('<p class="p">Content</p>');
-
-      const {
-        App: ClientApp,
-        Child,
-        resolveImport,
-      } = createApp({
-        server: false,
-        ssr,
-        hydrate,
-      });
-
-      const { container } = render(<ClientApp />, {
-        hydrate,
-        container: document.body.firstChild as HTMLElement,
-      });
-
-      // expect client to use placeholder and persit ssr content
-      expect(Child).not.toHaveBeenCalled();
-      expect(container).toContainHTML('<p class="p">Content</p>');
-      expect(container.querySelector('input')).toBeInTheDocument();
-
-      await act(resolveImport);
-
-      // expect component to be live after being resolved
-      expect(Child).toHaveBeenCalled();
-      expect(container).toContainHTML('<p class="p">Content</p>');
-      expect(container.querySelector('input')).not.toBeInTheDocument();
-    });
-  });
-
-  describe('without SSR', () => {
-    it('should render fallback in SSR, render fallback asap, and finally replace', async () => {
-      const ssr = false;
-      const { App: ServerApp } = createApp({ server: true, ssr, hydrate });
-
-      document.body.innerHTML = `<div>${ReactDOMServer.renderToString(
-        <ServerApp />
-      )}</div>`;
-
-      // expect ssr to render fallback
-      expect(document.body).toContainHTML('<i>Fallback</i>');
-
-      const {
-        App: ClientApp,
-        Fallback,
-        Child,
-        resolveImport,
-      } = createApp({
-        server: false,
-        ssr,
-        hydrate,
-      });
-
-      const { container } = render(<ClientApp />, {
-        hydrate,
-        container: document.body.firstChild as HTMLElement,
-      });
-
-      // expect client to use live fallback ASAP
-      expect(Child).not.toHaveBeenCalled();
-      expect(Fallback).toHaveBeenCalled();
-      expect(container).toContainHTML('<i>Fallback</i>');
-      expect(container.querySelector('input')).not.toBeInTheDocument();
-
-      await act(resolveImport);
-
-      // expect component to be live after being resolved
-      expect(Child).toHaveBeenCalled();
-      expect(container).toContainHTML('<p class="p">Content</p>');
-      expect(container.querySelector('input')).not.toBeInTheDocument();
-    });
-  });
-});
-
-describe('with static phase', () => {
-  const Wrapper = ({
+  const PhaseManager = ({
     children,
     phase,
   }: {
@@ -254,130 +66,331 @@ describe('with static phase', () => {
     return children;
   };
 
-  describe('with SSR', () => {
-    it('should render content in SSR, persist SSR output while loading, and finally replace', async () => {
-      const hydrate = true;
+  const App = ({ phase }: { phase?: number }) => (
+    <PhaseManager phase={phase}>
+      <LazySuspense fallback={<Fallback />}>
+        <AsyncComponent />
+      </LazySuspense>
+    </PhaseManager>
+  );
+
+  return { App, resolveImport, Fallback, Child };
+};
+
+describe('hydrates', () => {
+  const hydrate = true;
+
+  describe('a lazyForPaint component', () => {
+    describe('when ssr is true', () => {
       const ssr = true;
-      const { App: ServerApp } = createApp({
-        server: true,
-        ssr,
-        hydrate,
-        phase: PHASE.AFTER_PAINT,
-      });
 
-      document.body.innerHTML = `<div>${ReactDOMServer.renderToString(
-        <Wrapper>
-          <ServerApp />
-        </Wrapper>
-      )}</div>`;
-
-      // expect ssr to render content
-      expect(document.body).toContainHTML('<p class="p">Content</p>');
-
-      const {
-        App: ClientApp,
-        Child,
-        resolveImport,
-      } = createApp({
-        server: false,
-        ssr,
-        hydrate,
-        phase: PHASE.AFTER_PAINT,
-      });
-
-      const { container, rerender } = render(
-        <Wrapper>
-          <ClientApp />
-        </Wrapper>,
-        {
+      it('by rendering and persisting the server content, before replacing', async () => {
+        const { App: ServerApp } = createApp({
           hydrate,
-          container: document.body.firstChild as HTMLElement,
-        }
-      );
-      // simulate component being ready on next tick
-      await act(resolveImport);
+          server: true,
+          ssr,
+        });
 
-      // expect client to use placeholder and persit ssr content regardless
-      expect(Child).not.toHaveBeenCalled();
-      expect(container).toContainHTML('<p class="p">Content</p>');
-      expect(container.querySelector('input')).toBeInTheDocument();
+        document.body.innerHTML = `
+          <div id="root">${ReactDOMServer.renderToString(<ServerApp />)}</div>
+        `;
 
-      rerender(
-        <Wrapper phase={PHASE.AFTER_PAINT}>
-          <ClientApp />
-        </Wrapper>
-      );
-      await nextTick();
+        // expect ssr to render content
+        expect(document.body).toContainHTML('<p class="p">Content</p>');
+        expect(document.body.querySelector('input')).toBeInTheDocument();
 
-      // expect component to be live after phase changed
-      expect(Child).toHaveBeenCalled();
-      expect(container).toContainHTML('<p class="p">Content</p>');
-      expect(container.querySelector('input')).not.toBeInTheDocument();
+        const {
+          App: ClientApp,
+          Child,
+          resolveImport,
+        } = createApp({
+          hydrate,
+          server: false,
+          ssr,
+        });
+
+        const { container } = render(<ClientApp />, {
+          container: document.getElementById('root') as HTMLElement,
+          hydrate,
+        });
+
+        // expect client to use placeholder and persist ssr content
+        expect(Child).not.toHaveBeenCalled();
+        expect(container).toContainHTML('<p class="p">Content</p>');
+        expect(container.querySelector('input')).toBeInTheDocument();
+
+        await act(resolveImport);
+
+        // expect component to be live after being resolved
+        expect(Child).toHaveBeenCalled();
+        expect(container).toContainHTML('<p class="p">Content</p>');
+        expect(container.querySelector('input')).not.toBeInTheDocument();
+      });
+    });
+
+    describe('when ssr is false', () => {
+      const ssr = false;
+
+      it('by rendering the server fallback, before rendering the fallback and replacing', async () => {
+        const { App: ServerApp } = createApp({
+          hydrate,
+          server: true,
+          ssr,
+        });
+
+        document.body.innerHTML = `
+          <div id="root">${ReactDOMServer.renderToString(<ServerApp />)}</div>
+        `;
+
+        // expect ssr to render fallback
+        expect(document.body).toContainHTML('<i>Fallback</i>');
+        expect(document.body.querySelector('input')).toBeInTheDocument();
+
+        const {
+          App: ClientApp,
+          Child,
+          Fallback,
+          resolveImport,
+        } = createApp({
+          hydrate,
+          server: false,
+          ssr,
+        });
+
+        const { container } = render(<ClientApp />, {
+          container: document.getElementById('root') as HTMLElement,
+          hydrate,
+        });
+
+        // expect client to use live fallback ASAP
+        expect(Child).not.toHaveBeenCalled();
+        expect(Fallback).toHaveBeenCalled();
+        expect(container).toContainHTML('<i>Fallback</i>');
+        expect(container.querySelector('input')).not.toBeInTheDocument();
+
+        await act(resolveImport);
+
+        // expect component to be live after being resolved
+        expect(Child).toHaveBeenCalled();
+        expect(container).toContainHTML('<p class="p">Content</p>');
+        expect(container.querySelector('input')).not.toBeInTheDocument();
+      });
     });
   });
 
-  describe('without SSR', () => {
-    it('should render fallback in SSR, render fallback asap, and finally replace', async () => {
-      const hydrate = true;
-      const ssr = false;
-      const { App: ServerApp } = createApp({
-        server: true,
-        ssr,
-        hydrate,
-        phase: PHASE.AFTER_PAINT,
-      });
+  describe('a lazyAfterPaint component', () => {
+    const lazyMethod = lazyAfterPaint;
 
-      document.body.innerHTML = `<div>${ReactDOMServer.renderToString(
-        <Wrapper>
-          <ServerApp />
-        </Wrapper>
-      )}</div>`;
+    describe('when ssr is true', () => {
+      const ssr = true;
 
-      // expect ssr to render fallback
-      expect(document.body).toContainHTML('<i>Fallback</i>');
-
-      const {
-        App: ClientApp,
-        Fallback,
-        Child,
-        resolveImport,
-      } = createApp({
-        server: false,
-        ssr,
-        hydrate,
-        phase: PHASE.AFTER_PAINT,
-      });
-
-      const { container, rerender } = render(
-        <Wrapper>
-          <ClientApp />
-        </Wrapper>,
-        {
+      it('by rendering and persisting the server content, before replacing', async () => {
+        const { App: ServerApp } = createApp({
           hydrate,
-          container: document.body.firstChild as HTMLElement,
-        }
-      );
+          lazyMethod,
+          server: true,
+          ssr,
+        });
 
-      // simulate component being ready on next tick
-      await act(resolveImport);
+        document.body.innerHTML = `
+          <div id="root">${ReactDOMServer.renderToString(<ServerApp />)}</div>
+        `;
 
-      // expect client to use live fallback ASAP
-      expect(Child).not.toHaveBeenCalled();
-      expect(Fallback).toHaveBeenCalled();
-      expect(container).toContainHTML('<i>Fallback</i>');
-      expect(container.querySelector('input')).not.toBeInTheDocument();
+        // expect ssr to render content
+        expect(document.body).toContainHTML('<p class="p">Content</p>');
+        expect(document.body.querySelector('input')).toBeInTheDocument();
 
-      rerender(
-        <Wrapper phase={PHASE.AFTER_PAINT}>
-          <ClientApp />
-        </Wrapper>
-      );
-      await nextTick();
+        const {
+          App: ClientApp,
+          Child,
+          resolveImport,
+        } = createApp({
+          hydrate,
+          lazyMethod,
+          server: false,
+          ssr,
+        });
 
-      // expect component to be live after phase changed
-      expect(Child).toHaveBeenCalled();
-      expect(container).toContainHTML('<p class="p">Content</p>');
-      expect(container.querySelector('input')).not.toBeInTheDocument();
+        const { container, rerender } = render(<ClientApp />, {
+          container: document.getElementById('root') as HTMLElement,
+          hydrate,
+        });
+
+        // simulate component being ready on next tick
+        await act(resolveImport);
+
+        // expect client to use placeholder and persist ssr content regardless
+        expect(Child).not.toHaveBeenCalled();
+        expect(container).toContainHTML('<p class="p">Content</p>');
+        expect(container.querySelector('input')).toBeInTheDocument();
+
+        rerender(<ClientApp phase={PHASE.AFTER_PAINT} />);
+
+        await nextTick();
+
+        // expect component to be live after phase changed
+        expect(Child).toHaveBeenCalled();
+        expect(container).toContainHTML('<p class="p">Content</p>');
+        expect(container.querySelector('input')).not.toBeInTheDocument();
+      });
+    });
+
+    describe('when ssr is false', () => {
+      const ssr = false;
+
+      it('by rendering the server fallback, before rendering the fallback and replacing', async () => {
+        const { App: ServerApp } = createApp({
+          hydrate,
+          lazyMethod,
+          server: true,
+          ssr,
+        });
+
+        document.body.innerHTML = `
+          <div id="root">${ReactDOMServer.renderToString(<ServerApp />)}</div>
+        `;
+
+        // expect ssr to render fallback
+        expect(document.body).toContainHTML('<i>Fallback</i>');
+        expect(document.body.querySelector('input')).toBeInTheDocument();
+
+        const {
+          App: ClientApp,
+          Child,
+          Fallback,
+          resolveImport,
+        } = createApp({
+          hydrate,
+          lazyMethod,
+          server: false,
+          ssr,
+        });
+
+        const { container, rerender } = render(<ClientApp />, {
+          container: document.getElementById('root') as HTMLElement,
+          hydrate,
+        });
+
+        // simulate component being ready on next tick
+        await act(resolveImport);
+
+        // expect client to use live fallback ASAP
+        expect(Child).not.toHaveBeenCalled();
+        expect(Fallback).toHaveBeenCalled();
+        expect(container).toContainHTML('<i>Fallback</i>');
+        expect(container.querySelector('input')).not.toBeInTheDocument();
+
+        rerender(<ClientApp phase={PHASE.AFTER_PAINT} />);
+
+        await nextTick();
+
+        // expect component to be live after phase changed
+        expect(Child).toHaveBeenCalled();
+        expect(container).toContainHTML('<p class="p">Content</p>');
+        expect(container.querySelector('input')).not.toBeInTheDocument();
+      });
+    });
+  });
+});
+
+describe('renders', () => {
+  const hydrate = false;
+
+  describe('a lazyForPaint component', () => {
+    describe('when ssr is true', () => {
+      const ssr = true;
+
+      it('by rendering and persisting the server content, before replacing', async () => {
+        const { App: ServerApp } = createApp({
+          hydrate,
+          server: true,
+          ssr,
+        });
+
+        document.body.innerHTML = `
+          <div id="root">${ReactDOMServer.renderToString(<ServerApp />)}</div>
+        `;
+
+        // expect ssr to render content
+        expect(document.body).toContainHTML('<p class="p">Content</p>');
+        expect(document.body.querySelector('input')).toBeInTheDocument();
+
+        const {
+          App: ClientApp,
+          Child,
+          resolveImport,
+        } = createApp({
+          hydrate,
+          server: false,
+          ssr,
+        });
+
+        const { container } = render(<ClientApp />, {
+          container: document.getElementById('root') as HTMLElement,
+          hydrate,
+        });
+
+        // expect client to use placeholder and persist ssr content
+        expect(Child).not.toHaveBeenCalled();
+        expect(container).toContainHTML('<p class="p">Content</p>');
+        expect(container.querySelector('input')).toBeInTheDocument();
+
+        await act(resolveImport);
+
+        // expect component to be live after being resolved
+        expect(Child).toHaveBeenCalled();
+        expect(container).toContainHTML('<p class="p">Content</p>');
+        expect(container.querySelector('input')).not.toBeInTheDocument();
+      });
+    });
+
+    describe('when ssr is false', () => {
+      const ssr = false;
+
+      it('by rendering the server fallback, before rendering the fallback and replacing', async () => {
+        const { App: ServerApp } = createApp({
+          hydrate,
+          server: true,
+          ssr,
+        });
+
+        document.body.innerHTML = `
+          <div id="root">${ReactDOMServer.renderToString(<ServerApp />)}</div>
+        `;
+
+        // expect ssr to render fallback
+        expect(document.body).toContainHTML('<i>Fallback</i>');
+        expect(document.body.querySelector('input')).toBeInTheDocument();
+
+        const {
+          App: ClientApp,
+          Child,
+          Fallback,
+          resolveImport,
+        } = createApp({
+          hydrate,
+          server: false,
+          ssr,
+        });
+
+        const { container } = render(<ClientApp />, {
+          container: document.getElementById('root') as HTMLElement,
+          hydrate,
+        });
+
+        // expect client to use live fallback ASAP
+        expect(Child).not.toHaveBeenCalled();
+        expect(Fallback).toHaveBeenCalled();
+        expect(container).toContainHTML('<i>Fallback</i>');
+        expect(container.querySelector('input')).not.toBeInTheDocument();
+
+        await act(resolveImport);
+
+        // expect component to be live after being resolved
+        expect(Child).toHaveBeenCalled();
+        expect(container).toContainHTML('<p class="p">Content</p>');
+        expect(container.querySelector('input')).not.toBeInTheDocument();
+      });
     });
   });
 });

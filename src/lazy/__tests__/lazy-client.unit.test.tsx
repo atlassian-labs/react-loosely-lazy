@@ -13,7 +13,7 @@ import {
   testFallbackRender,
   testRender,
   TestRenderOptions,
-} from './utils';
+} from './test-utils';
 
 jest.mock('../../utils', () => ({
   ...jest.requireActual<any>('../../utils'),
