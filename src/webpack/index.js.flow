@@ -1,17 +1,11 @@
 // @flow strict
 
-import type { Asset, Manifest } from '..';
-
 export type ReactLooselyLazyPluginOptions = {
   filename: string,
+  publicPath?: string,
 };
 
 declare export class ReactLooselyLazyPlugin {
   constructor(opts: ReactLooselyLazyPluginOptions): ReactLooselyLazyPlugin;
   apply(compiler: {}): void;
 }
-
-declare export function getAssets(
-  manifest: Manifest,
-  moduleIds: string[]
-): Asset[];

@@ -3,7 +3,7 @@ This function retrieves the list of assets urls given a manifest and the asset i
 
 ## Example
 ```jsx
-import { getAssetUrlsFromId } from 'react-loosely-lazy';
+import { getAssetUrlsFromId } from 'react-loosely-lazy/manifest';
 
 const manifest = {
   publicPath: '/',
