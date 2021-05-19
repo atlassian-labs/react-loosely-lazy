@@ -8,7 +8,6 @@ module.exports = {
     'eslint:recommended',
     'plugin:react/recommended',
     'plugin:prettier/recommended',
-    'prettier/react',
   ],
   parserOptions: {
     ecmaFeatures: {
@@ -78,10 +77,7 @@ module.exports = {
     {
       // TypeScript specific rules
       files: ['*.{ts,tsx}'],
-      extends: [
-        'plugin:@typescript-eslint/recommended',
-        'prettier/@typescript-eslint',
-      ],
+      extends: ['plugin:@typescript-eslint/recommended'],
       rules: {
         '@typescript-eslint/ban-ts-comment': [
           'error',

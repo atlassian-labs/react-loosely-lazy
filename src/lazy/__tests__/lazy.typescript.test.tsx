@@ -2,8 +2,8 @@ import React, { ComponentType } from 'react';
 import { lazyForPaint, PRIORITY } from 'react-loosely-lazy';
 import { FooProps } from './__fixtures__/foo';
 
-const UntypedEmptyPropsTestComponent = lazyForPaint(() =>
-  import('./__fixtures__/empty-props')
+const UntypedEmptyPropsTestComponent = lazyForPaint(
+  () => import('./__fixtures__/empty-props')
 );
 
 <UntypedEmptyPropsTestComponent />;
@@ -12,8 +12,8 @@ const UntypedEmptyPropsTestComponent = lazyForPaint(() =>
 <UntypedEmptyPropsTestComponent foo="foo" />;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-const TypedEmptyPropsTestComponent = lazyForPaint<ComponentType<{}>>(() =>
-  import('./__fixtures__/empty-props')
+const TypedEmptyPropsTestComponent = lazyForPaint<ComponentType<{}>>(
+  () => import('./__fixtures__/empty-props')
 );
 
 <TypedEmptyPropsTestComponent />;
@@ -40,8 +40,8 @@ const NamedTypedEmptyPropsTestComponent = lazyForPaint<ComponentType<{}>>(() =>
 // @ts-expect-error foo prop is not allowed
 <NamedTypedEmptyPropsTestComponent foo="foo" />;
 
-const UntypedPropsTestComponent = lazyForPaint(() =>
-  import('./__fixtures__/foo')
+const UntypedPropsTestComponent = lazyForPaint(
+  () => import('./__fixtures__/foo')
 );
 
 // @ts-expect-error foo prop is missing
@@ -52,8 +52,8 @@ const UntypedPropsTestComponent = lazyForPaint(() =>
 // @ts-expect-error bar prop is not allowed
 <UntypedPropsTestComponent foo="foo" bar="bar" />;
 
-const TypedPropsTestComponent = lazyForPaint<ComponentType<FooProps>>(() =>
-  import('./__fixtures__/foo')
+const TypedPropsTestComponent = lazyForPaint<ComponentType<FooProps>>(
+  () => import('./__fixtures__/foo')
 );
 
 // @ts-expect-error foo prop is missing
@@ -88,9 +88,10 @@ const NamedTypedPropsTestComponent = lazyForPaint<ComponentType<FooProps>>(() =>
 // @ts-expect-error bar prop is not allowed
 <NamedTypedPropsTestComponent foo="foo" bar="bar" />;
 
-const MixedTypedPropsTestComponent = lazyForPaint<ComponentType<FooProps>>(() =>
-  // @ts-expect-error FooProps and BarProps do not match
-  import('./__fixtures__/bar')
+const MixedTypedPropsTestComponent = lazyForPaint<ComponentType<FooProps>>(
+  () =>
+    // @ts-expect-error FooProps and BarProps do not match
+    import('./__fixtures__/bar')
 );
 
 const NamedMixedTypedPropsTestComponent = lazyForPaint<ComponentType<FooProps>>(
@@ -99,8 +100,8 @@ const NamedMixedTypedPropsTestComponent = lazyForPaint<ComponentType<FooProps>>(
     import('./__fixtures__/bar').then(({ Bar }) => Bar)
 );
 
-const TestComponent = lazyForPaint<ComponentType<FooProps>>(() =>
-  import('./__fixtures__/foo')
+const TestComponent = lazyForPaint<ComponentType<FooProps>>(
+  () => import('./__fixtures__/foo')
 );
 
 TestComponent.getAssetUrls();
