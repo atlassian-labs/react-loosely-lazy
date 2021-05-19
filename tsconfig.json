@@ -15,7 +15,8 @@
     "baseUrl": ".",
     "paths": {
       "react-loosely-lazy": ["src"],
-      "react-loosely-lazy/babel-plugin": ["src/babel"]
+      "react-loosely-lazy/babel-plugin": ["src/babel"],
+      "react-loosely-lazy/manifest": ["src/manifest"]
     }
   },
   "include": ["src/**/*", "examples/**/*"]

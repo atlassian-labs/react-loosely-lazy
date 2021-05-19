@@ -1,5 +1,5 @@
 import { MODE, PRIORITY } from './constants';
-import { Manifest } from './manifest';
+import type { Manifest } from './manifest';
 
 export type PreloadPriority = typeof PRIORITY.HIGH | typeof PRIORITY.LOW;
 

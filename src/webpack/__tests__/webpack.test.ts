@@ -4,7 +4,8 @@
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import path from 'path';
 import webpack, { Stats } from 'webpack';
-import { Manifest, ReactLooselyLazyPlugin } from '../';
+import type { Manifest } from '../../manifest';
+import { ReactLooselyLazyPlugin } from '../';
 
 describe('ReactLooselyLazyPlugin', () => {
   const testPlugin = async ({ publicPath }: { publicPath?: string } = {}) => {

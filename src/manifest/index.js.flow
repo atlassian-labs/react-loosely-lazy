@@ -1,0 +1,15 @@
+// @flow strict
+
+export type Asset = string;
+
+export type Manifest = {
+  publicPath: string,
+  assets: {
+    [id: string]: Asset[],
+  },
+};
+
+declare export function getAssetUrlsFromId(
+  manifest: Manifest,
+  id: string
+): Asset[] | void;

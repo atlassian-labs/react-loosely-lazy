@@ -1,6 +1,5 @@
 import { Compiler, compilation as webpackCompilation } from 'webpack';
 import { PACKAGE_NAME } from '../constants';
-import { Asset, Manifest } from '../manifest';
 import { buildManifest } from './utils';
 
 type Parser = webpackCompilation.normalModuleFactory.Parser;
@@ -124,5 +123,3 @@ export class ReactLooselyLazyPlugin {
     });
   }
 }
-
-export type { Asset, Manifest };

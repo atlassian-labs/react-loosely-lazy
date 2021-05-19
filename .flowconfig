@@ -11,6 +11,7 @@
 exact_by_default=true
 include_warnings=true
 module.name_mapper='^react-loosely-lazy' ->'<PROJECT_ROOT>/src'
+module.name_mapper='^react-loosely-lazy/manifest' ->'<PROJECT_ROOT>/src/manifest'
 server.max_workers=1
 
 [strict]

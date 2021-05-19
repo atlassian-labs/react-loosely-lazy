@@ -1,15 +1,10 @@
 // @flow strict
 
 import type { ComponentType, ElementConfig, Node } from 'react';
+import type { Manifest } from './manifest';
 
-export type Asset = string;
-
-export type Manifest = {
-  publicPath: string,
-  assets: {
-    [id: string]: Asset[],
-  },
-};
+export { getAssetUrlsFromId } from './manifest';
+export type { Asset, Manifest } from './manifest';
 
 declare export var MODE: {
   RENDER: string,
@@ -92,10 +87,5 @@ declare export function useLazyPhase(): {
   startNextPhase(): void,
   resetPhase(): void,
 };
-
-declare export function getAssetUrlsFromId(
-  manifest: Manifest,
-  id: string
-): Asset[] | void;
 
 declare export function isLoaderError(error: mixed): boolean;
