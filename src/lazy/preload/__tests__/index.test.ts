@@ -4,8 +4,8 @@ import {
   loaderPreloadStrategy,
   manifestPreloadStrategy,
   webpackPreloadStrategy,
-  Cleanup,
 } from '..';
+import type { Cleanup } from '..';
 
 let head: string;
 

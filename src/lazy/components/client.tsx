@@ -5,18 +5,21 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 
+import { getConfig } from '../../config';
 import { COLLECTED, MODE, PHASE, PRIORITY } from '../../constants';
+import { useUntil } from '../../lazy-wait';
 import { LazySuspenseContext } from '../../suspense';
 import { usePhaseSubscription } from '../../phase';
+
 import { Deferred } from '../deferred';
 import { createLoaderError } from '../errors';
 import { PlaceholderFallbackRender } from '../placeholders/render';
 import { PlaceholderFallbackHydrate } from '../placeholders/hydrate';
 import { preloadAsset } from '../preload';
-import { getConfig } from '../../config';
 
 export function createComponentClient<C extends ComponentType<any>>({
   defer,
@@ -35,22 +38,39 @@ export function createComponentClient<C extends ComponentType<any>>({
 
   return (props: ComponentProps<C>) => {
     const { setFallback } = useContext(LazySuspenseContext);
+    const started = useRef(false);
     const [, setState] = useState();
+    const until = useUntil();
 
-    if (defer !== PHASE.LAZY) {
+    const load = useRef(() => {
+      if (started.current) {
+        return;
+      }
+
+      started.current = true;
+      deferred.start().catch((err: Error) => {
+        // Throw the error within the component lifecycle
+        // refer to https://github.com/facebook/react/issues/11409
+        setState(() => {
+          throw createLoaderError(err);
+        });
+      });
+    });
+
+    if (defer === PHASE.LAZY) {
+      useEffect(() => {
+        if (until) {
+          load.current();
+        }
+      }, [until]);
+    } else {
       const isOwnPhase = usePhaseSubscription(defer);
 
       useMemo(() => {
-        if (isOwnPhase) {
-          deferred.start().catch((err: Error) => {
-            // Throw the error within the component lifecycle
-            // refer to https://github.com/facebook/react/issues/11409
-            setState(() => {
-              throw createLoaderError(err);
-            });
-          });
+        if (isOwnPhase && until) {
+          load.current();
         }
-      }, [isOwnPhase]);
+      }, [isOwnPhase, until]);
 
       if (defer === PHASE.AFTER_PAINT) {
         // Start preloading as will be needed soon
@@ -64,16 +84,6 @@ export function createComponentClient<C extends ComponentType<any>>({
           }
         }, [isOwnPhase]);
       }
-    } else {
-      useEffect(() => {
-        deferred.start().catch((err: Error) => {
-          // Throw the error within the component lifecycle
-          // refer to https://github.com/facebook/react/issues/11409
-          setState(() => {
-            throw createLoaderError(err);
-          });
-        });
-      }, []);
     }
 
     useMemo(() => {

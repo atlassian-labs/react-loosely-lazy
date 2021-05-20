@@ -1,9 +1,8 @@
-import React, { useContext, useMemo, useRef, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 
-import { PHASE } from '../constants';
-import { LazyPhaseContext, createSubscribe } from '../phase';
-import type { Listener } from '../phase';
+import { UntilContext } from './context';
+import type { UntilSubscriber } from './context';
 
 export type LazyWaitProps = {
   until: boolean;
@@ -11,33 +10,46 @@ export type LazyWaitProps = {
 };
 
 export const LazyWait = ({ until, children }: LazyWaitProps) => {
-  const { api: ctxApi } = useContext(LazyPhaseContext);
-  const phaseRef = useRef(-1);
+  const closestUntil = useContext(UntilContext);
+  const untilProp = useRef(until);
+  const value = useRef(until && closestUntil.value.current);
+  const subscribers = useRef<Set<UntilSubscriber>>(new Set());
+  const api = useRef({
+    subscribe: (subscriber: UntilSubscriber) => {
+      subscribers.current.add(subscriber);
 
-  phaseRef.current = until ? PHASE.LAZY : -1;
+      return () => {
+        subscribers.current.delete(subscriber);
+      };
+    },
+    value,
+  });
 
-  const { current: listeners } = useRef<Listener[]>([]);
-
-  const api = useMemo(
-    () => ({
-      subscribe: createSubscribe(listeners),
-      currentPhase: () => phaseRef.current,
-      api: ctxApi,
-    }),
-    [listeners, ctxApi, phaseRef]
-  );
+  untilProp.current = until;
 
   useEffect(() => {
-    // Notify all children of phase change
-    listeners.slice(0).forEach((listener: Listener) => {
-      listener(phaseRef.current);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [listeners, phaseRef.current]);
+    // Notify subscribers when until prop changes
+    value.current = closestUntil.value.current && until;
+    for (const subscriber of subscribers.current) {
+      subscriber(value.current);
+    }
+  }, [closestUntil, until]);
+
+  useEffect(
+    () =>
+      // Subscribe to the closest subscribable, and when it updates notify all current subscribers
+      closestUntil.subscribe(nextUntil => {
+        value.current = nextUntil && untilProp.current;
+        for (const subscriber of subscribers.current) {
+          subscriber(value.current);
+        }
+      }),
+    [closestUntil]
+  );
 
   return (
-    <LazyPhaseContext.Provider value={api}>
+    <UntilContext.Provider value={api.current}>
       {children}
-    </LazyPhaseContext.Provider>
+    </UntilContext.Provider>
   );
 };

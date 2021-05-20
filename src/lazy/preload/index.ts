@@ -1,3 +1,5 @@
+import { noopCleanup } from '../../cleanup';
+import type { Cleanup } from '../../cleanup';
 import { getConfig } from '../../config';
 import { PRIORITY } from '../../constants';
 import { getAssetUrlsFromId } from '../../manifest';
@@ -6,18 +8,18 @@ import { isNodeEnvironment } from '../../utils';
 
 import { Loader } from '../loader';
 
-import { insertLinkTag, noopCleanup } from './utils';
+import { insertLinkTag } from './utils';
 
 declare const __webpack_require__: any;
 declare function __webpack_get_script_filename__(chunkId: string): string;
+
+export type { Cleanup };
 
 type PreloadStrategyOptions = {
   loader: Loader<unknown>;
   moduleId: string;
   rel: string;
 };
-
-export type Cleanup = () => void;
 
 export function manifestPreloadStrategy({
   moduleId,
