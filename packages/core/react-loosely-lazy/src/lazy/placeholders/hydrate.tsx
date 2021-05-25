@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { createElement, Fragment } from 'react';
 import { attrToProp } from '../../utils';
 
 export type PlaceholderFallbackHydrateProps = {
@@ -19,15 +19,14 @@ export const PlaceholderFallbackHydrate = ({
           key: String(i),
         });
         // text node
-        if (!tagName)
-          return React.createElement(Fragment, props, el.textContent);
+        if (!tagName) return createElement(Fragment, props, el.textContent);
 
         // childless tag
         if (!childNodes.length)
-          return React.createElement(tagName.toLowerCase(), props);
+          return createElement(tagName.toLowerCase(), props);
 
         // tag with content
-        return React.createElement(tagName.toLowerCase(), {
+        return createElement(tagName.toLowerCase(), {
           ...props,
           dangerouslySetInnerHTML: { __html: '' },
           suppressHydrationWarning: true,

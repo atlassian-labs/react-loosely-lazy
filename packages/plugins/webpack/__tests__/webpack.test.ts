@@ -4,7 +4,7 @@
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import { join, relative } from 'path';
 import type { Manifest } from 'react-loosely-lazy/manifest';
-import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
+import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
 import webpack, { Stats } from 'webpack';
 
 import { ReactLooselyLazyPlugin } from '../src';

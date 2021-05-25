@@ -1,6 +1,6 @@
 import React, { useState, useEffect, FunctionComponent } from 'react';
-import ReactDOM from 'react-dom';
-import ReactDOMServer from 'react-dom/server';
+import { hydrate, render } from 'react-dom';
+import { renderToString } from 'react-dom/server';
 
 import { useLazyPhase, MODE } from 'react-loosely-lazy';
 import { listeners, steps, pastSteps } from './constants';
@@ -104,20 +104,19 @@ const renderApp = (v: string) => {
 
   if (v === 'SSR' && appContainer && !isFailSsr) {
     const components = buildServerComponents(mode);
-    const ssr = ReactDOMServer.renderToString(
-      <App initialStep={v} components={components} />
-    );
+    const ssr = renderToString(<App initialStep={v} components={components} />);
     appContainer.innerHTML = isRender ? `<div>${ssr}</div>` : ssr;
   }
   if (v === 'PAINT LOADING') {
     const components = buildClientComponents(mode);
-    ReactDOM[isRender ? 'render' : 'hydrate'](
-      <App initialStep={v} components={components} />,
-      appContainer
-    );
+    if (isRender) {
+      render(<App initialStep={v} components={components} />, appContainer);
+    } else {
+      hydrate(<App initialStep={v} components={components} />, appContainer);
+    }
   }
 };
 
 listeners.add(renderApp);
 
-ReactDOM.render(<Controls />, document.querySelector('#controls'));
+render(<Controls />, document.querySelector('#controls'));

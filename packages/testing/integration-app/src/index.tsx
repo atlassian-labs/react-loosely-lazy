@@ -63,6 +63,7 @@ const LazyNested = lazyForPaint(
 const LazyCustomAlias = lazyForPaint(
   () =>
     // @ts-ignore This is a defined webpack alias
+    // eslint-disable-next-line import/no-unresolved
     import(/* webpackChunkName: "async-custom-alias" */ 'custom-alias')
 );
 
