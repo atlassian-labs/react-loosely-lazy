@@ -1,5 +1,5 @@
 {
-  "main": "../lib/cjs/babel/index.js",
-  "module": "../lib/esm/babel/index.js",
-  "types": "../lib/cjs/babel/index.d.ts"
+  "main": "../dist/babel-plugin/cjs/index.js",
+  "module": "../dist/babel-plugin/esm/index.js",
+  "types": "../dist/babel-plugin/types/index.d.ts"
 }

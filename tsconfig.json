@@ -1,23 +1,22 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "declaration": true,
-    "outDir": "lib",
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "strict": true,
-    "preserveConstEnums": true,
-    "jsx": "preserve",
-    "typeRoots": ["./node_modules/@types", "types"],
     "baseUrl": ".",
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "module": "esnext",
+    "moduleResolution": "node",
     "paths": {
-      "react-loosely-lazy": ["src"],
-      "react-loosely-lazy/babel-plugin": ["src/babel"],
-      "react-loosely-lazy/manifest": ["src/manifest"]
-    }
+      "react-loosely-lazy": ["packages/core/react-loosely-lazy/src/index.ts"],
+      "react-loosely-lazy/integration-app": ["packages/testing/integration-app/src/index.tsx"],
+      "react-loosely-lazy/manifest": ["packages/core/manifest/src/index.ts"],
+      "react-loosely-lazy/webpack-plugin": ["packages/plugins/webpack/src/index.ts"]
+    },
+    "preserveConstEnums": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "target": "esnext",
+    "typeRoots": ["node_modules/@types", "types"]
   },
-  "include": ["src/**/*", "examples/**/*"]
+  "exclude": ["packages/**/__tests__"]
 }

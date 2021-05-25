@@ -1,0 +1,88 @@
+// @flow strict
+
+import type { Manifest } from 'react-loosely-lazy/manifest';
+import type { ComponentType, ElementConfig, Node } from 'react';
+
+declare export var MODE: {
+  RENDER: string,
+  HYDRATE: string,
+};
+
+declare export var PRIORITY: {
+  LOW: number,
+  HIGH: number,
+};
+
+declare export var LooselyLazy: {
+  init(options: {
+    crossOrigin?: 'anonymous' | 'use-credentials' | void,
+    mode?: typeof MODE.RENDER | typeof MODE.HYDRATE,
+    manifest?: Manifest,
+    retry?: number,
+  }): void,
+};
+
+declare export default typeof LooselyLazy;
+
+export type Cleanup = () => void;
+
+export type LazyComponent<C> = ComponentType<ElementConfig<C>> & {
+  getAssetUrls(): string[] | void,
+  preload: (priority?: typeof PRIORITY.HIGH | typeof PRIORITY.LOW) => Cleanup,
+};
+
+type Options = {
+  ssr?: boolean,
+  defer?: number,
+  moduleId?: string,
+};
+
+export type LazySuspenseProps = {
+  children?: ?Node,
+  fallback: Node,
+};
+
+declare export var LazySuspense: ComponentType<LazySuspenseProps>;
+
+export type JavaScriptModule<C> = {
+  default: C,
+  ...
+};
+
+export type ClientLoader<C> = () => Promise<JavaScriptModule<C> | C>;
+
+export type ServerLoader<C> = () => JavaScriptModule<C> | C;
+
+// TODO: Reinstate ServerLoader<C> whenever flow better supports dynamic imports
+export type Loader<C> = ClientLoader<C>; // | ServerLoader<C>;
+
+export type { Options as LazyOptions };
+
+declare export function lazyForPaint<C>(
+  loader: Loader<C>,
+  opts?: Options
+): LazyComponent<C>;
+
+declare export function lazyAfterPaint<C>(
+  loader: Loader<C>,
+  opts?: Options
+): LazyComponent<C>;
+
+declare export function lazy<C>(
+  loader: Loader<C>,
+  opts?: Options
+): LazyComponent<C>;
+
+export type LazyWaitProps = {
+  until: boolean,
+  children: Node,
+};
+
+declare export var LazyWait: ComponentType<LazyWaitProps>;
+
+declare export function useLazyPhase(): {
+  startNextPhase(): void,
+  resetPhase(): void,
+};
+
+declare export function isLoaderError(error: mixed): boolean;

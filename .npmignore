@@ -1,27 +1,21 @@
+coverage
+docs
+examples
+packages
 
-# Ignore dev files
-.vscode
-.circleci
+.DS_Store
 .editorconfig
+.eslintignore
 .eslintrc.js
+.flowconfig
+.github
 .prettierrc.js
+.vscode
+
 *.config.js
 *.config.*.js
 *.setup.js
-.flowconfig
+
 tsconfig.json
 
-# Ignore source files
-src
-
-# Ignore examples
-examples
-docs
-
-# Ignore tests
 **/__tests__
-tests
-coverage
-
-# Other stuff
-.DS_Store

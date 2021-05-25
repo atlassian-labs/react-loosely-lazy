@@ -35,7 +35,6 @@ module.exports = {
     quotes: ['off'],
     semi: ['off'],
     'newline-before-return': ['error'],
-    'prettier/prettier': ['warn'],
     'react/no-direct-mutation-state': ['off'],
     'react/display-name': ['off'],
     'react-hooks/rules-of-hooks': ['error'],
@@ -44,15 +43,8 @@ module.exports = {
   overrides: [
     {
       // Enable a node environment for dot, config, and setup files, and any
-      // file under the webpack, babel, and test folders
-      files: [
-        '.*.js',
-        '*.config.js',
-        '*.setup.js',
-        'src/webpack/**/*',
-        'src/babel/**/*',
-        'src/__tests__/**/*',
-      ],
+      // file under the script folder
+      files: ['.*.js', '*.config.js', '*.setup.js', 'scripts/*'],
       env: {
         node: true,
       },

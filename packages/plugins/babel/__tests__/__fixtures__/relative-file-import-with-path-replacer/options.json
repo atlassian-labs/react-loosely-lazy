@@ -1,0 +1,6 @@
+{
+  "modulePathReplacer": {
+    "from": "./packages",
+    "to": "./foo"
+  }
+}

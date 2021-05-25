@@ -1,12 +1,10 @@
-.idea
-.local
-.vscode
-.history
+.idea/
+.local/
+.vscode/
+.history/
 
-coverage
-node_modules
+coverage/
+dist/
+node_modules/
+
 yarn.lock
-
-/lib
-
-src/webpack/__tests__/__fixtures__/output
