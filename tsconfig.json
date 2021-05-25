@@ -7,10 +7,10 @@
     "module": "esnext",
     "moduleResolution": "node",
     "paths": {
-      "react-loosely-lazy": ["packages/core/react-loosely-lazy/src/index.ts"],
-      "react-loosely-lazy/integration-app": ["packages/testing/integration-app/src/index.tsx"],
-      "react-loosely-lazy/manifest": ["packages/core/manifest/src/index.ts"],
-      "react-loosely-lazy/webpack-plugin": ["packages/plugins/webpack/src/index.ts"]
+      "@react-loosely-lazy/integration-app": ["packages/testing/integration-app/src/index.tsx"],
+      "@react-loosely-lazy/manifest": ["packages/core/manifest/src/index.ts"],
+      "@react-loosely-lazy/webpack-plugin": ["packages/plugins/webpack/src/index.ts"],
+      "react-loosely-lazy": ["packages/core/react-loosely-lazy/src/index.ts"]
     },
     "preserveConstEnums": true,
     "resolveJsonModule": true,

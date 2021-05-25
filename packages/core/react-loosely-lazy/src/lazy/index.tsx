@@ -1,5 +1,5 @@
+import { getAssetUrlsFromId } from '@react-loosely-lazy/manifest';
 import { ComponentProps, ComponentType, FunctionComponent } from 'react';
-import { getAssetUrlsFromId } from 'react-loosely-lazy/manifest';
 
 import { getConfig } from '../config';
 import { PHASE } from '../constants';

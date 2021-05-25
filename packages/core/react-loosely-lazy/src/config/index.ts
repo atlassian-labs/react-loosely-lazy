@@ -1,4 +1,4 @@
-import type { Manifest } from 'react-loosely-lazy/manifest';
+import type { Manifest } from '@react-loosely-lazy/manifest';
 
 import { MODE } from './constants';
 

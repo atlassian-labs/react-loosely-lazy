@@ -1,5 +1,0 @@
-{
-  "main": "../dist/babel-plugin/cjs/index.js",
-  "module": "../dist/babel-plugin/esm/index.js",
-  "types": "../dist/babel-plugin/types/index.d.ts"
-}

@@ -1,0 +1,43 @@
+{
+  "name": "@react-loosely-lazy/webpack-plugin",
+  "version": "0.7.0",
+  "description": "Webpack plugin for react-loosely-lazy",
+  "keywords": [
+    "react-loosely-lazy",
+    "webpack",
+    "plugin"
+  ],
+  "homepage": "https://github.com/atlassian-labs/react-loosely-lazy",
+  "bugs": {
+    "url": "https://github.com/atlassian-labs/react-loosely-lazy/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://git@github.com/atlassian-labs/react-loosely-lazy.git"
+  },
+  "license": "Apache-2.0",
+  "sideEffects": false,
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "source": "src/index.ts",
+  "types": "dist/types/index.d.ts",
+  "devDependencies": {
+    "@react-loosely-lazy/integration-app": "^0.7.0",
+    "@react-loosely-lazy/manifest": "^0.7.0",
+    "@types/mini-css-extract-plugin": "^1.4.3",
+    "@types/react": "^16.14.6",
+    "@types/react-dom": "^16.9.13",
+    "@types/webpack": "^4.41.28",
+    "css-loader": "^5.2.4",
+    "mini-css-extract-plugin": "^1.6.0",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
+    "react-loosely-lazy": "0.7.0",
+    "tsconfig-paths-webpack-plugin": "^3.5.1",
+    "webpack": "^4.46.0"
+  },
+  "peerDependencies": {
+    "@react-loosely-lazy/manifest": "0.7.0",
+    "webpack": "^4.x"
+  }
+}

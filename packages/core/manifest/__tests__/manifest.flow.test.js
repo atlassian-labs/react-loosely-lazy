@@ -1,6 +1,9 @@
 // @flow strict
 
-import { getAssetUrlsFromId, type Manifest } from 'react-loosely-lazy/manifest';
+import {
+  getAssetUrlsFromId,
+  type Manifest,
+} from '@react-loosely-lazy/manifest';
 
 // $FlowExpectedError[incompatible-exact] Missing publicPath and assets
 const missingKeysManifest: Manifest = {};

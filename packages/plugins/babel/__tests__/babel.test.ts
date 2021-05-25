@@ -8,7 +8,7 @@ import type { BabelPluginOptions } from '../src';
 
 pluginTester({
   plugin,
-  pluginName: 'react-loosely-lazy/babel-plugin',
+  pluginName: '@react-loosely-lazy/babel-plugin',
   fixtures: join(__dirname, '__fixtures__'),
   snapshot: true,
 });

@@ -1,6 +1,6 @@
 // @flow strict
 
-import type { Manifest } from 'react-loosely-lazy/manifest';
+import type { Manifest } from '@react-loosely-lazy/manifest';
 import type { ComponentType, ElementConfig, Node } from 'react';
 
 declare export var MODE: {

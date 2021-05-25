@@ -8,10 +8,8 @@ import { URL, fileURLToPath } from 'url';
 import { promisify } from 'util';
 
 const { black, bold } = chalk;
-const { copyFile, mkdir } = promises;
+const { copyFile, readFile, mkdir } = promises;
 const exec = promisify(childProcess.exec);
-
-const rootPath = fileURLToPath(new URL('..', import.meta.url));
 
 const copyFlowTypes = async (source, destination) => {
   try {
@@ -31,7 +29,7 @@ const buildPackage = async ({ name, path }) => {
 
   try {
     const source = join(path, 'src');
-    const destination = join(rootPath, 'dist', name);
+    const destination = join(path, 'dist');
 
     await mkdir(destination).catch(() => {});
 
@@ -53,25 +51,14 @@ const buildPackage = async ({ name, path }) => {
 
     const typesDestination = join(destination, 'types');
     const tsConfig = join(path, 'tsconfig.json');
-    try {
-      await exec(`
-        tsc\
-          --declaration\
-          --declarationMap\
-          --declarationDir ${typesDestination}\
-          --emitDeclarationOnly\
-          --project ${tsConfig}
-      `);
-    } catch (err) {
-      // We don't care if the type cannot be found, as it still gets built
-      if (
-        // TODO Use !err.stdout?.includes once on node 16
-        !err.stdout ||
-        !err.stdout.includes("Cannot find module 'react-loosely-lazy/manifest'")
-      ) {
-        throw err;
-      }
-    }
+    await exec(`
+      tsc\
+        --declaration\
+        --declarationMap\
+        --declarationDir ${typesDestination}\
+        --emitDeclarationOnly\
+        --project ${tsConfig}
+    `);
   } catch (err) {
     console.log(black.bgRed('  FAILED  '), bold(name));
     console.log();
@@ -88,15 +75,62 @@ const buildPackages = async packages => {
   }
 };
 
-const main = async () => {
-  const packages = [
-    ['manifest', 'packages/core/manifest'],
-    ['react-loosely-lazy', 'packages/core/react-loosely-lazy'],
-    ['babel-plugin', 'packages/plugins/babel'],
-    ['webpack-plugin', 'packages/plugins/webpack'],
-  ].map(([name, path]) => [name, join(rootPath, path)]);
+const getPackages = async paths => {
+  const packages = await Promise.all(
+    paths.map(path =>
+      readFile(join(path, 'package.json'), 'utf-8').then(str => {
+        const pkg = JSON.parse(str);
 
-  return buildPackages(packages);
+        return [pkg.name, path];
+      })
+    )
+  );
+
+  return new Map(packages);
+};
+
+const getSelectedPackages = (packages, packageNames) => {
+  const selectedPackages = new Map();
+  const invalidPackages = [];
+
+  for (const packageName of packageNames) {
+    if (packages.has(packageName)) {
+      selectedPackages.set(packageName, packages.get(packageName));
+    } else {
+      invalidPackages.push(packageName);
+    }
+  }
+
+  return [selectedPackages, invalidPackages];
+};
+
+const main = async () => {
+  const rootPath = fileURLToPath(new URL('..', import.meta.url));
+  const packagePaths = [
+    'packages/core/manifest',
+    'packages/core/react-loosely-lazy',
+    'packages/plugins/babel',
+    'packages/plugins/webpack',
+  ].map(path => join(rootPath, path));
+
+  const packages = await getPackages(packagePaths);
+  const packageNames = process.argv.slice(2);
+  if (!packageNames.length) {
+    // Build every package
+    return buildPackages(packages);
+  }
+
+  const [selectedPackages, invalidPackages] = getSelectedPackages(
+    packages,
+    packageNames
+  );
+  if (invalidPackages.length) {
+    throw new Error(
+      `Unable to build the following packages: ${invalidPackages.join(', ')}`
+    );
+  }
+
+  return buildPackages(selectedPackages);
 };
 
 main().catch(err => {
