@@ -11,7 +11,6 @@ export type LazyWaitProps = {
 
 export const LazyWait = ({ until, children }: LazyWaitProps) => {
   const closestUntil = useContext(UntilContext);
-  const untilProp = useRef(until);
   const value = useRef(until && closestUntil.value.current);
   const subscribers = useRef<Set<UntilSubscriber>>(new Set());
   const api = useRef({
@@ -25,27 +24,19 @@ export const LazyWait = ({ until, children }: LazyWaitProps) => {
     value,
   });
 
-  untilProp.current = until;
-
   useEffect(() => {
-    // Notify subscribers when until prop changes
-    value.current = closestUntil.value.current && until;
-    for (const subscriber of subscribers.current) {
-      subscriber(value.current);
-    }
-  }, [closestUntil, until]);
+    // Notify subscribers when until prop or closest until value changes
+    const notify = (nextUntil: boolean) => {
+      value.current = nextUntil && until;
+      for (const subscriber of subscribers.current) {
+        subscriber(value.current);
+      }
+    };
 
-  useEffect(
-    () =>
-      // Subscribe to the closest subscribable, and when it updates notify all current subscribers
-      closestUntil.subscribe(nextUntil => {
-        value.current = nextUntil && untilProp.current;
-        for (const subscriber of subscribers.current) {
-          subscriber(value.current);
-        }
-      }),
-    [closestUntil]
-  );
+    notify(closestUntil.value.current);
+
+    return closestUntil.subscribe(notify);
+  }, [closestUntil, until]);
 
   return (
     <UntilContext.Provider value={api.current}>
