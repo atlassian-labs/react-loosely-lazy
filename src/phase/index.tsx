@@ -1,5 +1,8 @@
-export { LazyWait } from './component';
-export { useLazyPhase, LazyPhaseContext, setCurrent } from './context';
+export { LazyPhaseContext, setCurrent, useLazyPhase } from './context';
+
 export { usePhaseSubscription } from './controller';
+
 export { LISTENERS } from './listeners';
-export type { LazyWaitProps } from './types';
+export type { Listener } from './listeners';
+
+export { createSubscribe } from './utils';

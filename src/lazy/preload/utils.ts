@@ -1,8 +1,5 @@
+import { noopCleanup } from '../../cleanup';
 import { getConfig } from '../../config';
-
-export const noopCleanup = () => {
-  // Nothing to cleanup...
-};
 
 export function insertLinkTag(href: string, rel: string) {
   // Skip if already preloaded, prefetched, or loaded
