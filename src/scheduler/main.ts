@@ -22,17 +22,16 @@ const scheduleTask = ({
     return noopCleanup;
   }
 
+  const controller = new AbortController();
+  const { signal } = controller;
   const { runEffect, cleanupEffects } = createEffects();
+
   const sleepEffect = runEffect(createSleepEffect(timeout));
   const waitForEffect = runEffect(() => waitForEmptyQueue(priority - 1));
 
-  // A dispose check is needed for when any of the effects resolve immediately
-  // TODO The AbortController, or other cancellation techniques, should be used here when they become more standardised
-  let disposed = false;
-
   Promise.race([sleepEffect, waitForEffect])
     .then(() => {
-      if (!disposed) {
+      if (!signal.aborted) {
         runTask();
       }
     })
@@ -44,7 +43,7 @@ const scheduleTask = ({
 
   // Return a cleanup function that allows the scheduled task to be cancelled manually
   return () => {
-    disposed = true;
+    controller.abort();
     cleanupEffects();
   };
 };
