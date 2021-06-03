@@ -1,7 +1,7 @@
 import { ComponentProps, ComponentType, FunctionComponent } from 'react';
 
+import { Cleanup } from '../cleanup';
 import { PreloadPriority } from '../types';
-import { Cleanup } from './preload';
 
 export type LazyOptions = {
   /**

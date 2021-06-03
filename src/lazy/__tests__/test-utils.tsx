@@ -1,12 +1,12 @@
-import { render, waitForElementToBeRemoved } from '@testing-library/react';
-import React, { Component, ComponentType, ReactNode } from 'react';
+import { act, render, waitForElementToBeRemoved } from '@testing-library/react';
+import React, { Component, ComponentType, ReactNode, useEffect } from 'react';
 
 import { PHASE } from '../../constants';
 import { LooselyLazy } from '../../init';
 import { useLazyPhase } from '../../phase';
 import { LazySuspense } from '../../suspense';
 
-import { isLoaderError, lazyForPaint } from '../';
+import { isLoaderError, lazyAfterPaint, lazyForPaint } from '../';
 import { Loader } from '../loader';
 import { isNodeEnvironment } from '../../utils';
 
@@ -20,8 +20,8 @@ export const createClientLoader = ({
   return () => Promise.resolve({ default: DefaultComponent });
 };
 
-export const createServerLoader = () => {
-  const DefaultComponent = () => <div>Default Component</div>;
+export const createServerLoader = ({ text = 'Default Component' } = {}) => {
+  const DefaultComponent = () => <div>{text}</div>;
 
   return () => createDefaultServerImport({ DefaultComponent });
 };
@@ -92,29 +92,125 @@ export class ErrorBoundary extends Component<
 }
 
 export type TestErrorBubblingOptions = {
+  autoStart: boolean;
   lazyMethod: typeof lazyForPaint;
   phase?: number;
 };
 
 export const createErrorTests = ({
+  autoStart = false,
   lazyMethod,
   phase = PHASE.PAINT,
 }: TestErrorBubblingOptions) => {
-  const clientError = new Error('ChunkLoadError');
+  describe('when the loader fails', () => {
+    let consoleError: jest.SpyInstance;
+    const clientError = new Error('ChunkLoadError');
+    const preloadAttempts = lazyMethod === lazyAfterPaint ? 1 : 0;
 
-  if (!isNodeEnvironment()) {
-    it('does not retry when the global retry option is set to 0', async () => {
+    beforeEach(() => {
+      consoleError = jest.spyOn(console, 'error').mockImplementation(jest.fn);
       LooselyLazy.init({
+        autoStart,
         retry: 0,
       });
 
-      const loader = jest.fn(() => Promise.reject(clientError));
-      const LazyTestComponent = lazyMethod(loader);
+      jest.useFakeTimers();
+    });
 
-      const spy = jest.spyOn(console, 'error').mockImplementation(jest.fn);
+    afterEach(() => {
+      consoleError.mockRestore();
+
+      jest.runAllTimers();
+      jest.useRealTimers();
+    });
+
+    if (!isNodeEnvironment()) {
+      it('does not retry when the global retry option is set to 0', async () => {
+        const loader = jest.fn(() => Promise.reject(clientError));
+        const LazyTestComponent = lazyMethod(loader);
+
+        const { queryByText } = render(
+          <ErrorBoundary fallback="Component failed to load...">
+            <App phase={phase}>
+              <LazySuspense fallback="Loading...">
+                <LazyTestComponent />
+              </LazySuspense>
+            </App>
+          </ErrorBoundary>
+        );
+
+        expect(queryByText('Loading...')).toBeInTheDocument();
+        await waitForElementToBeRemoved(() => queryByText('Loading...'));
+
+        expect(queryByText('Component failed to load...')).toBeInTheDocument();
+        expect(loader).toHaveBeenCalledTimes(1 + preloadAttempts);
+      });
+
+      it('does not update state after the component has already unmounted', async () => {
+        type Reject = (reason?: Error) => void;
+        let rejectLoader: Reject = () => {
+          throw new Error('Loader rejection must be overridden');
+        };
+
+        const promise = new Promise((_, reject) => {
+          rejectLoader = reject;
+        });
+
+        const loader: jest.Mock = jest.fn(() => promise);
+        const LazyTestComponent = lazyMethod(loader);
+
+        const { queryByText, unmount } = render(
+          <ErrorBoundary fallback="Component failed to load...">
+            <App phase={phase}>
+              <LazySuspense fallback="Loading...">
+                <LazyTestComponent />
+              </LazySuspense>
+            </App>
+          </ErrorBoundary>
+        );
+
+        expect(queryByText('Loading...')).toBeInTheDocument();
+
+        await act(async () => {
+          await jest.runAllTicks();
+        });
+
+        // Make sure the loader has been called so that it can reject later
+        expect(loader).toHaveBeenCalledTimes(1 + preloadAttempts);
+
+        act(() => {
+          unmount();
+          rejectLoader(clientError);
+        });
+
+        await promise.catch(() => {
+          // We expect an error...
+        });
+
+        await act(async () => {
+          await jest.runAllTimers();
+        });
+
+        expect(consoleError).not.toHaveBeenCalled();
+      });
+    }
+
+    it('bubbles a loader error in the component lifecycle', async () => {
+      const LazyTestComponent = lazyMethod(
+        () =>
+          isNodeEnvironment() ? require('404') : Promise.reject(clientError),
+        {
+          ssr: true,
+        }
+      );
+
+      const errors: Error[] = [];
+      const onError = (error: Error) => {
+        errors.push(error);
+      };
 
       const { queryByText } = render(
-        <ErrorBoundary fallback="Component failed to load...">
+        <ErrorBoundary fallback="Component failed to load..." onError={onError}>
           <App phase={phase}>
             <LazySuspense fallback="Loading...">
               <LazyTestComponent />
@@ -123,69 +219,30 @@ export const createErrorTests = ({
         </ErrorBoundary>
       );
 
-      expect(queryByText('Loading...')).toBeInTheDocument();
-      await waitForElementToBeRemoved(() => queryByText('Loading...'));
-
-      spy.mockRestore();
+      if (isNodeEnvironment()) {
+        expect(queryByText('Loading...')).not.toBeInTheDocument();
+      } else {
+        expect(queryByText('Loading...')).toBeInTheDocument();
+        await waitForElementToBeRemoved(() => queryByText('Loading...'));
+      }
 
       expect(queryByText('Component failed to load...')).toBeInTheDocument();
-      expect(loader).toHaveBeenCalledTimes(1);
+      expect(
+        errors.map(error => ({
+          error,
+          isLoaderError: isLoaderError(error),
+        }))
+      ).toEqual([
+        {
+          error: isNodeEnvironment()
+            ? expect.objectContaining({
+                code: 'MODULE_NOT_FOUND',
+              })
+            : clientError,
+          isLoaderError: true,
+        },
+      ]);
     });
-  }
-
-  it('bubbles a loader error in the component lifecycle when the loader fails', async () => {
-    const moduleId = '@foo/bar';
-    const LazyTestComponent = lazyMethod(
-      () =>
-        isNodeEnvironment() ? require('404') : Promise.reject(clientError),
-      {
-        moduleId,
-        ssr: true,
-      }
-    );
-
-    const errors: Error[] = [];
-    const onError = (error: Error) => {
-      errors.push(error);
-    };
-
-    const spy = jest.spyOn(console, 'error').mockImplementation(jest.fn);
-
-    const { queryByText } = render(
-      <ErrorBoundary fallback="Component failed to load..." onError={onError}>
-        <App phase={phase}>
-          <LazySuspense fallback="Loading...">
-            <LazyTestComponent />
-          </LazySuspense>
-        </App>
-      </ErrorBoundary>
-    );
-
-    if (isNodeEnvironment()) {
-      expect(queryByText('Loading...')).not.toBeInTheDocument();
-    } else {
-      expect(queryByText('Loading...')).toBeInTheDocument();
-      await waitForElementToBeRemoved(() => queryByText('Loading...'));
-    }
-
-    spy.mockRestore();
-
-    expect(queryByText('Component failed to load...')).toBeInTheDocument();
-    expect(
-      errors.map(error => ({
-        error,
-        isLoaderError: isLoaderError(error),
-      }))
-    ).toEqual([
-      {
-        error: isNodeEnvironment()
-          ? expect.objectContaining({
-              code: 'MODULE_NOT_FOUND',
-            })
-          : clientError,
-        isLoaderError: true,
-      },
-    ]);
   });
 };
 
@@ -198,9 +255,11 @@ export const App = ({
 }) => {
   const { startNextPhase } = useLazyPhase();
 
-  if (phase === PHASE.AFTER_PAINT) {
-    startNextPhase();
-  }
+  useEffect(() => {
+    if (phase === PHASE.AFTER_PAINT) {
+      startNextPhase();
+    }
+  }, [phase, startNextPhase]);
 
   return <>{children}</>;
 };
@@ -242,9 +301,12 @@ export const testRender = async ({
   expect(queryByText(text)).toBeInTheDocument();
 };
 
-export type TestFallbackRenderOptions = Omit<TestRenderOptions, 'text'>;
+export type TestFallbackRenderOptions = Omit<TestRenderOptions, 'text'> & {
+  autoStart: boolean;
+};
 
 export const testFallbackRender = async ({
+  autoStart,
   lazyMethod,
   loader,
   phase = PHASE.PAINT,
@@ -255,9 +317,21 @@ export const testFallbackRender = async ({
     ssr == null ? undefined : { ssr }
   );
 
+  const LazyPaintComponent = lazyForPaint(
+    loader ?? isNodeEnvironment()
+      ? createServerLoader({ text: 'Paint Component' })
+      : createClientLoader({ text: 'Paint Component' })
+  );
+
   const { queryByText } = render(
     <App phase={phase}>
-      <LazySuspense fallback="Loading...">
+      {autoStart && lazyMethod === lazyAfterPaint && (
+        <LazySuspense fallback="Loading paint...">
+          <LazyPaintComponent />
+        </LazySuspense>
+      )}
+      {/* TODO Eventually remove span, once matching works correctly */}
+      <LazySuspense fallback={<span>Loading...</span>}>
         <LazyTestComponent />
       </LazySuspense>
     </App>
@@ -267,11 +341,16 @@ export const testFallbackRender = async ({
     expect(queryByText('Loading...')).toBeInTheDocument();
   } else {
     expect(queryByText('Loading...')).toBeInTheDocument();
-    await waitForElementToBeRemoved(() => queryByText('Loading...')).catch(
-      () => {
-        // We expect the loading state to remain, and this should timeout
-      }
-    );
-    expect(queryByText('Default Component')).not.toBeInTheDocument();
+    if (autoStart) {
+      await waitForElementToBeRemoved(() => queryByText('Loading...'));
+      expect(queryByText('Default Component')).toBeInTheDocument();
+    } else {
+      await waitForElementToBeRemoved(() => queryByText('Loading...')).catch(
+        () => {
+          // We expect the loading state to remain, and this should timeout
+        }
+      );
+      expect(queryByText('Default Component')).not.toBeInTheDocument();
+    }
   }
 };

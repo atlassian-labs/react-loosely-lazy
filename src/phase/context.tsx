@@ -22,6 +22,7 @@ export const LazyPhaseContext = createContext({
   },
 });
 
+// TODO This can be deleted once automatically starting phases becomes the default behaviour
 export const useLazyPhase = () => {
   const v = useContext(LazyPhaseContext);
 

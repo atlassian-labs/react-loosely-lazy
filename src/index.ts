@@ -16,4 +16,5 @@ export { LazySuspense } from './suspense';
 export type { Fallback, LazySuspenseProps } from './suspense';
 
 export { useLazyPhase } from './phase';
+
 export type { Config } from './types';
