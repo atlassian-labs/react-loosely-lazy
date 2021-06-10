@@ -11,7 +11,7 @@ export const getAssetUrlsFromId = (
   manifest: Manifest,
   id: string
 ): Asset[] | undefined => {
-  if (!manifest.assets[id]) {
+  if (!manifest.assets || !manifest.assets[id]) {
     return;
   }
 

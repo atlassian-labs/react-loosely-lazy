@@ -1,6 +1,14 @@
 import { getAssetUrlsFromId } from '../index';
 
 describe('getAssetUrlsFromId', () => {
+  it('should return undefined when the assets does not exist in the manifest', () => {
+    const manifest = {
+      publicPath: '/output/'
+    };
+
+    expect(getAssetUrlsFromId((manifest as any), 'foo')).toBeUndefined();
+  });
+
   it('should return undefined when the id does not exist in the manifest', () => {
     const manifest = {
       publicPath: '/output/',
@@ -9,6 +17,7 @@ describe('getAssetUrlsFromId', () => {
 
     expect(getAssetUrlsFromId(manifest, 'foo')).toBeUndefined();
   });
+
 
   it('should return an empty list when there are no corresponding assets for the id', () => {
     const manifest = {
