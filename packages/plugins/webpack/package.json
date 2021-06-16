@@ -21,6 +21,9 @@
   "module": "dist/esm/index.js",
   "source": "src/index.ts",
   "types": "dist/types/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@react-loosely-lazy/integration-app": "^0.7.0",
     "@react-loosely-lazy/manifest": "^0.7.0",

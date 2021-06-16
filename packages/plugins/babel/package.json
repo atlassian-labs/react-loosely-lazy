@@ -21,6 +21,9 @@
   "module": "dist/esm/index.js",
   "source": "src/index.ts",
   "types": "dist/types/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "dependencies": {
     "enhanced-resolve": "^5.8.2"
   },
