@@ -25,6 +25,12 @@ jobs:
         run: npm run build
 
       - name: Publish packages to npm registry
-        run: npm publish --access public
+        # Only publish public packages
+        run: npm publish\
+          --access public\
+          --workspace packages/core/manifest\
+          --workspace packages/core/react-loosely-lazy\
+          --workspace packages/plugins/babel\
+          --workspace packages/plugins/webpack
         env:
           NODE_AUTH_TOKEN: ${{secrets.REACT_LAZY_NPM_TOKEN}}
