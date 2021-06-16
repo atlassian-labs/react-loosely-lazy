@@ -1,0 +1,63 @@
+{
+  "presets": [
+    "@babel/preset-react",
+    "@babel/preset-typescript"
+  ],
+  "plugins": [
+    "@babel/plugin-syntax-dynamic-import",
+    "@babel/plugin-syntax-import-meta"
+  ],
+  "env": {
+    "production:cjs": {
+      "ignore": [
+        "**/__tests__"
+      ],
+      "plugins": [
+        "@babel/plugin-transform-runtime"
+      ],
+      "presets": [
+        [
+          "@babel/preset-env",
+          {
+            "modules": "cjs",
+            "targets": {
+              "node": "12"
+            }
+          }
+        ]
+      ],
+      "sourceMaps": "inline"
+    },
+    "production:esm": {
+      "ignore": [
+        "**/__tests__"
+      ],
+      "presets": [
+        [
+          "@babel/preset-env",
+          {
+            "targets": [
+              "last 2 chrome versions",
+              "last 2 firefox versions",
+              "last 2 safari versions",
+              "last 2 and_chr versions",
+              "last 2 ios_saf versions",
+              "edge >= 18"
+            ],
+            "modules": false,
+            "loose": true
+          }
+        ]
+      ],
+      "sourceMaps": "inline"
+    },
+    "test": {
+      "presets": [
+        "@babel/preset-env"
+      ],
+      "plugins": [
+        "@babel/plugin-transform-runtime"
+      ]
+    }
+  }
+}

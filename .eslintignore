@@ -1,6 +1,4 @@
+dist
 node_modules
 
-lib
-
-src/babel/__tests__/__fixtures__
-src/webpack/__tests__/__fixtures__/output
+packages/plugins/babel/__tests__/__fixtures__

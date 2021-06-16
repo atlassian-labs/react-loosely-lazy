@@ -1,4 +1,4 @@
-// Enable importing ReactLooselyLazyPlugin directly from src
+// Enable importing ReactLooselyLazyPlugin directly from source
 require('@babel/register')({
   extensions: ['.jsx', '.js', '.ts', '.tsx'],
   presets: ['@babel/preset-env', '@babel/preset-typescript'],
@@ -6,7 +6,9 @@ require('@babel/register')({
 
 const { lstatSync, readdirSync } = require('fs');
 const { resolve, basename } = require('path');
-const { ReactLooselyLazyPlugin } = require('./src/webpack');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+
+const { ReactLooselyLazyPlugin } = require('./packages/plugins/webpack/src');
 
 // This function generates configuration for files in the
 // ./src/examples/ folder
@@ -70,10 +72,8 @@ module.exports = {
   ],
 
   resolve: {
-    alias: {
-      'react-loosely-lazy': resolve(__dirname, './src'),
-    },
     extensions: ['.ts', '.tsx', '.js', '.json'],
+    plugins: [new TsconfigPathsPlugin()],
   },
 
   devServer: {

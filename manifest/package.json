@@ -1,5 +1,5 @@
 {
-  "main": "../lib/cjs/manifest/index.js",
-  "module": "../lib/esm/manifest/index.js",
-  "types": "../lib/cjs/manifest/index.d.ts"
+  "main": "../dist/manifest/cjs/index.js",
+  "module": "../dist/manifest/esm/index.js",
+  "types": "../dist/manifest/types/index.d.ts"
 }

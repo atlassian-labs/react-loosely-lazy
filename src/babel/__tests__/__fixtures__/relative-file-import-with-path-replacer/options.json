@@ -1,6 +1,0 @@
-{
-  "modulePathReplacer": {
-    "from": "./src",
-    "to": "./foo"
-  }
-}
