@@ -4,11 +4,12 @@ import chalk from 'chalk';
 import childProcess from 'child_process';
 import { promises } from 'fs';
 import { join } from 'path';
-import { URL, fileURLToPath } from 'url';
 import { promisify } from 'util';
 
+import { getPublicPackages, toPackageNamesMap } from './utils.mjs';
+
 const { black, bold } = chalk;
-const { copyFile, readFile, mkdir } = promises;
+const { copyFile, mkdir } = promises;
 const exec = promisify(childProcess.exec);
 
 const copyFlowTypes = async (source, destination) => {
@@ -24,8 +25,15 @@ const copyFlowTypes = async (source, destination) => {
   }
 };
 
-const buildPackage = async ({ name, path }) => {
-  console.log(black.bgYellow(' BUILDING '), bold(name));
+const buildingText = black.bgYellow(' BUILDING ');
+const failedText = black.bgRed('  FAILED  ');
+const completeText = black.bgGreen(' COMPLETE ');
+
+const buildPackage = async ([path, packageJson]) => {
+  const { name } = packageJson;
+  const details = [bold(name)];
+
+  console.log(buildingText, ...details);
 
   try {
     const source = join(path, 'src');
@@ -54,48 +62,36 @@ const buildPackage = async ({ name, path }) => {
     await exec(`
       tsc\
         --declaration\
-        --declarationMap\
         --declarationDir ${typesDestination}\
+        --declarationMap\
         --emitDeclarationOnly\
         --project ${tsConfig}
     `);
   } catch (err) {
-    console.log(black.bgRed('  FAILED  '), bold(name));
+    console.log(failedText, ...details);
     console.log();
     throw err;
   }
 
-  console.log(black.bgGreen(' COMPLETE '), bold(name));
+  console.log(completeText, ...details);
   console.log();
 };
 
-const buildPackages = async packages => {
-  for (const [name, path] of packages) {
-    await buildPackage({ name, path });
+const buildPackages = async publicPackages => {
+  for (const entry of publicPackages) {
+    await buildPackage(entry);
   }
 };
 
-const getPackages = async paths => {
-  const packages = await Promise.all(
-    paths.map(path =>
-      readFile(join(path, 'package.json'), 'utf-8').then(str => {
-        const pkg = JSON.parse(str);
-
-        return [pkg.name, path];
-      })
-    )
-  );
-
-  return new Map(packages);
-};
-
 const getSelectedPackages = (packages, packageNames) => {
+  const packagesByName = toPackageNamesMap(packages);
   const selectedPackages = new Map();
   const invalidPackages = [];
 
   for (const packageName of packageNames) {
-    if (packages.has(packageName)) {
-      selectedPackages.set(packageName, packages.get(packageName));
+    if (packagesByName.has(packageName)) {
+      const [path, packageJson] = packagesByName.get(packageName);
+      selectedPackages.set(path, packageJson);
     } else {
       invalidPackages.push(packageName);
     }
@@ -105,15 +101,7 @@ const getSelectedPackages = (packages, packageNames) => {
 };
 
 const main = async () => {
-  const rootPath = fileURLToPath(new URL('..', import.meta.url));
-  const packagePaths = [
-    'packages/core/manifest',
-    'packages/core/react-loosely-lazy',
-    'packages/plugins/babel',
-    'packages/plugins/webpack',
-  ].map(path => join(rootPath, path));
-
-  const packages = await getPackages(packagePaths);
+  const packages = await getPublicPackages();
   const packageNames = process.argv.slice(2);
   if (!packageNames.length) {
     // Build every package
