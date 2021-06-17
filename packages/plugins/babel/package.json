@@ -28,10 +28,10 @@
     "enhanced-resolve": "^5.8.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.14.3",
+    "@babel/core": "^7.14.6",
     "@types/babel-plugin-tester": "^9.0.3",
     "@types/babel__core": "^7.1.14",
-    "babel-plugin-tester": "^10.0.0",
+    "babel-plugin-tester": "^10.1.0",
     "outdent": "^0.8.0"
   }
 }
