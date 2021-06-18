@@ -109,11 +109,9 @@ const renderApp = (v: string) => {
   }
   if (v === 'PAINT LOADING') {
     const components = buildClientComponents(mode);
-    if (isRender) {
-      render(<App initialStep={v} components={components} />, appContainer);
-    } else {
-      hydrate(<App initialStep={v} components={components} />, appContainer);
-    }
+    const renderer = isRender ? render : hydrate;
+
+    renderer(<App initialStep={v} components={components} />, appContainer);
   }
 };
 
