@@ -1,6 +1,6 @@
 import { render, act } from '@testing-library/react';
 import React, { ReactElement, useEffect } from 'react';
-import ReactDOMServer from 'react-dom/server';
+import { renderToString } from 'react-dom/server';
 
 import LooselyLazy, {
   lazyForPaint,
@@ -92,7 +92,7 @@ describe('hydrates', () => {
         });
 
         document.body.innerHTML = `
-          <div id="root">${ReactDOMServer.renderToString(<ServerApp />)}</div>
+          <div id="root">${renderToString(<ServerApp />)}</div>
         `;
 
         // expect ssr to render content
@@ -139,7 +139,7 @@ describe('hydrates', () => {
         });
 
         document.body.innerHTML = `
-          <div id="root">${ReactDOMServer.renderToString(<ServerApp />)}</div>
+          <div id="root">${renderToString(<ServerApp />)}</div>
         `;
 
         // expect ssr to render fallback
@@ -193,7 +193,7 @@ describe('hydrates', () => {
         });
 
         document.body.innerHTML = `
-          <div id="root">${ReactDOMServer.renderToString(<ServerApp />)}</div>
+          <div id="root">${renderToString(<ServerApp />)}</div>
         `;
 
         // expect ssr to render content
@@ -247,7 +247,7 @@ describe('hydrates', () => {
         });
 
         document.body.innerHTML = `
-          <div id="root">${ReactDOMServer.renderToString(<ServerApp />)}</div>
+          <div id="root">${renderToString(<ServerApp />)}</div>
         `;
 
         // expect ssr to render fallback
@@ -308,7 +308,7 @@ describe('renders', () => {
         });
 
         document.body.innerHTML = `
-          <div id="root">${ReactDOMServer.renderToString(<ServerApp />)}</div>
+          <div id="root">${renderToString(<ServerApp />)}</div>
         `;
 
         // expect ssr to render content
@@ -355,7 +355,7 @@ describe('renders', () => {
         });
 
         document.body.innerHTML = `
-          <div id="root">${ReactDOMServer.renderToString(<ServerApp />)}</div>
+          <div id="root">${renderToString(<ServerApp />)}</div>
         `;
 
         // expect ssr to render fallback
@@ -394,13 +394,3 @@ describe('renders', () => {
     });
   });
 });
-
-// describe('with wait priority', () => {
-//   describe('with SSR', () => {
-//     it('should render content in SSR, persist SSR output while loading, and finally replace', () => {});
-//   });
-
-//   describe('without SSR', () => {
-//     it('should render fallback in SSR, persist SSR output initially, render fallback, and finally replace', () => {});
-//   });
-// });

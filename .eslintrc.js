@@ -1,75 +1,84 @@
 module.exports = {
-  parser: 'babel-eslint',
   env: {
     browser: true,
     es6: true,
   },
   extends: [
     'eslint:recommended',
+    'plugin:import/recommended',
+    'plugin:import/typescript',
     'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
     'plugin:prettier/recommended',
   ],
-  parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
-    },
-    ecmaVersion: 2018,
-    sourceType: 'module',
-  },
-  settings: {
-    react: {
-      version: 'detect',
-    },
-  },
   globals: {
     // Enable webpack require
     require: 'readonly',
     // Fix for eslint-plugin-flowtype/384 not supporting wildcard
     _: 'readonly',
   },
-  plugins: ['react', 'react-hooks', 'import'],
+  parser: '@typescript-eslint/parser',
+  settings: {
+    'import/resolver': {
+      typescript: {},
+    },
+    react: {
+      version: 'detect',
+    },
+  },
   rules: {
+    'import/no-extraneous-dependencies': ['error'],
     'no-shadow': ['error'],
-    indent: ['off'],
-    'linebreak-style': ['off'],
-    quotes: ['off'],
-    semi: ['off'],
-    'newline-before-return': ['error'],
-    'react/no-direct-mutation-state': ['off'],
+    'padding-line-between-statements': [
+      'error',
+      { blankLine: 'always', prev: '*', next: 'return' },
+    ],
     'react/display-name': ['off'],
-    'react-hooks/rules-of-hooks': ['error'],
-    'react-hooks/exhaustive-deps': ['warn'],
   },
   overrides: [
     {
-      // Enable a node environment for dot, config, and setup files, and any
-      // file under the script folder
-      files: ['.*.js', '*.config.js', '*.setup.js', 'scripts/*'],
-      env: {
-        node: true,
+      files: ['examples/**'],
+      rules: {
+        'import/no-extraneous-dependencies': ['off'],
+        'import/no-unresolved': ['off'],
       },
     },
     {
+      // Enable a node environment for dot, config, and setup files, and any
+      // file under the script folder
+      env: {
+        node: true,
+      },
+      files: ['.*.js', '*.config.js', '*.setup.js', 'scripts/*'],
+    },
+    {
       // Enable a jest environment for test files
-      files: ['*.test.{js,ts,tsx}'],
       env: {
         jest: true,
+      },
+      extends: ['plugin:jest/recommended', 'plugin:jest/style'],
+      files: ['*.test.{js,ts,tsx}'],
+      rules: {
+        'jest/consistent-test-it': ['error'],
+        'jest/expect-expect': ['off'],
       },
     },
     {
       // Flow specific rules
-      files: ['*.js.flow', '*/*flow.js', '*.flow.test.js'],
       extends: ['plugin:flowtype/recommended'],
+      files: ['*.js.flow', '*.flow.test.js', 'packages/**/*.js'],
       plugins: ['flowtype'],
       rules: {
         'flowtype/generic-spacing': ['off'],
+        'import/no-extraneous-dependencies': ['off'],
+        'import/no-unresolved': ['off'],
         'no-unused-vars': ['off'],
       },
     },
     {
       // TypeScript specific rules
-      files: ['*.{ts,tsx}'],
       extends: ['plugin:@typescript-eslint/recommended'],
+      files: ['*.{ts,tsx}'],
       rules: {
         '@typescript-eslint/ban-ts-comment': [
           'error',
@@ -90,6 +99,8 @@ module.exports = {
       files: ['*.typescript.test.{ts,tsx}'],
       rules: {
         '@typescript-eslint/no-unused-vars': 'off',
+        'import/no-extraneous-dependencies': ['off'],
+        'import/no-unresolved': ['off'],
       },
     },
   ],

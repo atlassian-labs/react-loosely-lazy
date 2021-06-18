@@ -1,6 +1,6 @@
 import { transformAsync } from '@babel/core';
 import pluginTester from 'babel-plugin-tester';
-import outdent from 'outdent';
+import { outdent } from 'outdent';
 import { join } from 'path';
 
 import plugin from '../src';

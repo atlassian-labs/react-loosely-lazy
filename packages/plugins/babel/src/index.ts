@@ -1,7 +1,5 @@
 import { types as BabelTypes } from '@babel/core';
 import type { NodePath, PluginObj } from '@babel/core';
-// TODO Remove when @babel/core exposes this type
-import { Binding } from '@babel/traverse';
 import { ResolveOptions } from 'enhanced-resolve';
 
 import {
@@ -278,7 +276,7 @@ export default function ({
           .map(name => path.scope.getBinding(name))
           .filter(isPresent);
 
-        bindings.forEach((binding: Binding) => {
+        bindings.forEach(binding => {
           const lazyMethodName = binding.identifier.name;
 
           binding.referencePaths.forEach((refPath: NodePath) => {
