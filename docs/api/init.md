@@ -32,7 +32,7 @@ It should be the same value as `webpack output.crossOriginLoading`, otherwise th
 ### `manifest?`
 `Manifest`
 
-The webpack manifest generated from the [`react-loosely-lazy/webpack-plugin`](tooling/webpack-plugin).
+The webpack manifest generated from the [`@react-loosely-lazy/webpack-plugin`](tooling/webpack-plugin).
 
 When provided, preload and prefetch links can be generated in the [`Document#head`](https://developer.mozilla.org/en-US/docs/Web/API/Document/head) on the server by calling [`LazyComponent#getAssetUrls`](api/lazy-component?id=getasseturls).
 

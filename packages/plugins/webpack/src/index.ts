@@ -30,34 +30,36 @@ export class ReactLooselyLazyPlugin {
       let currentLibraryExpression: undefined | any;
       let hasLibraryImport = false;
 
-      parser.hooks.import.tap(name, (statement, source) => {
+      parser.hooks.import.tap(name, (statement: any, source: string) => {
         if (source === PACKAGE_NAME) {
           hasLibraryImport = true;
         }
       });
 
-      parser.hooks.evaluate.for('CallExpression').tap(name, expression => {
-        // Perform an earlier bailout than checking the harmony specifiers
-        if (!hasLibraryImport) {
-          return;
-        }
+      parser.hooks.evaluate
+        .for('CallExpression')
+        .tap(name, (expression: any) => {
+          // Perform an earlier bailout than checking the harmony specifiers
+          if (!hasLibraryImport) {
+            return;
+          }
 
-        const calleeName = expression.callee.name;
-        // @ts-expect-error Parser types are not defined correctly
-        const { harmonySpecifier } = parser.state;
-        // TODO Someday handle proxies, and defined webpack aliases
-        if (
-          harmonySpecifier &&
-          harmonySpecifier.has(calleeName) &&
-          harmonySpecifier.get(calleeName).source === PACKAGE_NAME
-        ) {
-          currentLibraryExpression = expression;
-        }
-      });
+          const calleeName = expression.callee.name;
+          // @ts-expect-error Parser types are not defined correctly
+          const { harmonySpecifier } = parser.state;
+          // TODO Someday handle proxies, and defined webpack aliases
+          if (
+            harmonySpecifier &&
+            harmonySpecifier.has(calleeName) &&
+            harmonySpecifier.get(calleeName).source === PACKAGE_NAME
+          ) {
+            currentLibraryExpression = expression;
+          }
+        });
 
       // This is a slightly hacky, but convenient way to get the import statement of a library expression as it does not
       // require walking the call expression ourselves.
-      parser.hooks.importCall.tap(name, expression => {
+      parser.hooks.importCall.tap(name, (expression: any) => {
         // If a library expression is present, then that means this import call exists within the library expression
         // assuming that the parser always traverses in a depth-first fashion
         if (currentLibraryExpression) {
@@ -78,12 +80,15 @@ export class ReactLooselyLazyPlugin {
     compiler.hooks.normalModuleFactory.tap(name, factory => {
       // https://webpack.js.org/configuration/module/#ruletype
       // https://github.com/webpack/webpack/releases/tag/v4.0.0
+      // @ts-ignore Incompatible types are being inferred from tapable
       factory.hooks.parser.for('javascript/auto').tap(name, onJavaScriptModule);
 
       factory.hooks.parser
         .for('javascript/dynamic')
+        // @ts-expect-error Incompatible types are being inferred from tapable
         .tap(name, onJavaScriptModule);
 
+      // @ts-expect-error Incompatible types are being inferred from tapable
       factory.hooks.parser.for('javascript/esm').tap(name, onJavaScriptModule);
     });
 
@@ -106,13 +111,14 @@ export class ReactLooselyLazyPlugin {
       callback();
     });
 
+    // @ts-expect-error Incompatible types are being inferred from tapable
     compiler.hooks.thisCompilation.tap(name, compilation => {
       // modifies the webpack bootstrap code generated to expose jsonpScriptSrc
       // only needed on Webpack 4.x as Webpack 5+ has official support.
       // use stage 1 to ensure this executes after webpack/lib/web/JsonpMainTemplatePlugin.js
       compilation.mainTemplate.hooks.localVars.tap(
         { name, stage: 1 },
-        source => {
+        (source: string) => {
           let modSource = source;
           if (source.includes('function jsonpScriptSrc')) {
             modSource +=

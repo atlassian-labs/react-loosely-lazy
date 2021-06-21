@@ -11,14 +11,14 @@ Server-side rendering is handled transparently in a single render pass, when you
 | [ReactDOMServer.renderToString()](https://reactjs.org/docs/react-dom-server.html#rendertostring) | ✅ |
 
 ## Enabling server-side rendering
-Server-side rendering can be enabled in your application by [initialising](api/init) the library on the client, and adding the [`react-loosely-lazy/babel-plugin`](tooling/babel-plugin) to both the client and server babel configuration.
+Server-side rendering can be enabled in your application by [initialising](api/init) the library on the client, and adding the [`@react-loosely-lazy/babel-plugin`](tooling/babel-plugin) to both the client and server babel configuration.
 
 ### Server configuration
 #### Babel configuration
 ```json
 {
   "plugins": [
-    ["react-loosely-lazy/babel-plugin", { "client": false }]
+    ["@react-loosely-lazy/babel-plugin", { "client": false }]
   ]
 }
 ```
@@ -41,7 +41,7 @@ hydrate(
 ```json
 {
   "plugins": [
-    ["react-loosely-lazy/babel-plugin", { "client": true }]
+    ["@react-loosely-lazy/babel-plugin", { "client": true }]
   ]
 }
 ```

@@ -1,5 +1,5 @@
-import { getAssetUrlsFromId } from 'react-loosely-lazy/manifest';
-import type { Manifest } from 'react-loosely-lazy/manifest';
+import { getAssetUrlsFromId } from '@react-loosely-lazy/manifest';
+import type { Manifest } from '@react-loosely-lazy/manifest';
 
 // @ts-expect-error Missing publicPath and assets
 const missingKeysManifest: Manifest = {};

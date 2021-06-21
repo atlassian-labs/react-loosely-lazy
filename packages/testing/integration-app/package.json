@@ -1,0 +1,29 @@
+{
+  "name": "@react-loosely-lazy/integration-app",
+  "version": "0.7.0",
+  "private": true,
+  "description": "Common application used for plugin integration tests",
+  "keywords": [
+    "react-loosely-lazy",
+    "testing",
+    "integration"
+  ],
+  "homepage": "https://github.com/atlassian-labs/react-loosely-lazy",
+  "bugs": {
+    "url": "https://github.com/atlassian-labs/react-loosely-lazy/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://git@github.com/atlassian-labs/react-loosely-lazy.git"
+  },
+  "license": "Apache-2.0",
+  "sideEffects": true,
+  "source": "src/index.tsx",
+  "dependencies": {
+    "react": "^16.14.0",
+    "react-loosely-lazy": "^0.7.0"
+  },
+  "devDependencies": {
+    "@types/react": "^16.14.8"
+  }
+}

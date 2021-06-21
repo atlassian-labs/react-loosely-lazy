@@ -4,14 +4,13 @@ import chalk from 'chalk';
 import childProcess from 'child_process';
 import { promises } from 'fs';
 import { join } from 'path';
-import { URL, fileURLToPath } from 'url';
 import { promisify } from 'util';
+
+import { getPublicPackages, toPackageNamesMap } from './utils.mjs';
 
 const { black, bold } = chalk;
 const { copyFile, mkdir } = promises;
 const exec = promisify(childProcess.exec);
-
-const rootPath = fileURLToPath(new URL('..', import.meta.url));
 
 const copyFlowTypes = async (source, destination) => {
   try {
@@ -26,12 +25,19 @@ const copyFlowTypes = async (source, destination) => {
   }
 };
 
-const buildPackage = async ({ name, path }) => {
-  console.log(black.bgYellow(' BUILDING '), bold(name));
+const buildingText = black.bgYellow(' BUILDING ');
+const failedText = black.bgRed('  FAILED  ');
+const completeText = black.bgGreen(' COMPLETE ');
+
+const buildPackage = async ([path, packageJson]) => {
+  const { name } = packageJson;
+  const details = [bold(name)];
+
+  console.log(buildingText, ...details);
 
   try {
     const source = join(path, 'src');
-    const destination = join(rootPath, 'dist', name);
+    const destination = join(path, 'dist');
 
     await mkdir(destination).catch(() => {});
 
@@ -53,50 +59,66 @@ const buildPackage = async ({ name, path }) => {
 
     const typesDestination = join(destination, 'types');
     const tsConfig = join(path, 'tsconfig.json');
-    try {
-      await exec(`
-        tsc\
-          --declaration\
-          --declarationMap\
-          --declarationDir ${typesDestination}\
-          --emitDeclarationOnly\
-          --project ${tsConfig}
-      `);
-    } catch (err) {
-      // We don't care if the type cannot be found, as it still gets built
-      if (
-        // TODO Use !err.stdout?.includes once on node 16
-        !err.stdout ||
-        !err.stdout.includes("Cannot find module 'react-loosely-lazy/manifest'")
-      ) {
-        throw err;
-      }
-    }
+    await exec(`
+      tsc\
+        --declaration\
+        --declarationDir ${typesDestination}\
+        --declarationMap\
+        --emitDeclarationOnly\
+        --project ${tsConfig}
+    `);
   } catch (err) {
-    console.log(black.bgRed('  FAILED  '), bold(name));
+    console.log(failedText, ...details);
     console.log();
     throw err;
   }
 
-  console.log(black.bgGreen(' COMPLETE '), bold(name));
+  console.log(completeText, ...details);
   console.log();
 };
 
-const buildPackages = async packages => {
-  for (const [name, path] of packages) {
-    await buildPackage({ name, path });
+const buildPackages = async publicPackages => {
+  for (const entry of publicPackages) {
+    await buildPackage(entry);
   }
 };
 
-const main = async () => {
-  const packages = [
-    ['manifest', 'packages/core/manifest'],
-    ['react-loosely-lazy', 'packages/core/react-loosely-lazy'],
-    ['babel-plugin', 'packages/plugins/babel'],
-    ['webpack-plugin', 'packages/plugins/webpack'],
-  ].map(([name, path]) => [name, join(rootPath, path)]);
+const getSelectedPackages = (packages, packageNames) => {
+  const packagesByName = toPackageNamesMap(packages);
+  const selectedPackages = new Map();
+  const invalidPackages = [];
 
-  return buildPackages(packages);
+  for (const packageName of packageNames) {
+    if (packagesByName.has(packageName)) {
+      const [path, packageJson] = packagesByName.get(packageName);
+      selectedPackages.set(path, packageJson);
+    } else {
+      invalidPackages.push(packageName);
+    }
+  }
+
+  return [selectedPackages, invalidPackages];
+};
+
+const main = async () => {
+  const packages = await getPublicPackages();
+  const packageNames = process.argv.slice(2);
+  if (!packageNames.length) {
+    // Build every package
+    return buildPackages(packages);
+  }
+
+  const [selectedPackages, invalidPackages] = getSelectedPackages(
+    packages,
+    packageNames
+  );
+  if (invalidPackages.length) {
+    throw new Error(
+      `Unable to build the following packages: ${invalidPackages.join(', ')}`
+    );
+  }
+
+  return buildPackages(selectedPackages);
 };
 
 main().catch(err => {

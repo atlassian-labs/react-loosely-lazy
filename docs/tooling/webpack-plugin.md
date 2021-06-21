@@ -1,7 +1,7 @@
 # Webpack plugin
 The `ReactLooselyLazyPlugin` generates an output manifest file, containing a list of all of the lazy component asset paths, along with their corresponding asset dependencies.
 
-This plugin should be used with the [`react-loosely-lazy/babel-plugin`](tooling/babel-plugin), which ensures the output manifest can be operated on through the generated component `moduleId`.
+This plugin should be used with the [`@react-loosely-lazy/babel-plugin`](tooling/babel-plugin), which ensures the output manifest can be operated on through the generated component `moduleId`.
 
 ## Applications
 * Generate static preload and prefetch links ahead of time, such as in server-side rendering
@@ -10,15 +10,15 @@ This plugin should be used with the [`react-loosely-lazy/babel-plugin`](tooling/
 ## Installation
 ```sh
 # npm
-npm i react-loosely-lazy
+npm install @react-loosely-lazy/webpack-plugin
 
 # yarn
-yarn add react-loosely-lazy
+yarn add @react-loosely-lazy/webpack-plugin
 ```
 
 ## Usage
 ```javascript
-import { ReactLooselyLazyPlugin } from 'react-loosely-lazy/webpack-plugin';
+import { ReactLooselyLazyPlugin } from '@react-loosely-lazy/webpack-plugin';
 
 export default {
   // ...

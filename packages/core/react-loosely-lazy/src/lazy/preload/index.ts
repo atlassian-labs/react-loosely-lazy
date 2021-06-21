@@ -1,4 +1,4 @@
-import { getAssetUrlsFromId } from 'react-loosely-lazy/manifest';
+import { getAssetUrlsFromId } from '@react-loosely-lazy/manifest';
 
 import { noopCleanup } from '../../cleanup';
 import type { Cleanup } from '../../cleanup';

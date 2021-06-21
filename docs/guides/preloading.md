@@ -2,14 +2,14 @@
 ## Server
 Both preloading and prefetching is supported on the server by:
 
-1. Integrating the [`react-loosely-lazy/webpack-plugin`](tooling/webpack-plugin) with your webpack configuration 
+1. Integrating the [`@react-loosely-lazy/webpack-plugin`](tooling/webpack-plugin) with your webpack configuration 
 2. Providing the resulting manifest in [`init#manifest`](api/init?id=manifest) to generate dynamic links, and static links (*optional*)
 
 ### Generating the manifest
 The manifest can be generated on either the client or server:
 
 ```javascript
-import { ReactLooselyLazyPlugin } from 'react-loosely-lazy/webpack-plugin';
+import { ReactLooselyLazyPlugin } from '@react-loosely-lazy/webpack-plugin';
 
 export default {
   // ...

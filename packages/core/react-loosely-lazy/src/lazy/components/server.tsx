@@ -1,6 +1,6 @@
+import { getAssetUrlsFromId } from '@react-loosely-lazy/manifest';
 import React, { useContext } from 'react';
 import type { ComponentProps, ComponentType } from 'react';
-import { getAssetUrlsFromId } from 'react-loosely-lazy/manifest';
 
 import { getConfig } from '../../config';
 import { PHASE } from '../../constants';

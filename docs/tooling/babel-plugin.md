@@ -9,10 +9,10 @@ The babel plugin is primarily designed to support server-side rendering, and sho
 ## Installation
 ```sh
 # npm
-npm i react-loosely-lazy
+npm install @react-loosely-lazy/babel-plugin
 
 # yarn
-yarn add react-loosely-lazy
+yarn add @react-loosely-lazy/babel-plugin
 ```
 
 ## Usage
@@ -21,13 +21,13 @@ yarn add react-loosely-lazy
 ```javascript
 // without options
 {
-  "plugins": ["react-loosely-lazy/babel-plugin"]
+  "plugins": ["@react-loosely-lazy/babel-plugin"]
 }
 
 // with options
 {
   "plugins": [
-    ["react-loosely-lazy/babel-plugin", {
+    ["@react-loosely-lazy/babel-plugin", {
       "client": true
     }]
   ]
