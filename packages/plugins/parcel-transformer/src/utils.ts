@@ -102,5 +102,5 @@ export const findDependencies = (usages: string[]) => {
     }
   }
 
-  return dependencies;
+  return [...dependencies];
 };

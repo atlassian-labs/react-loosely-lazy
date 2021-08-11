@@ -13,7 +13,7 @@ export default new Reporter({
     const { inputFS, outputFS, projectRoot } = options;
 
     const config = JSON.parse(
-      await inputFS.readFile(join(projectRoot, 'package.json'))
+      await inputFS.readFile(join(projectRoot, 'package.json'), 'utf8')
     );
 
     const { fileName = 'rll-manifest.json' } =
@@ -26,11 +26,14 @@ export default new Reporter({
       },
     });
 
-    for (const [targetDir, manifest] of manifests) {
-      outputFS.writeFile(
-        join(targetDir, fileName),
-        JSON.stringify(manifest, null, 2)
-      );
-    }
+    await Promise.all(
+      [...manifests].map(([targetDir, manifest]) =>
+        outputFS.writeFile(
+          join(targetDir, fileName),
+          JSON.stringify(manifest, null, 2),
+          undefined // for TypeScript
+        )
+      )
+    );
   },
 });
