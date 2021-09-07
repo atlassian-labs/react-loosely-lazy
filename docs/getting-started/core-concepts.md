@@ -89,6 +89,10 @@ By separating code into distinct phases, we are able to improve perceived perfor
 
 <div class="phase-comparisons">
     <style>
+        :root {
+          --from-opacity: 0;
+          --to-opacity: 1;
+        }
         .phase-comparison svg, .phase-comparison svg * {
             filter: contrast(0.75);
         }
@@ -108,16 +112,16 @@ By separating code into distinct phases, we are able to improve perceived perfor
             fill: rgba(255, 255, 255, 0.3);
         }
         @keyframes none-navigation {
-            0%, 30% { opacity: 1; }
-            35%, 100% { opacity: 0; }
+            0%, 30% { opacity: var(--from-opacity); }
+            35%, 100% { opacity: var(--to-opacity); }
         }
         @keyframes none-sidebar {
-            0%, 50% { opacity: 1; }
-            55%, 100% { opacity: 0; }
+            0%, 50% { opacity: var(--from-opacity); }
+            55%, 100% { opacity: var(--to-opacity); }
         }
         @keyframes none-content {
-            0%, 70% { opacity: 1; }
-            75%, 100% { opacity: 0; }
+            0%, 70% { opacity: var(--from-opacity); }
+            75%, 100% { opacity: var(--to-opacity); }
         }
         .phase-comparison__none .phase-comparison__navigation-skeletons {
             animation: none-navigation 10s infinite;
@@ -129,16 +133,16 @@ By separating code into distinct phases, we are able to improve perceived perfor
             animation: none-content 10s infinite;
         }
         @keyframes phases-navigation {
-            0%, 30% { opacity: 1; }
-            35%, 100% { opacity: 0; }
+            0%, 30% { opacity: var(--from-opacity); }
+            35%, 100% { opacity: var(--to-opacity); }
         }
         @keyframes phases-sidebar {
-            0%, 70% { opacity: 1; }
-            75%, 100% { opacity: 0; }
+            0%, 70% { opacity: var(--from-opacity); }
+            75%, 100% { opacity: var(--to-opacity); }
         }
         @keyframes phases-content {
-            0%, 50% { opacity: 1; }
-            55%, 100% { opacity: 0; }
+            0%, 50% { opacity: var(--from-opacity); }
+            55%, 100% { opacity: var(--to-opacity); }
         }
         .phase-comparison__phases .phase-comparison__navigation-skeletons {
             animation: phases-navigation 10s infinite;
@@ -160,9 +164,9 @@ By separating code into distinct phases, we are able to improve perceived perfor
                 <rect x="0" y="12" width="200" height="0.5" stroke="none"/>
             </g>
             <g class="phase-comparison__navigation-skeletons">
-                <circle cx="178" cy="6" r="3"/>
-                <circle cx="186" cy="6" r="3"/>
-                <circle cx="194" cy="6" r="3"/>
+                <circle cx="178" cy="6.5" r="3"/>
+                <circle cx="186" cy="6.5" r="3"/>
+                <circle cx="194" cy="6.5" r="3"/>
             </g>
             <g class="phase-comparison__sidebar-skeletons">
                 <rect x="5" y="20" width="35" height="2"/>
@@ -191,9 +195,9 @@ By separating code into distinct phases, we are able to improve perceived perfor
                 <rect x="0" y="12" width="200" height="0.5" stroke="none"/>
             </g>
             <g class="phase-comparison__navigation-skeletons">
-                <circle cx="178" cy="6" r="3"/>
-                <circle cx="186" cy="6" r="3"/>
-                <circle cx="194" cy="6" r="3"/>
+                <circle cx="178" cy="6.5" r="3"/>
+                <circle cx="186" cy="6.5" r="3"/>
+                <circle cx="194" cy="6.5" r="3"/>
             </g>
             <g class="phase-comparison__sidebar-skeletons">
                 <rect x="5" y="20" width="35" height="2"/>
