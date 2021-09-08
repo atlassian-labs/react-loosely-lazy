@@ -1,6 +1,7 @@
-import type { Asset, BundleGraph, PackagedBundle } from '@parcel/plugin';
+import type { Asset, BundleGraph, PackagedBundle } from '@parcel/types';
 import type { Manifest } from '@react-loosely-lazy/manifest';
 import { relative } from 'path';
+import assert from 'assert';
 
 const getAssetId = (basePath: string, assetPath: string) => {
   let assetId = relative(basePath, assetPath);
@@ -48,13 +49,21 @@ export const buildManifests = ({
 
         return;
       }
+      visitedAssets.add(asset);
 
       const dependencies = asset.getDependencies();
+      const rllDependencies = asset.meta.rllDependencies;
+      if (rllDependencies == null) {
+        return;
+      }
 
-      for (const rllDependency of asset.meta.rllDependencies ?? []) {
+      assert(rllDependencies instanceof Array);
+      for (const rllDependency of rllDependencies) {
         const dependency = dependencies.find(
-          ({ isAsync, moduleSpecifier }) =>
-            moduleSpecifier === rllDependency && isAsync
+          ({ priority, specifier }) =>
+            specifier === rllDependency &&
+            // TODO: Suggest Parcel adopt rll's priorities as first-class dependency priorities
+            priority === 'lazy'
         );
 
         if (!dependency) {
@@ -96,8 +105,6 @@ export const buildManifests = ({
           manifest.assets[assetId].push(assetDependency);
         }
       }
-
-      visitedAssets.add(asset);
     });
   }
 
