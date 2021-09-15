@@ -1,6 +1,6 @@
 {
   "name": "@react-loosely-lazy/manifest",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "description": "react-loosely-lazy manifest types and utilities",
   "keywords": [
     "react-loosely-lazy",

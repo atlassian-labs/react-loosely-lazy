@@ -1,6 +1,6 @@
 {
   "name": "@react-loosely-lazy/integration-app",
-  "version": "0.7.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Common application used for plugin integration tests",
   "keywords": [
@@ -21,7 +21,7 @@
   "source": "src/index.tsx",
   "dependencies": {
     "react": "^16.14.0",
-    "react-loosely-lazy": "^0.7.0"
+    "react-loosely-lazy": "^1.0.0"
   },
   "devDependencies": {
     "@types/react": "^16.14.8"
