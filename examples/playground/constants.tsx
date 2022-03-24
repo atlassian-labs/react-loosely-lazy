@@ -7,7 +7,7 @@ export const steps = [
   'PAINT READY',
   'AFTER LOADING',
   'AFTER FETCHING',
-  'AFTER READY', // also 'LAZY READY'
+  'AFTER READY',
   'CUSTOM LOADING',
   'CUSTOM FETCHING',
   'CUSTOM READY',

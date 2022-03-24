@@ -26,13 +26,13 @@
     "dist"
   ],
   "devDependencies": {
-    "@testing-library/react": "^11.2.7",
-    "@types/react": "^16.14.8",
-    "@types/react-dom": "^16.9.13",
-    "react-dom": "^16.14.0"
+    "@testing-library/react": "^13.0.0-alpha.6",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "react-dom": "^18.0.0-0"
   },
   "peerDependencies": {
     "@react-loosely-lazy/manifest": "1.0.0",
-    "react": "^16.9.0 || ^17.0.0-0"
+    "react": "^16.9.0 || ^17.0.0-0 || ^18.0.0-0"
   }
 }

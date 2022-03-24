@@ -20,10 +20,10 @@
   "sideEffects": true,
   "source": "src/index.tsx",
   "dependencies": {
-    "react": "^16.14.0",
+    "react": "^18.0.0-0",
     "react-loosely-lazy": "^1.0.0"
   },
   "devDependencies": {
-    "@types/react": "^16.14.8"
+    "@types/react": "^17.0.0"
   }
 }

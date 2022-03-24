@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 
-import { UntilContext } from './context';
-import type { UntilSubscriber } from './context';
+import { WaitContext } from './context';
+import type { SubscriptionContextValue } from '../lazy/types';
+// import type { UntilSubscriber } from './context';
 
 export type LazyWaitProps = {
   until: boolean;
@@ -10,37 +11,35 @@ export type LazyWaitProps = {
 };
 
 export const LazyWait = ({ until, children }: LazyWaitProps) => {
-  const closestUntil = useContext(UntilContext);
-  const value = useRef(until && closestUntil.value.current);
-  const subscribers = useRef<Set<UntilSubscriber>>(new Set());
-  const api = useRef({
-    subscribe: (subscriber: UntilSubscriber) => {
+  const closestWait = useContext(WaitContext);
+  const value = useRef(until && closestWait.currentValue() ? 1 : 0);
+  const subscribers = useRef<Set<() => void>>(new Set());
+  const api = useRef<SubscriptionContextValue>({
+    subscribe: subscriber => {
       subscribers.current.add(subscriber);
 
       return () => {
         subscribers.current.delete(subscriber);
       };
     },
-    value,
+    currentValue: () => value.current,
   });
 
   useEffect(() => {
     // Notify subscribers when until prop or closest until value changes
-    const notify = (nextUntil: boolean) => {
-      value.current = nextUntil && until;
+    const notify = () => {
+      value.current = closestWait.currentValue() && until ? 1 : 0;
       for (const subscriber of subscribers.current) {
-        subscriber(value.current);
+        subscriber();
       }
     };
 
-    notify(closestUntil.value.current);
+    notify();
 
-    return closestUntil.subscribe(notify);
-  }, [closestUntil, until]);
+    return closestWait.subscribe(notify);
+  }, [closestWait, until]);
 
   return (
-    <UntilContext.Provider value={api.current}>
-      {children}
-    </UntilContext.Provider>
+    <WaitContext.Provider value={api.current}>{children}</WaitContext.Provider>
   );
 };

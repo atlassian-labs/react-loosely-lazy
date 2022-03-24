@@ -1,9 +1,7 @@
-import { getAssetUrlsFromId } from '@react-loosely-lazy/manifest';
 import React, { useContext } from 'react';
 import type { ComponentProps, ComponentType } from 'react';
 
-import { getConfig } from '../../config';
-import { PHASE } from '../../constants';
+import { getConfig, MODE } from '../../config';
 import { LazySuspenseContext } from '../../suspense';
 import { getExport } from '../../utils';
 
@@ -34,24 +32,18 @@ export function createComponentServer<C extends ComponentType<any>>({
   return (props: ComponentProps<C>) => {
     const Resolved = ssr ? load(moduleId, loader) : null;
     const { fallback } = useContext(LazySuspenseContext);
-    const { crossOrigin, manifest } = getConfig();
+    const { mode } = getConfig();
 
-    return (
-      <>
-        <input type="hidden" data-lazy-begin={dataLazyId} />
-        {defer !== PHASE.LAZY &&
-          getAssetUrlsFromId(manifest, moduleId)?.map(url => (
-            <link
-              key={url}
-              rel={defer === PHASE.PAINT ? 'preload' : 'prefetch'}
-              href={url}
-              crossOrigin={crossOrigin}
-              as="script"
-            />
-          ))}
-        {Resolved ? <Resolved {...props} /> : fallback}
-        <input type="hidden" data-lazy-end={dataLazyId} />
-      </>
-    );
+    if (mode === MODE.RENDER) {
+      return (
+        <>
+          <input type="hidden" data-lazy-begin={dataLazyId} />
+          {Resolved ? <Resolved {...props} /> : fallback}
+          <input type="hidden" data-lazy-end={dataLazyId} />
+        </>
+      );
+    }
+
+    return Resolved ? <Resolved {...props} /> : fallback;
   };
 }

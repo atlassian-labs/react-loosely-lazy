@@ -1,8 +1,7 @@
 import React, { Component, Suspense, useLayoutEffect } from 'react';
 import type { FunctionComponent } from 'react';
 
-import { isNodeEnvironment } from '../utils';
-
+import { getConfig, MODE } from '../config';
 import { LazySuspenseContext } from './context';
 import { Fallback, LazySuspenseContextType, LazySuspenseProps } from './types';
 
@@ -10,7 +9,6 @@ type LazySuspenseState = LazySuspenseContextType;
 
 type DynamicFallbackProps = {
   children(fallback: Fallback): any;
-  outsideSuspense: boolean;
 };
 
 /**
@@ -51,27 +49,25 @@ export class LazySuspense extends Component<
     setFallback: (fallback: Fallback) => {
       if (this.hydrationFallback === fallback) return;
       this.hydrationFallback = fallback;
-      // Schedule an update so we force switch from the sibling tree
-      // back to the suspense boundary
-      if (this.mounted) this.forceUpdate();
     },
   };
 
   private hydrationFallback: Fallback = null;
-  private mounted = false;
 
   constructor(props: LazySuspenseProps) {
     super(props);
     this.DynamicFallback.displayName = 'DynamicFallback';
   }
 
-  componentDidMount() {
-    this.mounted = true;
+  shouldComponentUpdate() {
+    // This is a workaround to prevent Suspense during hydration
+    // from switching to the fallback if a re-render occurs
+    // https://github.com/facebook/react/issues/22692
+    return this.hydrationFallback ? false : true;
   }
 
   private DynamicFallback: FunctionComponent<DynamicFallbackProps> = ({
     children,
-    outsideSuspense,
   }) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useLayoutEffect(() => {
@@ -80,46 +76,33 @@ export class LazySuspense extends Component<
         // when both Lazy AND the eventual promises thrown are done
         // so Suspense will re-render with actual content and we remove
         // the hydration fallback at the same time
-        if (!outsideSuspense) this.state.setFallback(null);
+        this.state.setFallback(this.hydrationFallback);
       };
-    }, [outsideSuspense]);
+    }, []);
 
-    return outsideSuspense
-      ? children(this.hydrationFallback ? this.hydrationFallback : null)
-      : children(this.hydrationFallback ? null : this.props.fallback);
+    return children(this.hydrationFallback || this.props.fallback);
   };
 
-  private renderFallback(outsideSuspense: boolean) {
-    const { DynamicFallback } = this;
+  private renderFallback() {
+    if (getConfig().mode === MODE.RENDER) {
+      const { DynamicFallback } = this;
 
-    // Use render prop component to allow switch to hydration fallback
-    return (
-      <DynamicFallback outsideSuspense={outsideSuspense}>
-        {(fallback: Fallback) => fallback}
-      </DynamicFallback>
-    );
-  }
+      // Use render prop component to allow switch to hydration fallback
+      return (
+        <DynamicFallback>{(fallback: Fallback) => fallback}</DynamicFallback>
+      );
+    }
 
-  private renderServer() {
-    return (
-      <LazySuspenseContext.Provider value={this.state}>
-        {this.props.children}
-      </LazySuspenseContext.Provider>
-    );
-  }
-
-  private renderClient() {
-    return (
-      <LazySuspenseContext.Provider value={this.state}>
-        <Suspense fallback={this.renderFallback(false)}>
-          {this.props.children}
-        </Suspense>
-        {(!this.mounted || this.hydrationFallback) && this.renderFallback(true)}
-      </LazySuspenseContext.Provider>
-    );
+    return this.props.fallback;
   }
 
   render() {
-    return isNodeEnvironment() ? this.renderServer() : this.renderClient();
+    return (
+      <LazySuspenseContext.Provider value={this.state}>
+        <Suspense fallback={this.renderFallback()}>
+          {this.props.children}
+        </Suspense>
+      </LazySuspenseContext.Provider>
+    );
   }
 }
