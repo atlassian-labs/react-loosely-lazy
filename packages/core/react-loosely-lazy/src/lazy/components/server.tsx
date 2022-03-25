@@ -44,6 +44,6 @@ export function createComponentServer<C extends ComponentType<any>>({
       );
     }
 
-    return Resolved ? <Resolved {...props} /> : fallback;
+    return <>{Resolved ? <Resolved {...props} /> : fallback}</>;
   };
 }
