@@ -31,21 +31,11 @@ export const createDeferred = <C extends ComponentType<any>>(
       if (deferred.result) {
         return;
       }
-
-      loader().then((m: any) => {
-        deferred.result = m;
-      });
+      // just load the code, without resolving
+      loader();
     },
     start: () => {
-      if (deferred.result) {
-        resolve(deferred.result);
-
-        return deferred.promise.then(() => {
-          // Return void...
-        });
-      } else {
-        return loader().then(resolve);
-      }
+      return loader().then(resolve);
     },
   };
 

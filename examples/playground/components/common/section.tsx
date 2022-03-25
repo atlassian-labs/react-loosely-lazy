@@ -3,6 +3,7 @@ import { LazySuspense } from 'react-loosely-lazy';
 
 import { Result } from './result';
 import { Progress } from './progress';
+import { isServer } from '../../utils';
 
 type Props = {
   components: {
@@ -36,7 +37,8 @@ export const Section = memo(
         )}
         {WithoutSSR != null && (
           <LazySuspense fallback={<Result isFallback />}>
-            <WithoutSSR />
+            {/* given use renderToString, we fake SSR fallback render */}
+            {isServer() ? <Result isFallback /> : <WithoutSSR />}
           </LazySuspense>
         )}
       </Wrapper>
