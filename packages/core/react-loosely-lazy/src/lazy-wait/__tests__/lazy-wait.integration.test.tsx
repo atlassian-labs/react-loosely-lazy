@@ -8,11 +8,6 @@ import { LazySuspense } from '../../suspense';
 
 import { LazyWait } from '../index';
 
-jest.mock('../../utils', () => ({
-  ...jest.requireActual('../../utils'),
-  isNodeEnvironment: () => false,
-}));
-
 describe('LazyWait', () => {
   let loader: jest.Mock;
   beforeEach(() => {
@@ -27,8 +22,7 @@ describe('LazyWait', () => {
     ['lazyForPaint', lazyForPaint],
     ['lazy', lazy],
   ])('%s', (_, lazyMethod) => {
-    // lazyForPaint uses useMemo, which has a side effect
-    const strictModeCalls = lazyMethod === lazyForPaint ? 1 : 0;
+    const strictModeCalls = 1;
 
     describe('with a single closest', () => {
       it('does not load when until is false', () => {
@@ -128,7 +122,7 @@ describe('LazyWait', () => {
           </StrictMode>
         );
 
-        expect(loader).toHaveBeenCalledTimes(1);
+        expect(loader).toHaveBeenCalledTimes(1 + strictModeCalls);
       });
 
       it('loads a second time when until transitions to true after the child unmounts', () => {
@@ -200,7 +194,7 @@ describe('LazyWait', () => {
           </StrictMode>
         );
 
-        expect(loader).toHaveBeenCalledTimes(2 + strictModeCalls);
+        expect(loader).toHaveBeenCalledTimes(2 + strictModeCalls * 2);
       });
     });
 
@@ -366,7 +360,7 @@ describe('LazyWait', () => {
           </StrictMode>
         );
 
-        expect(loader).toHaveBeenCalledTimes(1);
+        expect(loader).toHaveBeenCalledTimes(1 + strictModeCalls);
       });
 
       it('loads when the closest and next closest until transition to true in parallel', () => {
@@ -398,7 +392,7 @@ describe('LazyWait', () => {
           </StrictMode>
         );
 
-        expect(loader).toHaveBeenCalledTimes(1);
+        expect(loader).toHaveBeenCalledTimes(1 + strictModeCalls);
       });
     });
 
@@ -540,7 +534,7 @@ describe('LazyWait', () => {
           </StrictMode>
         );
 
-        expect(loader1).toHaveBeenCalledTimes(1);
+        expect(loader1).toHaveBeenCalledTimes(1 + strictModeCalls);
         expect(loader2).toHaveBeenCalledTimes(0);
       });
 
@@ -582,7 +576,7 @@ describe('LazyWait', () => {
         );
 
         expect(loader1).toHaveBeenCalledTimes(0);
-        expect(loader2).toHaveBeenCalledTimes(1);
+        expect(loader2).toHaveBeenCalledTimes(1 + strictModeCalls);
       });
 
       it('loads both children when both until transition to true', () => {
@@ -622,8 +616,8 @@ describe('LazyWait', () => {
           </StrictMode>
         );
 
-        expect(loader1).toHaveBeenCalledTimes(1);
-        expect(loader2).toHaveBeenCalledTimes(1);
+        expect(loader1).toHaveBeenCalledTimes(1 + strictModeCalls);
+        expect(loader2).toHaveBeenCalledTimes(1 + strictModeCalls);
       });
     });
   });

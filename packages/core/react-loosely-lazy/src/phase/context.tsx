@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react';
 
 import { PHASE } from '../constants';
+import type { SubscriptionContextValue } from '../lazy/types';
 
 import { LISTENERS } from './listeners';
 import type { Listener } from './listeners';
@@ -13,9 +14,16 @@ export const setCurrent = (phase: number) => {
   LISTENERS.slice(0).forEach((listener: Listener) => listener(phase));
 };
 
-export const LazyPhaseContext = createContext({
+interface LazyPhaseContextApi extends SubscriptionContextValue {
+  api: {
+    startNextPhase: () => void;
+    resetPhase: () => void;
+  };
+}
+
+export const LazyPhaseContext = createContext<LazyPhaseContextApi>({
   subscribe: createSubscribe(LISTENERS),
-  currentPhase: () => CURRENT_PHASE,
+  currentValue: () => CURRENT_PHASE,
   api: {
     startNextPhase: () => {
       setCurrent(PHASE.AFTER_PAINT);
