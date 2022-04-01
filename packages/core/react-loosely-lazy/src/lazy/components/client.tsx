@@ -61,21 +61,17 @@ export function createComponentClient<C extends ComponentType<any>>({
 
     // Subscribe to LazyWait context, triggering load when until is true
     useSubscription({
-      comparator: v => v === 1,
       context: WaitContext,
-      key: 'noWait',
       load,
-      status,
+      onValue: v => (status.noWait = v === 1),
     });
 
     if (defer === PHASE.AFTER_PAINT) {
       // Subscribe to LazyPhase context, triggering load when own phase starts
       useSubscription({
-        comparator: v => v >= defer,
         context: LazyPhaseContext,
-        key: 'phase',
         load,
-        status,
+        onValue: v => (status.phase = v >= defer),
       });
 
       // Schedule preloading as will be needed soon
