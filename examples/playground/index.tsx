@@ -1,11 +1,17 @@
-import React, { useState, useEffect, FunctionComponent } from 'react';
+import React, {
+  useState,
+  useEffect,
+  FunctionComponent,
+  StrictMode,
+} from 'react';
 import { hydrate, render } from 'react-dom';
 import { renderToString } from 'react-dom/server';
 
 import { useLazyPhase, MODE } from 'react-loosely-lazy';
-import { listeners, steps, pastSteps } from './constants';
 
 import { buildServerComponents, buildClientComponents } from './components';
+import { listeners, steps, pastSteps } from './constants';
+import { isFailSsr, isRender } from './utils';
 
 /**
  * Controls App
@@ -84,7 +90,7 @@ const App = ({ initialStep, components }: AppProps) => {
   }, [step, startNextPhase]);
 
   return (
-    <>
+    <StrictMode>
       <h1>&nbsp;</h1>
       <main>
         <components.ForPaint />
@@ -92,24 +98,22 @@ const App = ({ initialStep, components }: AppProps) => {
         <components.Lazy />
         <components.CustomWait step={step} />
       </main>
-    </>
+    </StrictMode>
   );
 };
 
 const renderApp = (v: string) => {
   const appContainer = document.querySelector('#app');
-  const isFailSsr = window.location.search.includes('failssr');
-  const isRender = isFailSsr || window.location.search.includes('render');
-  const mode = isRender ? MODE.RENDER : MODE.HYDRATE;
+  const mode = isRender() ? MODE.RENDER : MODE.HYDRATE;
 
-  if (v === 'SSR' && appContainer && !isFailSsr) {
+  if (v === 'SSR' && appContainer && !isFailSsr()) {
     const components = buildServerComponents(mode);
     const ssr = renderToString(<App initialStep={v} components={components} />);
-    appContainer.innerHTML = isRender ? `<div>${ssr}</div>` : ssr;
+    appContainer.innerHTML = isRender() ? `<div>${ssr}</div>` : ssr;
   }
   if (v === 'PAINT LOADING') {
     const components = buildClientComponents(mode);
-    const renderer = isRender ? render : hydrate;
+    const renderer = isRender() ? render : hydrate;
 
     renderer(<App initialStep={v} components={components} />, appContainer);
   }

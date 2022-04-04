@@ -1,15 +1,12 @@
 import React from 'react';
 
-import { controlFetch } from '../../utils';
+import { createSuspendableData } from '../../utils';
 import { Result } from '../common/result';
 
-let hasThrown = false;
+const useSuspendableData = createSuspendableData();
 
 const ComponentNoSSR = () => {
-  if (!hasThrown) {
-    hasThrown = true;
-    throw controlFetch(true);
-  }
+  useSuspendableData();
 
   return <Result />;
 };

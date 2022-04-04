@@ -4,6 +4,7 @@ import { PHASE } from '../../constants';
 import { LooselyLazy } from '../../init';
 import { LazySuspense } from '../../suspense';
 
+import { nextTick } from '../../../__tests__/test-utils';
 import { lazyForPaint, lazyAfterPaint, lazy, PRIORITY } from '..';
 import {
   App,
@@ -312,6 +313,8 @@ describe('lazy* on the client', () => {
             <LazyTestComponent />
           </LazySuspense>
         );
+
+        await nextTick();
 
         expect(document.head).toMatchInlineSnapshot(`
           <head>

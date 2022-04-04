@@ -17,6 +17,7 @@
     "preserveConstEnums": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
+    "sourceMap": false,
     "strict": true,
     "target": "esnext",
     "typeRoots": ["node_modules/@types", "types"]

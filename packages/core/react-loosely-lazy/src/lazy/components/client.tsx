@@ -1,19 +1,11 @@
-import React, {
-  ComponentProps,
-  ComponentType,
-  lazy,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { lazy, useContext, useMemo, useState } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 
 import { getConfig, MODE } from '../../config';
 import { COLLECTED, PHASE } from '../../constants';
-import { useUntil } from '../../lazy-wait';
+import { WaitContext } from '../../lazy-wait';
+import { LazyPhaseContext } from '../../phase';
 import { LazySuspenseContext } from '../../suspense';
-import { usePhaseSubscription } from '../../phase';
 
 import { PRIORITY } from '../constants';
 import { Deferred } from '../deferred';
@@ -22,70 +14,83 @@ import { PlaceholderFallbackRender } from '../placeholders/render';
 import { PlaceholderFallbackHydrate } from '../placeholders/hydrate';
 import { preloadAsset } from '../preload';
 
+import type { Status } from './types';
+import { useSubscription } from './utils';
+
+// @ts-expect-error requestIdleCallback might not exist
+const { requestIdleCallback = setTimeout } = window;
+
 export function createComponentClient<C extends ComponentType<any>>({
   defer,
   deferred,
   dataLazyId,
   moduleId,
-  ssr,
 }: {
   defer: number;
   deferred: Deferred<C>;
   dataLazyId: string;
   moduleId: string;
-  ssr: boolean;
 }) {
   const ResolvedLazy = lazy(() => deferred.promise);
 
   return (props: ComponentProps<C>) => {
-    const { setFallback } = useContext(LazySuspenseContext);
-    const started = useRef(false);
-    const [, setState] = useState();
-    const until = useUntil();
+    // use a single piece of state to hold info about progress or eventually
+    // throw an error. We do change it via direct mutation as re-renders
+    // break Suspense in React 18, making it lose hydration state
+    const [status, bubbleError] = useState<Status>(() => ({
+      noWait: undefined,
+      phase: defer === PHASE.AFTER_PAINT ? false : true,
+      preloaded: defer === PHASE.AFTER_PAINT ? false : true,
+      started: false,
+    }));
 
-    const load = useRef(() => {
-      if (started.current) {
+    const load = () => {
+      if (status.started || !status.phase || !status.noWait) {
         return;
       }
 
-      started.current = true;
+      status.started = true;
       deferred.start().catch((err: Error) => {
         // Throw the error within the component lifecycle
         // refer to https://github.com/facebook/react/issues/11409
-        setState(() => {
+        bubbleError(() => {
           throw createLoaderError(err);
         });
       });
+    };
+
+    // Subscribe to LazyWait context, triggering load when until is true
+    useSubscription({
+      context: WaitContext,
+      load,
+      onValue: v => (status.noWait = v === 1),
     });
 
-    if (defer === PHASE.LAZY) {
-      useEffect(() => {
-        if (until) {
-          load.current();
-        }
-      }, [until]);
-    } else {
-      const isOwnPhase = usePhaseSubscription(defer);
+    if (defer === PHASE.AFTER_PAINT) {
+      // Subscribe to LazyPhase context, triggering load when own phase starts
+      useSubscription({
+        context: LazyPhaseContext,
+        load,
+        onValue: v => (status.phase = v >= defer),
+      });
 
+      // Schedule preloading as will be needed soon
       useMemo(() => {
-        if (isOwnPhase && until) {
-          load.current();
-        }
-      }, [isOwnPhase, until]);
-
-      if (defer === PHASE.AFTER_PAINT) {
-        // Start preloading as will be needed soon
-        useEffect(() => {
-          if (!isOwnPhase) {
-            return preloadAsset({
+        if (!status.preloaded) {
+          status.preloaded = true;
+          requestIdleCallback(() => {
+            if (status.started) return;
+            preloadAsset({
               loader: deferred.preload,
               moduleId,
               priority: PRIORITY.LOW,
             });
-          }
-        }, [isOwnPhase]);
-      }
+          });
+        }
+      }, [status]);
     }
+
+    const { setFallback } = useContext(LazySuspenseContext);
 
     useMemo(() => {
       // find SSR content (or fallbacks) wrapped in inputs based on lazyId
@@ -93,23 +98,14 @@ export function createComponentClient<C extends ComponentType<any>>({
       if (!content) return;
 
       // override Suspense fallback with magic input wrappers
-      const { mode } = getConfig();
       const component =
-        mode === MODE.RENDER ? (
+        getConfig().mode === MODE.RENDER ? (
           <PlaceholderFallbackRender id={dataLazyId} content={content} />
         ) : (
           <PlaceholderFallbackHydrate id={dataLazyId} content={content} />
         );
       setFallback(component);
     }, [setFallback]);
-
-    if (!ssr) {
-      // as the fallback is SSRd too, we want to discard it as soon as this
-      // mounts (to avoid hydration warnings) and let Suspense render it
-      useEffect(() => {
-        setFallback(null);
-      }, [setFallback]);
-    }
 
     return <ResolvedLazy {...props} />;
   };

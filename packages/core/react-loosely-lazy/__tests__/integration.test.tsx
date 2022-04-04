@@ -131,7 +131,7 @@ describe('hydrates', () => {
     describe('when ssr is false', () => {
       const ssr = false;
 
-      it('by rendering the server fallback, before rendering the fallback and replacing', async () => {
+      it('by rendering  and persisting the server fallback, before replacing', async () => {
         const { App: ServerApp } = createApp({
           hydrate,
           server: true,
@@ -149,7 +149,6 @@ describe('hydrates', () => {
         const {
           App: ClientApp,
           Child,
-          Fallback,
           resolveImport,
         } = createApp({
           hydrate,
@@ -162,11 +161,10 @@ describe('hydrates', () => {
           hydrate,
         });
 
-        // expect client to use live fallback ASAP
+        // expect client to use placeholder and persist ssr fallback
         expect(Child).not.toHaveBeenCalled();
-        expect(Fallback).toHaveBeenCalled();
         expect(container).toContainHTML('<i>Fallback</i>');
-        expect(container.querySelector('input')).not.toBeInTheDocument();
+        expect(container.querySelector('input')).toBeInTheDocument();
 
         await act(resolveImport);
 
@@ -238,7 +236,7 @@ describe('hydrates', () => {
     describe('when ssr is false', () => {
       const ssr = false;
 
-      it('by rendering the server fallback, before rendering the fallback and replacing', async () => {
+      it('by rendering and persisting the server content, before replacing', async () => {
         const { App: ServerApp } = createApp({
           hydrate,
           lazyMethod,
@@ -257,7 +255,6 @@ describe('hydrates', () => {
         const {
           App: ClientApp,
           Child,
-          Fallback,
           resolveImport,
         } = createApp({
           hydrate,
@@ -274,11 +271,10 @@ describe('hydrates', () => {
         // simulate component being ready on next tick
         await act(resolveImport);
 
-        // expect client to use live fallback ASAP
+        // expect client to use placeholder and persist ssr content
         expect(Child).not.toHaveBeenCalled();
-        expect(Fallback).toHaveBeenCalled();
         expect(container).toContainHTML('<i>Fallback</i>');
-        expect(container.querySelector('input')).not.toBeInTheDocument();
+        expect(container.querySelector('input')).toBeInTheDocument();
 
         rerender(<ClientApp phase={PHASE.AFTER_PAINT} />);
 
@@ -347,7 +343,7 @@ describe('renders', () => {
     describe('when ssr is false', () => {
       const ssr = false;
 
-      it('by rendering the server fallback, before rendering the fallback and replacing', async () => {
+      it('by rendering and persisting the server fallback, before replacing', async () => {
         const { App: ServerApp } = createApp({
           hydrate,
           server: true,
@@ -365,7 +361,6 @@ describe('renders', () => {
         const {
           App: ClientApp,
           Child,
-          Fallback,
           resolveImport,
         } = createApp({
           hydrate,
@@ -378,11 +373,10 @@ describe('renders', () => {
           hydrate,
         });
 
-        // expect client to use live fallback ASAP
+        // expect client to use placeholder and persist ssr fallback
         expect(Child).not.toHaveBeenCalled();
-        expect(Fallback).toHaveBeenCalled();
         expect(container).toContainHTML('<i>Fallback</i>');
-        expect(container.querySelector('input')).not.toBeInTheDocument();
+        expect(container.querySelector('input')).toBeInTheDocument();
 
         await act(resolveImport);
 

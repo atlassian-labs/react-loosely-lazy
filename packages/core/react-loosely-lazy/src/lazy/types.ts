@@ -28,3 +28,8 @@ export type LazyComponent<C extends ComponentType<any>> = FunctionComponent<
   preload: (priority?: PreloadPriority) => Cleanup;
   getAssetUrls: () => string[] | undefined;
 };
+
+export interface SubscriptionContextValue {
+  subscribe: (callback: () => void) => Cleanup;
+  currentValue: () => number;
+}

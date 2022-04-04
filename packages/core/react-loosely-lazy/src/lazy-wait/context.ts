@@ -1,19 +1,9 @@
 import { createContext } from 'react';
-import type { MutableRefObject } from 'react';
 
-import type { Cleanup } from '../cleanup';
 import { noopCleanup } from '../cleanup';
+import type { SubscriptionContextValue } from '../lazy/types';
 
-export type UntilSubscriber = (until: boolean) => void;
-
-export type UntilContextValue = {
-  subscribe: (subscriber: UntilSubscriber) => Cleanup;
-  value: MutableRefObject<boolean>;
-};
-
-export const UntilContext = createContext<UntilContextValue>({
+export const WaitContext = createContext<SubscriptionContextValue>({
   subscribe: () => noopCleanup,
-  value: {
-    current: true,
-  },
+  currentValue: () => 1,
 });
