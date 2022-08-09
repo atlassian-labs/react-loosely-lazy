@@ -15,15 +15,7 @@ export const displayNameFromId = (id: string) => {
  * @see https://github.com/jsdom/jsdom/issues/1537
  */
 export const isNodeEnvironment = () => {
-  if (typeof window === 'undefined') {
-    return true;
-  }
-
-  if (window.name === 'nodejs') {
-    return true;
-  }
-
-  return false;
+  return globalThis !== globalThis.window;
 };
 
 export function attrToProp(props: { [k: string]: string }, attr: Attr) {
