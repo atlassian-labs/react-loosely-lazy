@@ -49,8 +49,21 @@ export function getModulePath({
   modulePathReplacer,
   resolver,
 }: GetModulePathOptions): string {
+  // When resolving a package with `exports` in the package.json, `enhanced-resolve` will fail
+  // match if the import contains a query string. Query strings could be used to pass import
+  // meta data in some cases (e.g. Parcel with support for "magic comments")
+  let actualImportPath = importPath;
+  const qsPos = importPath.indexOf('?');
+  if (qsPos !== -1) {
+    actualImportPath = importPath.substring(0, qsPos);
+  }
+
   // Resolve the import path starting from the filename path itself rather than from within this file
-  const modulePath = resolver.resolveSync({}, dirname(filename), importPath);
+  const modulePath = resolver.resolveSync(
+    {},
+    dirname(filename),
+    actualImportPath
+  );
 
   const path = relative(process.cwd(), String(modulePath));
 

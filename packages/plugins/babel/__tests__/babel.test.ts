@@ -32,6 +32,35 @@ describe.each(['server', 'client'])('on the %s', (env: string) => {
       sourceType: 'module',
     });
 
+  // This test won't work as a fixture because it doesn't appear that fixtures
+  // use "module" as the sourceType for Babel
+  describe('works with module exports', () => {
+    const transformedImport = env === 'client' ? 'import' : 'require';
+    it('with query strings', async () => {
+      const mocksDir = join(__dirname, '__mocks__');
+      await expect(
+        babel(
+          `
+      import { lazyForPaint } from 'react-loosely-lazy';
+
+      const TestComponent = lazyForPaint(() =>
+        import('package?hello=world')
+      );
+      `,
+          {
+            // Pretend the file being transpiled is in the __mocks__/app directory
+            filename: join(mocksDir, 'app', 'index.js'),
+          }
+        )
+      ).resolves.toMatchObject({
+        code: outdent`import { lazyForPaint } from 'react-loosely-lazy';
+        const TestComponent = lazyForPaint(() => ${transformedImport}('package?hello=world'), {
+          moduleId: \"./packages/plugins/babel/__tests__/__mocks__/app/node_modules/package/js-component.js\"
+        });`,
+      });
+    });
+  });
+
   describe('correctly generates the moduleId when running babel from a different cwd', () => {
     const transformedImport = env === 'client' ? 'import' : 'require';
 
