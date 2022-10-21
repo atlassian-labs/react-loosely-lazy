@@ -75,6 +75,9 @@ describe('reporter', () => {
             expect.stringMatching(/external-assets.\w+.js/),
             expect.stringMatching(/external-assets.\w+.css/),
           ],
+          [`${integrationAppPath}/src/ui/import-with-query.tsx`]: [
+            expect.stringMatching(/import-with-query.\w+.js/),
+          ],
           [`${integrationAppPath}/src/ui/lazy-after-paint.tsx`]: [
             expect.stringMatching(/lazy-after-paint.\w+.js/),
           ],

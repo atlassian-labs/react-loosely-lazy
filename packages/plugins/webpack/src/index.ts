@@ -1,6 +1,6 @@
 import { Compiler, compilation as webpackCompilation } from 'webpack';
 
-import { buildManifest } from './utils';
+import { buildManifest, removeQueryParams } from './utils';
 
 type Parser = webpackCompilation.normalModuleFactory.Parser;
 
@@ -63,7 +63,7 @@ export class ReactLooselyLazyPlugin {
         // If a library expression is present, then that means this import call exists within the library expression
         // assuming that the parser always traverses in a depth-first fashion
         if (currentLibraryExpression) {
-          const rawRequest = expression.arguments[0].value;
+          const rawRequest = removeQueryParams(expression.arguments[0].value);
           // @ts-expect-error Parser types are not defined correctly
           const { module } = parser.state;
           if (!moduleImports.has(module.resource)) {

@@ -82,6 +82,13 @@ const LazyCustomAlias = lazyForPaint(
     import(/* webpackChunkName: "async-custom-alias" */ 'custom-alias')
 );
 
+const ImportWithQuery = lazyForPaint(
+  () =>
+    // @ts-ignore This is an import with a query param. Query should be ignored.
+    // eslint-disable-next-line import/no-unresolved
+    import('./ui/import-with-query?parcelChunkName=async-import-query')
+);
+
 export const App = () => (
   <div>
     <LazyProxy />
@@ -98,5 +105,6 @@ export const App = () => (
     <LazyMultipleUsagesTwo />
     <LazyNested />
     <LazyCustomAlias />
+    <ImportWithQuery />
   </div>
 );
