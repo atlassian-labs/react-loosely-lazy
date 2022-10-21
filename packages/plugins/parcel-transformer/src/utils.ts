@@ -97,7 +97,7 @@ const removeQueryParams = (input: string) => {
   }
 
   return input;
-}
+};
 
 export const findDependencies = (usages: string[]) => {
   const dependencies = new Set<string>();

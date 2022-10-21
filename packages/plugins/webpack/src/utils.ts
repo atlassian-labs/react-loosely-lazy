@@ -128,4 +128,4 @@ export const removeQueryParams = (input: string) => {
   }
 
   return input;
-}
+};

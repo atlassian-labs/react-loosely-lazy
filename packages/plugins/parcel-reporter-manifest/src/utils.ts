@@ -24,7 +24,7 @@ const removeQueryParams = (input: string) => {
   }
 
   return input;
-}
+};
 
 export type BuildManifestsOptions = {
   bundleGraph: BundleGraph<PackagedBundle>;
