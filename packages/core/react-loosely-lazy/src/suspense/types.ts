@@ -1,4 +1,4 @@
-import { SuspenseProps } from 'react';
+import type { SuspenseProps } from 'react';
 
 export type Fallback = SuspenseProps['fallback'];
 
@@ -8,5 +8,6 @@ export type LazySuspenseContextType = {
 };
 
 export type LazySuspenseProps = {
+  children?: SuspenseProps['children'];
   fallback: Fallback;
 };
