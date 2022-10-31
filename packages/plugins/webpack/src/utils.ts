@@ -117,10 +117,14 @@ export const buildManifest = (
   );
 };
 
-export const removeQueryParams = (input: string) => {
+export const removeQueryParams = (input: string | undefined) => {
   // When resolving a package with `exports` in the package.json, `enhanced-resolve` will fail
   // match if the import contains a query string. Query strings could be used to pass import
   // meta data in some cases (e.g. Parcel with support for "magic comments")
+  if (!input) {
+    return input;
+  }
+
   const qsPos = input.indexOf('?');
 
   if (qsPos !== -1) {
