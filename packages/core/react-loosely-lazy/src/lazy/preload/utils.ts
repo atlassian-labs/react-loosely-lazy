@@ -1,3 +1,4 @@
+import { GlobalReactLooselyLazyProfiler } from '../../profiler';
 import { noopCleanup } from '../../cleanup';
 import { getConfig } from '../../config';
 
@@ -17,12 +18,29 @@ export function insertLinkTag(href: string, rel: string) {
   if (crossOrigin) link.crossOrigin = crossOrigin;
   link.href = href;
 
+  const profiler = GlobalReactLooselyLazyProfiler;
+  let removableListener: (() => void) | null = null;
+  if (profiler && profiler.onLoadStart && profiler.onLoadComplete) {
+    const eventInfo = { identifier: href };
+    const listener = () => {
+      link.removeEventListener('onload', listener);
+      removableListener = null;
+      profiler?.onLoadComplete?.(eventInfo);
+    };
+    link.addEventListener('onload', listener);
+    removableListener = listener;
+    profiler.onLoadStart?.(eventInfo);
+  }
+
   document.head?.appendChild(link);
 
   return () => {
     // Remove the link if it is still in the document head
     if (link.parentNode === document.head) {
       document.head?.removeChild(link);
+    }
+    if (removableListener) {
+      link.removeEventListener('onload', removableListener);
     }
   };
 }

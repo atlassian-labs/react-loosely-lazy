@@ -13,6 +13,7 @@ import { createLoaderError } from '../errors';
 import { PlaceholderFallbackRender } from '../placeholders/render';
 import { PlaceholderFallbackHydrate } from '../placeholders/hydrate';
 import { preloadAsset } from '../preload';
+import { ProfilerContext } from '../../profiler';
 
 import type { Status } from './types';
 import { useSubscription } from './utils';
@@ -44,19 +45,34 @@ export function createComponentClient<C extends ComponentType<any>>({
       started: false,
     }));
 
+    const profiler = useContext(ProfilerContext);
+
     const load = () => {
       if (status.started || !status.phase || !status.noWait) {
         return;
       }
 
       status.started = true;
-      deferred.start().catch((err: Error) => {
+      let onResolve;
+      if (profiler) {
+        const eventInfo = { identifier: moduleId };
+        onResolve = () => {
+          profiler?.onLoadComplete?.(eventInfo);
+        };
+        profiler?.onLoadStart?.(eventInfo);
+      }
+
+      const result = deferred.start().catch((err: Error) => {
         // Throw the error within the component lifecycle
         // refer to https://github.com/facebook/react/issues/11409
         bubbleError(() => {
           throw createLoaderError(err);
         });
       });
+
+      if (onResolve) {
+        result.then(onResolve);
+      }
     };
 
     // Subscribe to LazyWait context, triggering load when until is true
