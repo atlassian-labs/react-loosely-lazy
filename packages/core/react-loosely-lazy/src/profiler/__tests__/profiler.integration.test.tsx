@@ -1,7 +1,7 @@
 import React from 'react';
 import { insertLinkTag } from '../../lazy/preload/utils';
 import { LazySuspense } from '../../suspense';
-import * as profiler from '../index';
+import { GlobalReactLooselyLazyProfiler, ProfilerContext } from '../index';
 import { render } from '@testing-library/react';
 import { LooselyLazy } from '../../init';
 import { lazyForPaint } from '../../lazy';
@@ -13,10 +13,10 @@ describe('profiler', () => {
   const globalOnLoadComplete = jest.fn();
 
   beforeEach(() => {
-    profiler.setGlobalReactLooselyLazyProfilerInstance({
+    GlobalReactLooselyLazyProfiler.current = {
       onLoadStart: globalOnLoadStart,
       onLoadComplete: globalOnLoadComplete,
-    });
+    };
   });
 
   afterEach(() => {
@@ -68,8 +68,10 @@ describe('profiler', () => {
 
     it('should collect start and end times from client component', async () => {
       const context = {
-        onLoadStart: contextOnLoadStart,
-        onLoadComplete: contextOnLoadComplete,
+        current: {
+          onLoadStart: contextOnLoadStart,
+          onLoadComplete: contextOnLoadComplete,
+        },
       };
 
       const TestComponent = () => <div>A component</div>;
@@ -81,11 +83,11 @@ describe('profiler', () => {
       );
 
       render(
-        <profiler.ProfilerContext.Provider value={context}>
+        <ProfilerContext.Provider value={context}>
           <LazySuspense fallback={null}>
             <LazyTestComponent />
           </LazySuspense>
-        </profiler.ProfilerContext.Provider>
+        </ProfilerContext.Provider>
       );
 
       expect(contextOnLoadStart).toHaveBeenCalledWith({
@@ -102,8 +104,10 @@ describe('profiler', () => {
 
     it('should not collect end time when component fails to load', async () => {
       const context = {
-        onLoadStart: contextOnLoadStart,
-        onLoadComplete: contextOnLoadComplete,
+        current: {
+          onLoadStart: contextOnLoadStart,
+          onLoadComplete: contextOnLoadComplete,
+        },
       };
 
       const LazyFailComponent = lazyForPaint(
@@ -114,11 +118,11 @@ describe('profiler', () => {
       );
 
       render(
-        <profiler.ProfilerContext.Provider value={context}>
+        <ProfilerContext.Provider value={context}>
           <LazySuspense fallback={null}>
             <LazyFailComponent />
           </LazySuspense>
-        </profiler.ProfilerContext.Provider>
+        </ProfilerContext.Provider>
       );
 
       expect(contextOnLoadStart).toHaveBeenCalledWith({

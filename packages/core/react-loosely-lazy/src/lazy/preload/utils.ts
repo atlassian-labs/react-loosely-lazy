@@ -18,18 +18,18 @@ export function insertLinkTag(href: string, rel: string) {
   if (crossOrigin) link.crossOrigin = crossOrigin;
   link.href = href;
 
-  const profiler = GlobalReactLooselyLazyProfiler;
+  const profiler = GlobalReactLooselyLazyProfiler.current;
   let removableListener: (() => void) | null = null;
-  if (profiler && profiler.onLoadStart && profiler.onLoadComplete) {
+  if (profiler) {
     const eventInfo = { identifier: href };
     const listener = () => {
       link.removeEventListener('onload', listener);
       removableListener = null;
-      profiler?.onLoadComplete?.(eventInfo);
+      profiler.onLoadComplete(eventInfo);
     };
     link.addEventListener('onload', listener);
     removableListener = listener;
-    profiler.onLoadStart?.(eventInfo);
+    profiler.onLoadStart(eventInfo);
   }
 
   document.head?.appendChild(link);

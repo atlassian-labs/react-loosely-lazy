@@ -45,7 +45,7 @@ export function createComponentClient<C extends ComponentType<any>>({
       started: false,
     }));
 
-    const profiler = useContext(ProfilerContext);
+    const profiler = useContext(ProfilerContext).current;
 
     const load = () => {
       if (status.started || !status.phase || !status.noWait) {
@@ -57,9 +57,9 @@ export function createComponentClient<C extends ComponentType<any>>({
       if (profiler) {
         const eventInfo = { identifier: moduleId };
         onResolve = () => {
-          profiler?.onLoadComplete?.(eventInfo);
+          profiler.onLoadComplete(eventInfo);
         };
-        profiler?.onLoadStart?.(eventInfo);
+        profiler.onLoadStart(eventInfo);
       }
 
       const result = deferred.start().catch((err: Error) => {

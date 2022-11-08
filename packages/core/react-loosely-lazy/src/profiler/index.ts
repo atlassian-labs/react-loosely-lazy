@@ -4,22 +4,19 @@ export type EventInfo = {
   identifier: string;
 };
 
-export type Profiler = {
-  onLoadStart?(info: EventInfo): void;
-  onLoadComplete?(info: EventInfo): void;
+type Profiler = {
+  onLoadStart(info: EventInfo): void;
+  onLoadComplete(info: EventInfo): void;
 };
 
-let globalInstance: Profiler | undefined;
-export function setGlobalReactLooselyLazyProfilerInstance(instance: Profiler) {
-  globalInstance = instance;
-}
-
-const globalInstanceProxy = {
-  onLoadStart: (info: EventInfo) => globalInstance?.onLoadStart?.(info),
-  onLoadComplete: (info: EventInfo) => globalInstance?.onLoadComplete?.(info),
+export type ProfilerContextType = {
+  current: Profiler | null;
 };
 
-export const GlobalReactLooselyLazyProfiler: Readonly<Profiler> =
-  globalInstanceProxy;
+export const GlobalReactLooselyLazyProfiler: ProfilerContextType = {
+  current: null,
+};
 
-export const ProfilerContext = createContext<Profiler>(globalInstanceProxy);
+export const ProfilerContext = createContext<ProfilerContextType>(
+  GlobalReactLooselyLazyProfiler
+);
