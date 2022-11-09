@@ -4,16 +4,19 @@ import { LazySuspense } from '../../suspense';
 import { GlobalReactLooselyLazyProfiler, ProfilerContext } from '../index';
 import { render } from '@testing-library/react';
 import { LooselyLazy } from '../../init';
-import { lazyForPaint } from '../../lazy';
+import { lazyForPaint, PRIORITY } from '../../lazy';
+import { preloadAsset } from '../../lazy/preload';
 
 const nextTick = async () => new Promise(resolve => setTimeout(resolve, 0));
 
 describe('profiler', () => {
+  const globalOnPreload = jest.fn();
   const globalOnLoadStart = jest.fn();
   const globalOnLoadComplete = jest.fn();
 
   beforeEach(() => {
     GlobalReactLooselyLazyProfiler.current = {
+      onPreload: globalOnPreload,
       onLoadStart: globalOnLoadStart,
       onLoadComplete: globalOnLoadComplete,
     };
@@ -24,6 +27,17 @@ describe('profiler', () => {
   });
 
   describe('global profiler', () => {
+    it('should receive onPreload notification from preloadAsset', () => {
+      preloadAsset({
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        loader: () => {},
+        moduleId: 'module id',
+        priority: PRIORITY.HIGH,
+      });
+
+      expect(globalOnPreload).toHaveBeenCalledWith('module id', PRIORITY.HIGH);
+    });
+
     it('should collect start and end times from insertLinkTag', () => {
       const dispose = insertLinkTag('/example', 'preload');
 
@@ -59,6 +73,7 @@ describe('profiler', () => {
   });
 
   describe('context profiler', () => {
+    const contextOnPreload = jest.fn();
     const contextOnLoadStart = jest.fn();
     const contextOnLoadComplete = jest.fn();
 
@@ -69,6 +84,7 @@ describe('profiler', () => {
     it('should collect start and end times from client component', async () => {
       const context = {
         current: {
+          onPreload: contextOnPreload,
           onLoadStart: contextOnLoadStart,
           onLoadComplete: contextOnLoadComplete,
         },
