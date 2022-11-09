@@ -10,6 +10,7 @@ import { Loader } from '../loader';
 import { PreloadPriority } from '../types';
 
 import { insertLinkTag } from './utils';
+import { GlobalReactLooselyLazyProfiler } from '../../profiler';
 
 declare const __webpack_require__: any;
 declare function __webpack_get_script_filename__(chunkId: string): string;
@@ -103,6 +104,8 @@ export function preloadAsset({
   priority,
 }: PreloadAssetOptions): Cleanup {
   if (isNodeEnvironment()) return noopCleanup;
+
+  GlobalReactLooselyLazyProfiler.current?.onPreload(moduleId, priority);
 
   const rel = priority === PRIORITY.HIGH ? 'preload' : 'prefetch';
   const preloadStrategies = [
