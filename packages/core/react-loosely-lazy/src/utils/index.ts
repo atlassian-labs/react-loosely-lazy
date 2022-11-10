@@ -10,12 +10,31 @@ export const displayNameFromId = (id: string) => {
 
 /**
  * Checks to see if we are running inside a node environment or not.
- * Covers jsdom environments.
+ * Covers jsdom environments and other environments which simply remove
+ * window.
  *
  * @see https://github.com/jsdom/jsdom/issues/1537
  */
 export const isNodeEnvironment = () => {
-  return globalThis !== globalThis.window;
+  // Some SSR environments remove the window object
+  if (typeof window === 'undefined') {
+    return true;
+  }
+
+  // Official way to check for JSDOM
+  if (
+    navigator.userAgent.includes('Node.js') ||
+    navigator.userAgent.includes('jsdom')
+  ) {
+    return true;
+  }
+
+  // Used by examples to immitate SSR
+  if (window.name === 'nodejs') {
+    return true;
+  }
+
+  return false;
 };
 
 export function attrToProp(props: { [k: string]: string }, attr: Attr) {

@@ -7,6 +7,11 @@ import {
 } from '..';
 import type { Cleanup } from '..';
 
+jest.mock('../../../utils', () => ({
+  ...jest.requireActual<any>('../../../utils'),
+  isNodeEnvironment: () => false,
+}));
+
 let head: string;
 
 beforeEach(() => {
