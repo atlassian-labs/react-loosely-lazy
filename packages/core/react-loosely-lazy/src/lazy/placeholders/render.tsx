@@ -27,8 +27,10 @@ const usePlaceholderRender = (resolveId: string, content: HTMLElement[]) => {
         node.parentNode?.removeChild(node)
       );
     };
+    // [hydrationRef.current, ssrDomNodes] are expected to be stable
+    // with the second one never changing by design and the first one changing after first render
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrationRef.current, ssrDomNodes]);
+  }, []);
 
   return hydrationRef;
 };
