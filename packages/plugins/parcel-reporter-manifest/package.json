@@ -27,7 +27,7 @@
     "dist"
   ],
   "dependencies": {
-    "@parcel/plugin": "2.0.0-rc.0"
+    "@parcel/plugin": "^2.0.0-rc.0"
   },
   "devDependencies": {
     "@parcel/config-default": "2.0.0-rc.0",
