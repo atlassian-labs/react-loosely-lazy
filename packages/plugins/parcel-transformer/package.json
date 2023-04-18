@@ -1,6 +1,6 @@
 {
   "name": "@react-loosely-lazy/parcel-transformer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Parcel transformer plugin for react-loosely-lazy",
   "keywords": [
     "react-loosely-lazy",
