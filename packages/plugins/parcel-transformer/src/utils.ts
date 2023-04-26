@@ -56,7 +56,7 @@ export const findUsages = (code: string, importSpecifiers: Set<string>) => {
   const usages: string[] = [];
   for (const importSpecifier of importSpecifiers) {
     // This is going to assume you call the library, with an optional generic type parameter, and no whitespace...
-    const usageStartRe = new RegExp(`${importSpecifier}(?:<.+>)?\\(`);
+    const usageStartRe = new RegExp(`${importSpecifier}(?:<(?:.|\n)+?>)?\\(`);
 
     let usageIndex = 0;
     let usageStart;
