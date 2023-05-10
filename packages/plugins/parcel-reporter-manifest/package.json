@@ -1,6 +1,6 @@
 {
   "name": "@react-loosely-lazy/parcel-reporter-manifest",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Parcel reporter plugin that generates a manifest for react-loosely-lazy",
   "keywords": [
     "react-loosely-lazy",
@@ -34,11 +34,11 @@
     "@parcel/core": "2.0.0-rc.0",
     "@parcel/fs": "2.0.0-rc.0",
     "@parcel/types": "2.0.0-rc.0",
-    "@react-loosely-lazy/integration-app": "^1.0.0",
-    "@react-loosely-lazy/manifest": "^1.0.0"
+    "@react-loosely-lazy/integration-app": "^1.1.0",
+    "@react-loosely-lazy/manifest": "^1.1.0"
   },
   "peerDependencies": {
-    "@react-loosely-lazy/manifest": "1.0.0"
+    "@react-loosely-lazy/manifest": "1.1.0"
   },
   "engines": {
     "parcel": "^2.0.0-rc.0"

@@ -1,6 +1,6 @@
 {
   "name": "react-loosely-lazy",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Suspense enable and SSR compatible async components with priorities",
   "keywords": [
     "react",
@@ -32,7 +32,7 @@
     "react-dom": "^16.14.0"
   },
   "peerDependencies": {
-    "@react-loosely-lazy/manifest": "1.0.0",
+    "@react-loosely-lazy/manifest": "1.1.0",
     "react": "^16.9.0 || ^17.0.0-0"
   }
 }
