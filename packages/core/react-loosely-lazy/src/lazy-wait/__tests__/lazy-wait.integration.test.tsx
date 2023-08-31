@@ -8,6 +8,11 @@ import { LazySuspense } from '../../suspense';
 
 import { LazyWait } from '../index';
 
+jest.mock('../../utils', () => ({
+  ...jest.requireActual<any>('../../utils'),
+  isNodeEnvironment: () => false,
+}));
+
 describe('LazyWait', () => {
   let loader: jest.Mock;
   beforeEach(() => {

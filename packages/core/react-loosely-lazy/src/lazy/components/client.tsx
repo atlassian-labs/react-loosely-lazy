@@ -18,8 +18,10 @@ import { ProfilerContext } from '../../profiler';
 import type { Status } from './types';
 import { useSubscription } from './utils';
 
-// @ts-expect-error requestIdleCallback might not exist
-const { requestIdleCallback = setTimeout } = window;
+const safeIdleCallback = (cb: () => void) => {
+  // @ts-expect-error requestIdleCallback might not exist
+  (window.requestIdleCallback ?? window.setTimeout)(cb);
+};
 
 export function createComponentClient<C extends ComponentType<any>>({
   defer,
@@ -94,7 +96,7 @@ export function createComponentClient<C extends ComponentType<any>>({
       useMemo(() => {
         if (!status.preloaded) {
           status.preloaded = true;
-          requestIdleCallback(() => {
+          safeIdleCallback(() => {
             if (status.started) return;
             preloadAsset({
               loader: deferred.preload,

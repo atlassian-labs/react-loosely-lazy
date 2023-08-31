@@ -6,6 +6,12 @@ import { render } from '@testing-library/react';
 import { LooselyLazy } from '../../init';
 import { lazyForPaint, PRIORITY } from '../../lazy';
 import { preloadAsset } from '../../lazy/preload';
+import { isNodeEnvironment } from '../../utils';
+
+jest.mock('../../utils', () => ({
+  ...jest.requireActual<any>('../../utils'),
+  isNodeEnvironment: jest.fn(),
+}));
 
 const nextTick = async () => new Promise(resolve => setTimeout(resolve, 0));
 
@@ -27,6 +33,10 @@ describe('profiler', () => {
   });
 
   describe('global profiler', () => {
+    beforeEach(() => {
+      (isNodeEnvironment as any).mockImplementation(() => false);
+    });
+
     it('should receive onPreload notification from preloadAsset', () => {
       preloadAsset({
         // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -121,17 +131,18 @@ describe('profiler', () => {
     it('should not collect end time when component fails to load', async () => {
       const context = {
         current: {
+          // eslint-disable-next-line @typescript-eslint/no-empty-function
+          onPreload: () => {},
           onLoadStart: contextOnLoadStart,
           onLoadComplete: contextOnLoadComplete,
         },
       };
 
-      const LazyFailComponent = lazyForPaint(
-        () => Promise.reject('Module failed to load'),
-        {
-          moduleId: 'fail module',
-        }
-      );
+      const loader = () =>
+        Promise.reject(new Error('Failed to load module...'));
+      const LazyFailComponent = lazyForPaint(loader, {
+        moduleId: 'fail module',
+      });
 
       render(
         <ProfilerContext.Provider value={context}>
