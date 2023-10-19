@@ -19,7 +19,7 @@ export type {
   ServerLoader,
 } from './lazy';
 
-export { LazyWait } from './lazy-wait';
+export { LazyWait, WaitContext } from './lazy-wait';
 export type { LazyWaitProps } from './lazy-wait';
 
 export { LazySuspense } from './suspense';
