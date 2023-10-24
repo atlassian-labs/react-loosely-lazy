@@ -5,14 +5,13 @@
     "docs": "npx docsify-cli serve docs",
     "lint": "eslint --ext .ts,.tsx,.mjs,.js --max-warnings 0 .",
     "lint:fix": "npm run lint -- --fix",
-    "preversion": "npm run lint -s && npm run types:check -s && npm run test -s",
+    "release": "npx changeset publish",
     "start": "webpack-dev-server",
     "test": "jest",
     "test:debug": "node --inspect-brk ./node_modules/.bin/jest",
     "test:watch": "jest --watch",
     "types:check": "tsc --noEmit && flow --max-warnings=0",
-    "types:watch": "tsc --noEmit --watch",
-    "version": "node scripts/version.mjs"
+    "types:watch": "tsc --noEmit --watch"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.5",
@@ -29,6 +28,7 @@
     "@babel/preset-typescript": "^7.14.5",
     "@babel/register": "^7.14.5",
     "@babel/runtime": "^7.14.5",
+    "@changesets/cli": "^2.26.2",
     "@testing-library/jest-dom": "^5.14.1",
     "@types/jest": "^26.0.23",
     "@types/react": "^16.14.8",
@@ -56,7 +56,6 @@
     "prettier": "^2.3.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
-    "semver": "^7.3.5",
     "tsconfig-paths-webpack-plugin": "^3.5.1",
     "typescript": "^4.3.3",
     "webpack": "^4.46.0",
