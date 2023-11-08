@@ -102,6 +102,34 @@ describe.each(['server', 'client'])('on the %s', (env: string) => {
         `,
       });
     });
+
+    it('when custom resolver is used', async () => {
+      const mocksDir = join(__dirname, '__mocks__');
+      // Pretend we are running babel from the __mocks__/test directory
+      mockCwd(join(mocksDir, 'test'));
+
+      await expect(
+        babel(
+          `
+            import { lazyForPaint } from 'react-loosely-lazy';
+
+            const TestComponent = lazyForPaint(() => import('@custom-package'));
+          `,
+          {
+            // Pretend the file being transpiled is in the __mocks__/app directory
+            filename: join(mocksDir, 'app', 'test.js'),
+            resolver: join(__dirname, '__fixtures__', 'resolver', 'index.js'),
+          }
+        )
+      ).resolves.toMatchObject({
+        code: outdent`
+          import { lazyForPaint } from 'react-loosely-lazy';
+          const TestComponent = lazyForPaint(() => ${transformedImport}('@custom-package'), {
+            moduleId: "../../__fixtures__/resolver/local-custom-package/index.js"
+          });
+      `,
+      });
+    });
   });
 
   describe('throws an error when the loader argument', () => {
