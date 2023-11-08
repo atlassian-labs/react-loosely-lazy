@@ -1,6 +1,6 @@
 import { types as BabelTypes } from '@babel/core';
 import type { NodePath, PluginObj } from '@babel/core';
-import { ResolveOptions } from 'enhanced-resolve';
+import { ResolveOptions, Resolver } from 'enhanced-resolve';
 
 import {
   createCustomResolver,
@@ -28,6 +28,7 @@ export type BabelPluginOptions = Partial<{
   modulePathReplacer: ModulePathReplacer;
   noopRedundantLoaders: boolean;
   resolverOptions: Partial<ResolveOptions> | undefined;
+  resolver: Resolver | undefined;
 }>;
 
 export default function ({
@@ -262,10 +263,14 @@ export default function ({
           modulePathReplacer,
           noopRedundantLoaders = true,
           resolverOptions = {},
+          resolver,
         } = state.opts || {};
         const { filename } = state;
         const source = path.node.source.value;
-        const customResolver = createCustomResolver(resolverOptions);
+        const customResolver = 
+          resolver && typeof resolver === 'string' ? 
+            require(require.resolve(resolver)) : 
+            createCustomResolver(resolverOptions);
 
         if (source !== PACKAGE_NAME) {
           return;
