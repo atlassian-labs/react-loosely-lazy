@@ -267,10 +267,10 @@ export default function ({
         } = state.opts || {};
         const { filename } = state;
         const source = path.node.source.value;
-        const customResolver = 
-          resolver && typeof resolver === 'string' ? 
-            require(require.resolve(resolver)) : 
-            createCustomResolver(resolverOptions);
+        const customResolver =
+          resolver && typeof resolver === 'string'
+            ? require(require.resolve(resolver))
+            : createCustomResolver(resolverOptions);
 
         if (source !== PACKAGE_NAME) {
           return;
