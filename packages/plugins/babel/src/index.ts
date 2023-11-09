@@ -265,15 +265,15 @@ export default function ({
           noopRedundantLoaders = true,
           resolverOptions = {},
           resolver,
-          root
+          root,
         } = state.opts || {};
         const { filename } = state;
         const source = path.node.source.value;
         const customResolver =
           resolver && typeof resolver === 'string'
             ? require(require.resolve(resolver, {
-              paths: [root ?? this.cwd],
-            }))
+                paths: [root ?? this.cwd],
+              }))
             : createCustomResolver(resolverOptions);
 
         if (source !== PACKAGE_NAME) {
