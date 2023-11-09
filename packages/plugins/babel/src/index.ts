@@ -28,6 +28,8 @@ export type BabelPluginOptions = Partial<{
   modulePathReplacer: ModulePathReplacer;
   noopRedundantLoaders: boolean;
   resolverOptions: Partial<ResolveOptions> | undefined;
+  resolver: string | undefined;
+  root: string | undefined;
 }>;
 
 export default function ({
@@ -262,10 +264,17 @@ export default function ({
           modulePathReplacer,
           noopRedundantLoaders = true,
           resolverOptions = {},
+          resolver,
+          root,
         } = state.opts || {};
         const { filename } = state;
         const source = path.node.source.value;
-        const customResolver = createCustomResolver(resolverOptions);
+        const customResolver =
+          resolver && typeof resolver === 'string'
+            ? require(require.resolve(resolver, {
+                paths: [root ?? this.cwd],
+              }))
+            : createCustomResolver(resolverOptions);
 
         if (source !== PACKAGE_NAME) {
           return;
