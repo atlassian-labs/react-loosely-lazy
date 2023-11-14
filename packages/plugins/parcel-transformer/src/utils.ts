@@ -86,6 +86,23 @@ export const findUsages = (code: string, importSpecifiers: Set<string>) => {
   return usages;
 };
 
+const removeQueryParams = (input: string) => {
+  // When resolving a package with `exports` in the package.json, `enhanced-resolve` will fail
+  // match if the import contains a query string. Query strings could be used to pass import
+  // meta data in some cases (e.g. Parcel with support for "magic comments")
+  if (!input) {
+    return input;
+  }
+
+  const qsPos = input.indexOf('?');
+
+  if (qsPos !== -1) {
+    return input.substring(0, qsPos);
+  }
+
+  return input;
+};
+
 export const findDependencies = (usages: string[]) => {
   const dependencies = new Set<string>();
   for (const usage of usages) {
@@ -98,7 +115,7 @@ export const findDependencies = (usages: string[]) => {
         ?.specifier;
 
     if (dependency) {
-      dependencies.add(dependency);
+      dependencies.add(removeQueryParams(dependency));
     }
   }
 

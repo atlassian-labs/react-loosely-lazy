@@ -1,0 +1,8 @@
+{
+    "name": "package",
+    "private": true,
+    "module": "main.js",
+    "exports": {
+        ".": "./js-component.js"
+    }
+}
