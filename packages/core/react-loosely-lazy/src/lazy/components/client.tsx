@@ -18,8 +18,7 @@ import { ProfilerContext } from '../../profiler';
 import type { Status } from './types';
 import { useSubscription } from './utils';
 
-// @ts-expect-error requestIdleCallback might not exist
-const { requestIdleCallback = setTimeout } = window;
+
 
 export function createComponentClient<C extends ComponentType<any>>({
   defer,
@@ -32,6 +31,9 @@ export function createComponentClient<C extends ComponentType<any>>({
   dataLazyId: string;
   moduleId: string;
 }) {
+  
+  // @ts-expect-error requestIdleCallback might not exist
+  const { requestIdleCallback = setTimeout } = window;
   const ResolvedLazy = lazy(() => deferred.promise);
 
   return (props: ComponentProps<C>) => {
