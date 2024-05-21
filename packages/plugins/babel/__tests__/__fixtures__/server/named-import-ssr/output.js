@@ -3,7 +3,6 @@ const NamedImport = lazyForPaint(
   () => {
     var _temp = require('react'),
       _temp2 = ({ Component }) => Component;
-
     return _temp2(_temp);
   },
   {

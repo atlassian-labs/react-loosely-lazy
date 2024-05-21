@@ -7,7 +7,6 @@ const ChainedNamedImport = lazyForPaint(
         return mod;
       },
       _temp4 = mod => mod;
-
     return _temp4(_temp3(_temp2(_temp)));
   },
   {

@@ -19,6 +19,7 @@ export function createCustomResolver(
   options: Partial<ResolveOptions>
 ): Resolver {
   return ResolverFactory.createResolver({
+    // @ts-expect-error fs != BaseFileSystem
     fileSystem: new CachedInputFileSystem(fs, 4000),
     extensions: ['.tsx', '.ts', '.jsx', '.js'],
     ...options,
