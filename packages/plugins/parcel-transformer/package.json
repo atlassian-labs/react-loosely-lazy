@@ -26,14 +26,14 @@
     "dist"
   ],
   "dependencies": {
-    "@parcel/plugin": "^2.0.0-rc.0"
+    "@parcel/plugin": "^2.12.0"
   },
   "devDependencies": {
-    "@parcel/config-default": "2.0.0-rc.0",
-    "@parcel/core": "2.0.0-rc.0",
+    "@parcel/config-default": "^2.12.0",
+    "@parcel/core": "^2.12.0",
     "@react-loosely-lazy/integration-app": "^1.2.0"
   },
   "engines": {
-    "parcel": "^2.0.0-rc.0"
+    "parcel": "^2.0.0"
   }
 }

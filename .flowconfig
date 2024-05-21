@@ -1,3 +1,6 @@
+[declarations]
+<PROJECT_ROOT>/node_modules/.*
+
 [ignore]
 <PROJECT_ROOT>/dist
 

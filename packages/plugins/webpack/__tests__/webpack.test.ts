@@ -21,6 +21,13 @@ describe('ReactLooselyLazyPlugin', () => {
     const projectRoot = join(__dirname, 'app');
     const manifestFilename = 'manifest.json';
 
+    // Workaround webpack 4 incompatibility with node 18
+    // eslint-disable-next-line
+    const crypto = require('crypto');
+    const crypto_orig_createHash = crypto.createHash;
+    crypto.createHash = algorithm =>
+      crypto_orig_createHash(algorithm == 'md4' ? 'sha256' : algorithm);
+
     const config = {
       devtool: 'source-map' as const,
       entry: {
@@ -28,8 +35,8 @@ describe('ReactLooselyLazyPlugin', () => {
       },
       mode: 'production' as const,
       output: {
-        path: join(projectRoot, 'dist'),
         filename: '[name].js',
+        path: join(projectRoot, 'dist'),
         publicPath: '/dist/',
       },
       module: {
@@ -47,6 +54,10 @@ describe('ReactLooselyLazyPlugin', () => {
           {
             test: /\.css$/,
             use: [MiniCssExtractPlugin.loader, 'css-loader'],
+          },
+          {
+            test: /\.svg$/,
+            loader: 'url-loader',
           },
         ],
       },

@@ -4,6 +4,9 @@
     "*.{js,mjs,jsm,jsx,es6,cjs,ts,tsx}": [
       "@react-loosely-lazy/parcel-transformer",
       "..."
+    ],
+    "*.svg": [
+      "@parcel/transformer-inline-string"
     ]
   },
   "reporters": [
