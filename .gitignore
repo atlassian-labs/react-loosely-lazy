@@ -7,6 +7,7 @@
 coverage/
 dist/
 node_modules/
+!packages/plugins/babel/__tests__/__mocks__/app/node_modules
 
 *.tsbuildinfo
 yarn.lock
