@@ -27,13 +27,14 @@
     "dist"
   ],
   "dependencies": {
-    "@parcel/plugin": "2.0.0-rc.0"
+    "@parcel/plugin": "^2.12.0"
   },
   "devDependencies": {
-    "@parcel/config-default": "2.0.0-rc.0",
-    "@parcel/core": "2.0.0-rc.0",
-    "@parcel/fs": "2.0.0-rc.0",
-    "@parcel/types": "2.0.0-rc.0",
+    "@parcel/config-default": "^2.0.0",
+    "@parcel/core": "^2.12.0",
+    "@parcel/fs": "^2.12.0",
+    "@parcel/transformer-inline-string": "^2.12.0",
+    "@parcel/types": "^2.12.0",
     "@react-loosely-lazy/integration-app": "^1.2.0",
     "@react-loosely-lazy/manifest": "^1.2.0"
   },
@@ -41,6 +42,6 @@
     "@react-loosely-lazy/manifest": "1.2.0"
   },
   "engines": {
-    "parcel": "^2.0.0-rc.0"
+    "parcel": "^2.0.0"
   }
 }

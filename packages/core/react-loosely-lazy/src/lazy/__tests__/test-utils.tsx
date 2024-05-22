@@ -54,6 +54,7 @@ export const createNamedServerImport = <C1, C2>({
 };
 
 export type ErrorBoundaryProps = {
+  children: ReactNode;
   fallback: ReactNode;
   onError?: (error: Error) => void;
 };

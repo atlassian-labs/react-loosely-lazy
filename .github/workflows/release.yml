@@ -1,11 +1,11 @@
 name: Release
 
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
 on:
   push:
     branches:
       - master
-
-concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   release:
@@ -13,14 +13,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Read .nvmrc
-        run: echo ::set-output name=NVMRC::$(cat .nvmrc)
+        run: echo "NVMRC=$(cat .nvmrc)" >> $GITHUB_OUTPUT
         id: nvm
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ steps.nvm.outputs.NVMRC }}
 

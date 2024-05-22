@@ -18,7 +18,6 @@ import { ProfilerContext } from '../../profiler';
 import type { Status } from './types';
 import { useSubscription } from './utils';
 
-// @ts-expect-error requestIdleCallback might not exist
 const { requestIdleCallback = setTimeout } = window;
 
 export function createComponentClient<C extends ComponentType<any>>({

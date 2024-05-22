@@ -41,8 +41,9 @@ export default function ({
     let maybeCallExpression = path.parentPath;
 
     if (
-      maybeCallExpression.isMemberExpression() &&
+      maybeCallExpression?.isMemberExpression() &&
       !maybeCallExpression.node.computed &&
+      // @ts-expect-error TODO Should have a more explicit check
       t.isIdentifier(maybeCallExpression.get('property'), { name: 'Map' })
     ) {
       maybeCallExpression = maybeCallExpression.parentPath;
@@ -170,10 +171,10 @@ export default function ({
 
         // Transform all then calls to be synchronous in order to support
         // named exports
-        let maybeMemberExpression: NodePath<BabelTypes.Node> =
+        let maybeMemberExpression: NodePath<BabelTypes.Node> | null =
           nodePath.parentPath.parentPath;
         let previousIdOrExpression;
-        while (maybeMemberExpression.isMemberExpression()) {
+        while (maybeMemberExpression?.isMemberExpression()) {
           const { property } = maybeMemberExpression.node;
           if (!t.isIdentifier(property, { name: 'then' })) {
             break;
@@ -290,7 +291,7 @@ export default function ({
 
           binding.referencePaths.forEach((refPath: NodePath) => {
             const callExpression = getCallExpression(refPath);
-            if (!callExpression.isCallExpression()) {
+            if (!callExpression?.isCallExpression()) {
               return;
             }
 

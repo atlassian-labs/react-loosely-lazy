@@ -88,9 +88,13 @@ export const buildManifests = ({
         }
 
         const assetId = getAssetId(assetBasePath, mainEntry.filePath);
-        const referencedBundles = bundleGraph.getBundlesInBundleGroup(
-          maybeBundleGroup.value
-        );
+        const referencedBundles = bundleGraph
+          .getBundlesInBundleGroup(maybeBundleGroup.value, {
+            includeInline: false,
+          })
+          // This shouldn't be needed, but getBundlesInBundleGroup adds inline referenced bundles
+          // even when includeInline is false
+          .filter(packagedBundle => packagedBundle.bundleBehavior !== 'inline');
 
         for (const referencedBundle of referencedBundles) {
           const assetDependency = relative(
