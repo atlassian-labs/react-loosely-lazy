@@ -1,6 +1,6 @@
 {
   "name": "@react-loosely-lazy/integration-app",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "private": true,
   "description": "Common application used for plugin integration tests",
   "keywords": [
