@@ -13,6 +13,23 @@ const getAssetId = (basePath: string, assetPath: string) => {
   return assetId;
 };
 
+const removeQueryParams = (input: string | undefined) => {
+  // When resolving a package with `exports` in the package.json, `enhanced-resolve` will fail
+  // match if the import contains a query string. Query strings could be used to pass import
+  // meta data in some cases (e.g. Parcel with support for "magic comments")
+  if (!input) {
+    return input;
+  }
+
+  const qsPos = input.indexOf('?');
+
+  if (qsPos !== -1) {
+    return input.substring(0, qsPos);
+  }
+
+  return input;
+};
+
 export type BuildManifestsOptions = {
   bundleGraph: BundleGraph<PackagedBundle>;
   options: {
@@ -61,7 +78,7 @@ export const buildManifests = ({
       for (const rllDependency of rllDependencies) {
         const dependency = dependencies.find(
           ({ priority, specifier }) =>
-            specifier === rllDependency &&
+            removeQueryParams(specifier) === rllDependency &&
             // TODO: Suggest Parcel adopt rll's priorities as first-class dependency priorities
             priority === 'lazy'
         );

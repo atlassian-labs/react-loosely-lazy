@@ -15,6 +15,23 @@ function addDotSlashPrefix(path: string): string {
   return hasRelativePrefix(path) ? path : `./${path}`;
 }
 
+function removeQueryParams(input: string) {
+  // When resolving a package with `exports` in the package.json, `enhanced-resolve` will fail
+  // match if the import contains a query string. Query strings could be used to pass import
+  // meta data in some cases (e.g. Parcel with support for "magic comments")
+  if (!input) {
+    return input;
+  }
+
+  const qsPos = input.indexOf('?');
+
+  if (qsPos !== -1) {
+    return input.substring(0, qsPos);
+  }
+
+  return input;
+}
+
 export function createCustomResolver(
   options: Partial<ResolveOptions>
 ): Resolver {
@@ -51,7 +68,11 @@ export function getModulePath({
   resolver,
 }: GetModulePathOptions): string {
   // Resolve the import path starting from the filename path itself rather than from within this file
-  const modulePath = resolver.resolveSync({}, dirname(filename), importPath);
+  const modulePath = resolver.resolveSync(
+    {},
+    dirname(filename),
+    removeQueryParams(importPath)
+  );
 
   const path = relative(process.cwd(), String(modulePath));
 
