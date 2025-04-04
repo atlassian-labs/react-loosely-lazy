@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="300" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="150" cy="150" r="140" fill="#0052CC" opacity="0.1"/>
+  
+  <!-- React-like orbital rings -->
+  <ellipse cx="150" cy="150" rx="120" ry="45" fill="none" stroke="#0052CC" stroke-width="4" transform="rotate(0 150 150)"/>
+  <ellipse cx="150" cy="150" rx="120" ry="45" fill="none" stroke="#0052CC" stroke-width="4" transform="rotate(60 150 150)"/>
+  <ellipse cx="150" cy="150" rx="120" ry="45" fill="none" stroke="#0052CC" stroke-width="4" transform="rotate(120 150 150)"/>
+  
+  <!-- Central loading symbol -->
+  <circle cx="150" cy="150" r="30" fill="#0052CC"/>
+  
+  <!-- Loading dots -->
+  <circle cx="220" cy="150" r="15" fill="#0052CC" opacity="0.8"/>
+  <circle cx="260" cy="150" r="10" fill="#0052CC" opacity="0.6"/>
+  <circle cx="290" cy="150" r="5" fill="#0052CC" opacity="0.4"/>
+</svg>

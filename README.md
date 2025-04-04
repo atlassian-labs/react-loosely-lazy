@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/84136/83958564-9f660900-a8b6-11ea-97d8-c93fecebfeed.png" alt="react-loosely-lazy logo" height="150" />
+  <img src="logo.svg" alt="react-loosely-lazy logo" height="150" />
 </p>
 <h1 align="center">react-loosely-lazy</h1>
 <p align="center">
