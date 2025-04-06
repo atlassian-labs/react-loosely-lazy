@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+  <title>React Loosely Lazy Logo</title>
+  <!-- Outer circle representing React -->
+  <circle cx="75" cy="75" r="70" fill="none" stroke="#61DAFB" stroke-width="4"/>
+  <!-- Inner spiral representing "loosely" concept -->
+  <path d="M75,75 m-40,0 a40,40 0 1,1 80,0 a30,30 0 1,0 -60,0 a20,20 0 1,1 40,0" 
+        fill="none" 
+        stroke="#0052CC" 
+        stroke-width="4" 
+        stroke-linecap="round"/>
+  <!-- Center dot -->
+  <circle cx="75" cy="75" r="8" fill="#0052CC"/>
+</svg>

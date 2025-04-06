@@ -1,5 +1,8 @@
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/84136/83958564-9f660900-a8b6-11ea-97d8-c93fecebfeed.png" alt="react-loosely-lazy logo" height="150" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logos/logo-inverted.svg">
+    <img src="assets/logos/logo-default.svg" alt="react-loosely-lazy logo" height="150" />
+  </picture>
 </p>
 <h1 align="center">react-loosely-lazy</h1>
 <p align="center">
