@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer orbit (loose/relaxed) -->
+  <ellipse cx="100" cy="100" rx="80" ry="40" 
+           transform="rotate(30 100 100)"
+           fill="none" 
+           stroke="#FFFFFF" 
+           stroke-width="4"
+           stroke-dasharray="10,5"/>
+  
+  <!-- Inner orbit -->
+  <ellipse cx="100" cy="100" rx="60" ry="30"
+           transform="rotate(-30 100 100)"
+           fill="none"
+           stroke="#FFFFFF"
+           stroke-width="4"
+           stroke-dasharray="10,5"/>
+  
+  <!-- Central atom -->
+  <circle cx="100" cy="100" r="15" fill="#FFFFFF"/>
+  
+  <!-- Lazy text -->
+  <text x="100" y="160" 
+        font-family="Arial, sans-serif" 
+        font-size="24" 
+        text-anchor="middle"
+        fill="#FFFFFF">
+    loosely lazy
+  </text>
+  
+  <!-- Gradient electron -->
+  <circle cx="140" cy="80" r="8" fill="#FFFFFF">
+    <animate attributeName="opacity"
+             values="0.2;1;0.2"
+             dur="3s"
+             repeatCount="indefinite"/>
+    <animate attributeName="cx"
+             values="140;160;140"
+             dur="3s"
+             repeatCount="indefinite"/>
+    <animate attributeName="cy"
+             values="80;100;80"
+             dur="3s"
+             repeatCount="indefinite"/>
+  </circle>
+</svg>
