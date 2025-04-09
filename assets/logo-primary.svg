@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="120" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- React-like orbital -->
+  <ellipse cx="200" cy="60" rx="45" ry="15" stroke="#61DAFB" stroke-width="2" fill="none" transform="rotate(30 200 60)"/>
+  <ellipse cx="200" cy="60" rx="45" ry="15" stroke="#61DAFB" stroke-width="2" fill="none" transform="rotate(150 200 60)"/>
+  <ellipse cx="200" cy="60" rx="45" ry="15" stroke="#61DAFB" stroke-width="2" fill="none" transform="rotate(270 200 60)"/>
+  
+  <!-- Central dot with loading animation -->
+  <circle cx="200" cy="60" r="8" fill="#61DAFB">
+    <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Text elements -->
+  <text x="80" y="85" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#20232A">
+    react-loosely-lazy
+  </text>
+  
+  <!-- Loading dots -->
+  <circle cx="320" cy="85" r="3" fill="#61DAFB">
+    <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite" begin="0s"/>
+  </circle>
+  <circle cx="330" cy="85" r="3" fill="#61DAFB">
+    <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite" begin="0.3s"/>
+  </circle>
+  <circle cx="340" cy="85" r="3" fill="#61DAFB">
+    <animate attributeName="opacity" values="1;0.3;1" dur="1s" repeatCount="indefinite" begin="0.6s"/>
+  </circle>
+</svg>
