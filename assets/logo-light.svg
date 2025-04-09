@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer orbit (lazy loading circle) -->
+  <circle cx="100" cy="100" r="90" fill="none" stroke="#000000" stroke-width="4" stroke-dasharray="20,10"/>
+  
+  <!-- Inner React-like atom -->
+  <g transform="translate(100,100)">
+    <!-- Electron orbits -->
+    <ellipse rx="45" ry="15" fill="none" stroke="#000000" stroke-width="3"/>
+    <ellipse rx="45" ry="15" fill="none" stroke="#000000" stroke-width="3" transform="rotate(60)"/>
+    <ellipse rx="45" ry="15" fill="none" stroke="#000000" stroke-width="3" transform="rotate(-60)"/>
+    
+    <!-- Core -->
+    <circle r="10" fill="#000000"/>
+  </g>
+  
+  <!-- Loading dots -->
+  <circle cx="70" cy="150" r="5" fill="#000000" opacity="0.3"/>
+  <circle cx="100" cy="150" r="5" fill="#000000" opacity="0.6"/>
+  <circle cx="130" cy="150" r="5" fill="#000000"/>
+</svg>
