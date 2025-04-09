@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <!-- React Loosely Lazy Light Theme Logo -->
+    <!-- Monochrome version optimized for light backgrounds -->
+    
+    <!-- React-like orbital ring -->
+    <ellipse cx="100" cy="100" rx="80" ry="30" fill="none" stroke="#20232A" stroke-width="4" transform="rotate(30,100,100)"/>
+    <ellipse cx="100" cy="100" rx="80" ry="30" fill="none" stroke="#20232A" stroke-width="4" transform="rotate(150,100,100)"/>
+    <ellipse cx="100" cy="100" rx="80" ry="30" fill="none" stroke="#20232A" stroke-width="4" transform="rotate(270,100,100)"/>
+    
+    <!-- Central loading circle -->
+    <circle cx="100" cy="100" r="15" fill="#20232A"/>
+    
+    <!-- Loading segments -->
+    <path d="M100,40 A60,60 0 0,1 160,100" fill="none" stroke="#20232A" stroke-width="8" stroke-dasharray="80,40"/>
+    <path d="M160,100 A60,60 0 0,1 100,160" fill="none" stroke="#20232A" stroke-width="8" stroke-dasharray="80,40"/>
+    <path d="M100,160 A60,60 0 0,1 40,100" fill="none" stroke="#20232A" stroke-width="8" stroke-dasharray="80,40"/>
+</svg>
