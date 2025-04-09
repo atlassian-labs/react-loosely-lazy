@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="240" height="80" viewBox="0 0 240 80" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <!-- React Orbit -->
+    <ellipse cx="40" cy="40" rx="35" ry="12" stroke="#000000" stroke-width="2" fill="none" transform="rotate(45 40 40)"/>
+    <ellipse cx="40" cy="40" rx="35" ry="12" stroke="#000000" stroke-width="2" fill="none" transform="rotate(-45 40 40)"/>
+    <ellipse cx="40" cy="40" rx="35" ry="12" stroke="#000000" stroke-width="2" fill="none"/>
+    
+    <!-- React Core -->
+    <circle cx="40" cy="40" r="7" fill="#000000"/>
+    
+    <!-- Loading Arc -->
+    <path d="M85 40 A30 30 0 1 1 115 40" stroke="#000000" stroke-width="3" fill="none" stroke-dasharray="4,4"/>
+    
+    <!-- Text -->
+    <text x="95" y="45" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#000000">
+        react-loosely-lazy
+    </text>
+</svg>
