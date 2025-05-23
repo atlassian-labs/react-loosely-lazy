@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="240" height="240" viewBox="0 0 240 240" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer orbit - represents React -->
+  <ellipse cx="120" cy="120" rx="100" ry="30" fill="none" stroke="#61DAFB" stroke-width="4" transform="rotate(30,120,120)">
+    <animateTransform attributeName="transform" type="rotate" from="30 120 120" to="390 120 120" dur="10s" repeatCount="indefinite"/>
+  </ellipse>
+  <ellipse cx="120" cy="120" rx="100" ry="30" fill="none" stroke="#61DAFB" stroke-width="4" transform="rotate(150,120,120)">
+    <animateTransform attributeName="transform" type="rotate" from="150 120 120" to="510 120 120" dur="10s" repeatCount="indefinite"/>
+  </ellipse>
+  <ellipse cx="120" cy="120" rx="100" ry="30" fill="none" stroke="#61DAFB" stroke-width="4" transform="rotate(270,120,120)">
+    <animateTransform attributeName="transform" type="rotate" from="270 120 120" to="630 120 120" dur="10s" repeatCount="indefinite"/>
+  </ellipse>
+  
+  <!-- Central nucleus - represents the core -->
+  <circle cx="120" cy="120" r="20" fill="#61DAFB"/>
+  
+  <!-- Lazy loading effect -->
+  <g id="loading-dots">
+    <circle cx="170" cy="120" r="8" fill="#282C34">
+      <animate attributeName="opacity" values="0.2;1;0.2" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="190" cy="120" r="8" fill="#282C34">
+      <animate attributeName="opacity" values="0.2;1;0.2" dur="1.5s" begin="0.3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="210" cy="120" r="8" fill="#282C34">
+      <animate attributeName="opacity" values="0.2;1;0.2" dur="1.5s" begin="0.6s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- Text elements -->
+  <text x="120" y="180" font-family="Arial, sans-serif" font-size="24" fill="#282C34" text-anchor="middle" font-weight="bold">react-loosely-lazy</text>
+</svg>

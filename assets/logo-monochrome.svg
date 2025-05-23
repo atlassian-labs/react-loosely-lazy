@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="240" height="240" viewBox="0 0 240 240" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <!-- Monochrome version optimized for dark backgrounds -->
+  <style>
+    .primary-color { fill: #FFFFFF; }
+    .primary-stroke { stroke: #FFFFFF; }
+  </style>
+  
+  <!-- Outer orbit - represents React -->
+  <ellipse cx="120" cy="120" rx="100" ry="30" fill="none" class="primary-stroke" stroke-width="4" transform="rotate(30,120,120)"/>
+  <ellipse cx="120" cy="120" rx="100" ry="30" fill="none" class="primary-stroke" stroke-width="4" transform="rotate(150,120,120)"/>
+  <ellipse cx="120" cy="120" rx="100" ry="30" fill="none" class="primary-stroke" stroke-width="4" transform="rotate(270,120,120)"/>
+  
+  <!-- Central nucleus - represents the core -->
+  <circle cx="120" cy="120" r="20" class="primary-color"/>
+  
+  <!-- Lazy loading effect -->
+  <g id="loading-dots">
+    <circle cx="170" cy="120" r="8" class="primary-color" opacity="0.8"/>
+    <circle cx="190" cy="120" r="8" class="primary-color" opacity="0.5"/>
+    <circle cx="210" cy="120" r="8" class="primary-color" opacity="0.2"/>
+  </g>
+  
+  <!-- Text elements -->
+  <text x="120" y="180" font-family="Arial, sans-serif" font-size="24" class="primary-color" text-anchor="middle" font-weight="bold">react-loosely-lazy</text>
+</svg>

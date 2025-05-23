@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <!-- Simplified icon version for small displays -->
+  
+  <!-- Outer orbit - represents React -->
+  <ellipse cx="32" cy="32" rx="28" ry="8" fill="none" stroke="#61DAFB" stroke-width="2" transform="rotate(30,32,32)">
+    <animateTransform attributeName="transform" type="rotate" from="30 32 32" to="390 32 32" dur="10s" repeatCount="indefinite"/>
+  </ellipse>
+  <ellipse cx="32" cy="32" rx="28" ry="8" fill="none" stroke="#61DAFB" stroke-width="2" transform="rotate(150,32,32)">
+    <animateTransform attributeName="transform" type="rotate" from="150 32 32" to="510 32 32" dur="10s" repeatCount="indefinite"/>
+  </ellipse>
+  
+  <!-- Central nucleus with loading effect -->
+  <circle cx="32" cy="32" r="8" fill="#61DAFB">
+    <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Minimal loading indicator -->
+  <circle cx="44" cy="32" r="3" fill="#282C34">
+    <animate attributeName="opacity" values="0.2;1;0.2" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="50" cy="32" r="3" fill="#282C34">
+    <animate attributeName="opacity" values="0.2;1;0.2" dur="1.5s" begin="0.5s" repeatCount="indefinite"/>
+  </circle>
+</svg>
