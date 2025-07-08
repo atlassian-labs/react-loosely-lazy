@@ -1,0 +1,32 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main component container -->
+  <rect x="30" y="30" width="60" height="60" rx="8" fill="none" stroke="#0052CC" stroke-width="2"/>
+  
+  <!-- Immediate load component (solid) -->
+  <rect x="40" y="40" width="16" height="16" rx="3" fill="#0052CC"/>
+  
+  <!-- After-paint component (semi-transparent) -->
+  <rect x="64" y="40" width="16" height="16" rx="3" fill="#0052CC" opacity="0.6">
+    <animate attributeName="opacity" values="0;0.6;0.6" dur="1s" begin="0.5s" fill="freeze"/>
+  </rect>
+  
+  <!-- Lazy component (appears on demand) -->
+  <rect x="40" y="64" width="16" height="16" rx="3" fill="#00B8D9" opacity="0">
+    <animate attributeName="opacity" values="0;0;0.8" dur="0.5s" begin="1.5s" fill="freeze"/>
+  </rect>
+  
+  <!-- Optional component (dotted, loads when needed) -->
+  <rect x="64" y="64" width="16" height="16" rx="3" fill="none" stroke="#00B8D9" stroke-width="2" stroke-dasharray="3 2" opacity="0.4">
+    <animate attributeName="opacity" values="0;0;0.4" dur="0.5s" begin="2s" fill="freeze"/>
+  </rect>
+  
+  <!-- Performance optimization indicators -->
+  <circle cx="48" cy="25" r="2" fill="#00B8D9"/>
+  <circle cx="72" cy="25" r="2" fill="#00B8D9" opacity="0.6"/>
+  <circle cx="96" cy="48" r="2" fill="#00B8D9" opacity="0.3"/>
+  
+  <!-- Connection lines showing async relationships -->
+  <line x1="48" y1="27" x2="48" y2="38" stroke="#00B8D9" stroke-width="1" opacity="0.5"/>
+  <line x1="72" y1="27" x2="72" y2="38" stroke="#00B8D9" stroke-width="1" opacity="0.3"/>
+  <line x1="94" y1="48" x2="82" y2="48" stroke="#00B8D9" stroke-width="1" opacity="0.2"/>
+</svg>

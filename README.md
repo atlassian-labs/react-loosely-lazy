@@ -1,5 +1,7 @@
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/84136/83958564-9f660900-a8b6-11ea-97d8-c93fecebfeed.png" alt="react-loosely-lazy logo" height="150" />
+  <img src="react-loosely-lazy-logo-phases.svg" alt="react-loosely-lazy phases logo" height="120" />
+  <img src="react-loosely-lazy-logo-flow.svg" alt="react-loosely-lazy flow logo" height="120" />
+  <img src="react-loosely-lazy-logo-modular.svg" alt="react-loosely-lazy modular logo" height="120" />
 </p>
 <h1 align="center">react-loosely-lazy</h1>
 <p align="center">

@@ -1,0 +1,24 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="60" cy="60" r="55" fill="none" stroke="#E8F4FD" stroke-width="2"/>
+  
+  <!-- Phase 1: Paint phase (immediate) - Solid circle -->
+  <circle cx="60" cy="60" r="18" fill="#0052CC" opacity="1"/>
+  
+  <!-- Phase 2: After-paint phase (delayed) - Semi-transparent ring -->
+  <circle cx="60" cy="60" r="32" fill="none" stroke="#0052CC" stroke-width="8" opacity="0.6" stroke-dasharray="8 4"/>
+  
+  <!-- Phase 3: Lazy phase (on-demand) - Dotted outer ring -->
+  <circle cx="60" cy="60" r="46" fill="none" stroke="#0052CC" stroke-width="4" opacity="0.3" stroke-dasharray="2 6"/>
+  
+  <!-- Central React-inspired element -->
+  <circle cx="60" cy="60" r="6" fill="#FFFFFF"/>
+  
+  <!-- Orbital elements suggesting async loading -->
+  <circle cx="78" cy="60" r="3" fill="#00B8D9" opacity="0.8">
+    <animateTransform attributeName="transform" type="rotate" values="0 60 60;360 60 60" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="42" cy="60" r="2" fill="#00B8D9" opacity="0.6">
+    <animateTransform attributeName="transform" type="rotate" values="0 60 60;-360 60 60" dur="4s" repeatCount="indefinite"/>
+  </circle>
+</svg>
