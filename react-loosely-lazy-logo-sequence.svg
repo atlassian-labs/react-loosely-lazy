@@ -1,0 +1,18 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer ring representing the loading cycle -->
+  <circle cx="60" cy="60" r="45" fill="none" stroke="#e9ecef" stroke-width="3" opacity="0.3"/>
+  
+  <!-- Phase indicators as segments -->
+  <path d="M 60 15 A 45 45 0 0 1 105 60" fill="none" stroke="#4285f4" stroke-width="6" stroke-linecap="round" opacity="0.8"/>
+  <path d="M 105 60 A 45 45 0 0 1 60 105" fill="none" stroke="#34a853" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
+  <path d="M 60 105 A 45 45 0 0 1 15 60" fill="none" stroke="#fbbc04" stroke-width="6" stroke-linecap="round" opacity="0.6"/>
+  
+  <!-- Central component representation -->
+  <rect x="48" y="48" width="24" height="24" rx="6" fill="#ea4335"/>
+  
+  <!-- Small dots indicating loading states -->
+  <circle cx="60" cy="25" r="3" fill="#4285f4"/>
+  <circle cx="95" cy="60" r="3" fill="#34a853"/>
+  <circle cx="60" cy="95" r="3" fill="#fbbc04"/>
+  <circle cx="25" cy="60" r="3" fill="#e9ecef"/>
+</svg>

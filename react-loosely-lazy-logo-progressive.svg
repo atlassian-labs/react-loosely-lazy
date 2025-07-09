@@ -1,0 +1,16 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Progressive loading bars representing phases -->
+  <rect x="20" y="85" width="80" height="8" rx="4" fill="#e9ecef" opacity="0.4"/>
+  <rect x="20" y="85" width="60" height="8" rx="4" fill="#4285f4" opacity="0.7"/>
+  <rect x="20" y="85" width="40" height="8" rx="4" fill="#34a853" opacity="0.9"/>
+  <rect x="20" y="85" width="20" height="8" rx="4" fill="#fbbc04"/>
+  
+  <!-- Abstract component shapes -->
+  <rect x="30" y="25" width="24" height="24" rx="4" fill="#4285f4" opacity="0.8"/>
+  <rect x="66" y="25" width="24" height="24" rx="4" fill="#34a853" opacity="0.6"/>
+  <rect x="48" y="55" width="24" height="24" rx="4" fill="#fbbc04" opacity="0.4"/>
+  
+  <!-- Connection lines suggesting loading sequence -->
+  <path d="M42 49 L54 55" stroke="#666" stroke-width="1.5" opacity="0.3"/>
+  <path d="M78 49 L66 55" stroke="#666" stroke-width="1.5" opacity="0.3"/>
+</svg>
