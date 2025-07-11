@@ -1,0 +1,27 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="60" cy="60" r="55" fill="none" stroke="#E5E7EB" stroke-width="2"/>
+  
+  <!-- Phase 1: Initial (bottom layer) -->
+  <circle cx="60" cy="60" r="45" fill="#F3F4F6" opacity="0.8"/>
+  
+  <!-- Phase 2: Paint (main layer) -->
+  <circle cx="60" cy="60" r="35" fill="#3B82F6" opacity="0.9"/>
+  
+  <!-- Phase 3: After Paint (secondary layer) -->
+  <circle cx="60" cy="60" r="25" fill="#06B6D4" opacity="0.9"/>
+  
+  <!-- Phase 4: Lazy (core) -->
+  <circle cx="60" cy="60" r="15" fill="#F59E0B" opacity="1"/>
+  
+  <!-- Central dot representing the component -->
+  <circle cx="60" cy="60" r="6" fill="#FFFFFF"/>
+  
+  <!-- Loading indicators around the phases -->
+  <g stroke="#6B7280" stroke-width="2" fill="none" opacity="0.6">
+    <!-- Outer phase indicators -->
+    <path d="M 60 10 A 50 50 0 0 1 95 35" stroke-dasharray="3,3"/>
+    <path d="M 95 85 A 50 50 0 0 1 60 110" stroke-dasharray="3,3"/>
+    <path d="M 25 85 A 50 50 0 0 1 10 60" stroke-dasharray="3,3"/>
+  </g>
+</svg>

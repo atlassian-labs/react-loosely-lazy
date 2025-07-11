@@ -1,0 +1,60 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="120" height="120" fill="none"/>
+  
+  <!-- Main performance curve -->
+  <g transform="translate(10, 10)">
+    <!-- Grid background (subtle) -->
+    <g stroke="#F3F4F6" stroke-width="1" opacity="0.5">
+      <line x1="0" y1="25" x2="100" y2="25"/>
+      <line x1="0" y1="50" x2="100" y2="50"/>
+      <line x1="0" y1="75" x2="100" y2="75"/>
+      <line x1="25" y1="0" x2="25" y2="100"/>
+      <line x1="50" y1="0" x2="50" y2="100"/>
+      <line x1="75" y1="0" x2="75" y2="100"/>
+    </g>
+    
+    <!-- Axes -->
+    <line x1="0" y1="100" x2="100" y2="100" stroke="#6B7280" stroke-width="2"/>
+    <line x1="0" y1="0" x2="0" y2="100" stroke="#6B7280" stroke-width="2"/>
+    
+    <!-- Performance curve showing optimized loading -->
+    <path d="M 0 90 Q 25 70 50 40 Q 75 20 100 10" 
+          fill="none" 
+          stroke="#3B82F6" 
+          stroke-width="3" 
+          stroke-linecap="round"/>
+    
+    <!-- Phase markers on the curve -->
+    <circle cx="0" cy="90" r="4" fill="#F59E0B"/> <!-- Initial -->
+    <circle cx="25" cy="70" r="4" fill="#3B82F6"/> <!-- Paint -->
+    <circle cx="50" cy="40" r="4" fill="#06B6D4"/> <!-- After Paint -->
+    <circle cx="75" cy="20" r="4" fill="#10B981"/> <!-- Lazy -->
+    
+    <!-- Optimization arrows -->
+    <g opacity="0.8">
+      <!-- Arrow 1 -->
+      <path d="M 20 85 L 30 75" stroke="#10B981" stroke-width="2" marker-end="url(#arrowhead)"/>
+      <!-- Arrow 2 -->
+      <path d="M 45 65 L 55 35" stroke="#10B981" stroke-width="2" marker-end="url(#arrowhead)"/>
+      <!-- Arrow 3 -->
+      <path d="M 70 45 L 80 15" stroke="#10B981" stroke-width="2" marker-end="url(#arrowhead)"/>
+    </g>
+    
+    <!-- React-style component blocks floating above -->
+    <g transform="translate(20, -15)" opacity="0.7">
+      <rect x="0" y="0" width="12" height="8" rx="2" fill="#3B82F6"/>
+      <rect x="15" y="0" width="12" height="8" rx="2" fill="#06B6D4"/>
+      <rect x="30" y="0" width="12" height="8" rx="2" fill="#F59E0B"/>
+      <rect x="45" y="0" width="12" height="8" rx="2" fill="#10B981"/>
+    </g>
+  </g>
+  
+  <!-- Arrow marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+            refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#10B981"/>
+    </marker>
+  </defs>
+</svg>

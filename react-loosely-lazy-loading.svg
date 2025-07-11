@@ -1,0 +1,47 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="120" height="120" fill="none"/>
+  
+  <!-- Main container representing the lazy boundary -->
+  <rect x="15" y="15" width="90" height="90" rx="12" fill="none" stroke="#E5E7EB" stroke-width="2"/>
+  
+  <!-- Component blocks in different loading states -->
+  
+  <!-- Loaded component (solid) -->
+  <rect x="25" y="25" width="25" height="15" rx="3" fill="#3B82F6"/>
+  
+  <!-- Loading component (animated dots) -->
+  <g>
+    <rect x="25" y="50" width="25" height="15" rx="3" fill="none" stroke="#06B6D4" stroke-width="2" stroke-dasharray="4,2"/>
+    <!-- Loading dots -->
+    <circle cx="30" cy="57.5" r="2" fill="#06B6D4" opacity="0.8">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite" begin="0s"/>
+    </circle>
+    <circle cx="37.5" cy="57.5" r="2" fill="#06B6D4" opacity="0.6">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite" begin="0.5s"/>
+    </circle>
+    <circle cx="45" cy="57.5" r="2" fill="#06B6D4" opacity="0.4">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite" begin="1s"/>
+    </circle>
+  </g>
+  
+  <!-- Lazy component (placeholder) -->
+  <rect x="25" y="75" width="25" height="15" rx="3" fill="none" stroke="#F59E0B" stroke-width="2" stroke-dasharray="2,2" opacity="0.7"/>
+  
+  <!-- Larger components on the right -->
+  <rect x="60" y="25" width="35" height="25" rx="4" fill="#3B82F6" opacity="0.9"/>
+  
+  <!-- Lazy component emerging -->
+  <g opacity="0.8">
+    <rect x="60" y="60" width="35" height="25" rx="4" fill="none" stroke="#F59E0B" stroke-width="2"/>
+    <!-- Emerging effect -->
+    <rect x="60" y="60" width="35" height="25" rx="4" fill="#F59E0B" opacity="0.3">
+      <animate attributeName="opacity" values="0;0.3;0" dur="2s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+  
+  <!-- Performance arrow indicating optimization -->
+  <g transform="translate(85, 95)" opacity="0.7">
+    <path d="M 0 0 L 8 -4 L 8 -2 L 15 -2 L 15 2 L 8 2 L 8 4 Z" fill="#10B981"/>
+  </g>
+</svg>
