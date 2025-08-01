@@ -1,0 +1,7 @@
+{
+  "client": false,
+  "modulePathReplacer": {
+    "from": "./packages",
+    "to": "./foo"
+  }
+}

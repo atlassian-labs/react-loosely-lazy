@@ -1,0 +1,44 @@
+{
+  "name": "react-loosely-lazy-swc",
+  "version": "1.0.0",
+  "description": "SWC Plugin for react-loosely-lazy",
+  "main": "react_loosely_lazy_swc.wasm",
+  "types": "index.d.ts",
+  "files": [
+    "react_loosely_lazy_swc.wasm",
+    "index.d.ts",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "cargo build --release --target wasm32-wasip1 && cp target/wasm32-wasip1/release/react_loosely_lazy_swc.wasm .",
+    "test": "cargo test",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "swc",
+    "react",
+    "lazy",
+    "code-splitting",
+    "ssr",
+    "babel-plugin",
+    "webpack",
+    "bundler"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atlassian-labs/react-loosely-lazy-swc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/atlassian-labs/react-loosely-lazy-swc/issues"
+  },
+  "homepage": "https://github.com/atlassian-labs/react-loosely-lazy-swc#readme",
+  "peerDependencies": {
+    "@swc/core": "^1.3.0"
+  },
+  "devDependencies": {
+    "@swc/core": "^1.3.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "jsc": {
+    "parser": {
+      "syntax": "ecmascript",
+      "jsx": true
+    },
+    "experimental": {
+      "plugins": [
+        ["react-loosely-lazy-swc", {
+          "client": true
+        }]
+      ]
+    }
+  }
+}
