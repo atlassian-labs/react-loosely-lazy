@@ -1,0 +1,32 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="120" height="120" fill="none"/>
+  
+  <!-- Layer 1: Immediate loading (solid) -->
+  <rect x="20" y="30" width="80" height="15" rx="7.5" fill="#2563eb" opacity="1"/>
+  
+  <!-- Layer 2: Deferred loading (gradient) -->
+  <rect x="25" y="50" width="70" height="15" rx="7.5" fill="url(#gradient1)" opacity="0.8"/>
+  
+  <!-- Layer 3: Lazy loading (outline) -->
+  <rect x="30" y="70" width="60" height="15" rx="7.5" fill="none" stroke="#64748b" stroke-width="2" opacity="0.6"/>
+  
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#7c3aed;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:0.3" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Loading indicator dots -->
+  <circle cx="105" cy="37.5" r="3" fill="#2563eb">
+    <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="100" cy="57.5" r="3" fill="#7c3aed">
+    <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite" begin="0.5s"/>
+  </circle>
+  <circle cx="95" cy="77.5" r="3" fill="#64748b">
+    <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite" begin="1s"/>
+  </circle>
+</svg>

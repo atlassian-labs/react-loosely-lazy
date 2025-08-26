@@ -1,0 +1,58 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="120" height="120" fill="none"/>
+  
+  <!-- Main flowing curve representing smooth lazy loading -->
+  <path d="M 20 60 Q 40 30, 60 60 Q 80 90, 100 60" 
+        fill="none" 
+        stroke="url(#flowGradient)" 
+        stroke-width="8" 
+        stroke-linecap="round"/>
+  
+  <!-- Smaller accent curves -->
+  <path d="M 25 70 Q 35 55, 45 70" 
+        fill="none" 
+        stroke="#7c3aed" 
+        stroke-width="4" 
+        stroke-linecap="round" 
+        opacity="0.6"/>
+  
+  <path d="M 75 50 Q 85 65, 95 50" 
+        fill="none" 
+        stroke="#64748b" 
+        stroke-width="4" 
+        stroke-linecap="round" 
+        opacity="0.4"/>
+  
+  <!-- Central node representing the React component -->
+  <circle cx="60" cy="60" r="8" fill="#2563eb" opacity="0.9">
+    <animate attributeName="r" values="8;10;8" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="flowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#7c3aed;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#64748b;stop-opacity:0.5" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Loading particles -->
+  <circle cx="30" cy="45" r="2" fill="#2563eb" opacity="0.7">
+    <animateTransform attributeName="transform" 
+                      type="translate" 
+                      values="0,0; 70,30; 0,0" 
+                      dur="4s" 
+                      repeatCount="indefinite"/>
+  </circle>
+  
+  <circle cx="90" cy="75" r="2" fill="#7c3aed" opacity="0.5">
+    <animateTransform attributeName="transform" 
+                      type="translate" 
+                      values="0,0; -70,-30; 0,0" 
+                      dur="4s" 
+                      repeatCount="indefinite" 
+                      begin="2s"/>
+  </circle>
+</svg>
