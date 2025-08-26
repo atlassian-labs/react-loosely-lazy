@@ -1,0 +1,24 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Performance optimization represented by layered shapes with speed lines -->
+  
+  <!-- Background performance ring -->
+  <circle cx="60" cy="60" r="50" fill="none" stroke="#E3E8F0" stroke-width="2"/>
+  
+  <!-- Main component shape - hexagon for efficiency -->
+  <polygon points="60,25 80,40 80,65 60,80 40,65 40,40" fill="#0052CC"/>
+  
+  <!-- Inner optimization core -->
+  <polygon points="60,35 70,45 70,60 60,70 50,60 50,45" fill="#00B8D9"/>
+  
+  <!-- Speed/performance lines -->
+  <path d="M 25 45 L 35 50" stroke="#FF5630" stroke-width="3" stroke-linecap="round"/>
+  <path d="M 20 60 L 35 60" stroke="#FF5630" stroke-width="3" stroke-linecap="round"/>
+  <path d="M 25 75 L 35 70" stroke="#FF5630" stroke-width="3" stroke-linecap="round"/>
+  
+  <path d="M 95 45 L 85 50" stroke="#FF5630" stroke-width="3" stroke-linecap="round"/>
+  <path d="M 100 60 L 85 60" stroke="#FF5630" stroke-width="3" stroke-linecap="round"/>
+  <path d="M 95 75 L 85 70" stroke="#FF5630" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Central efficiency dot -->
+  <circle cx="60" cy="60" r="4" fill="#FFFFFF"/>
+</svg>
