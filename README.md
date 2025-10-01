@@ -1,5 +1,7 @@
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/84136/83958564-9f660900-a8b6-11ea-97d8-c93fecebfeed.png" alt="react-loosely-lazy logo" height="150" />
+  <img src="./rll-phases-1.svg" alt="react-loosely-lazy logo variation 1" height="120" style="margin:0 8px;" />
+  <img src="./rll-phases-2.svg" alt="react-loosely-lazy logo variation 2" height="120" style="margin:0 8px;" />
+  <img src="./rll-phases-3.svg" alt="react-loosely-lazy logo variation 3" height="120" style="margin:0 8px;" />
 </p>
 <h1 align="center">react-loosely-lazy</h1>
 <p align="center">
@@ -10,6 +12,20 @@
 </p>
 
 A future focused async component loading library for React. Comes packed with loading phases to enable fine-grained performance optimisations.
+
+## Logo design
+These minimalist logo variations aim to capture the core idea of react-loosely-lazy: asynchronous, phased loading with simple, elegant motion.
+
+- Variation 1 (rll-phases-1.svg): Concentric circular arcs form a "progress ring" around a core dot, suggesting staged loading phases (for paint / after-paint / lazy). The negative space between arcs implies waiting and reveal. Uses an Atlassian-inspired blue gradient for a modern, trustworthy feel.
+- Variation 2 (rll-phases-2.svg): Three progressive "step" bars show forward progress and phase escalation. A subtle arc hints at motion and direction while maintaining a clean, geometric composition.
+- Variation 3 (rll-phases-3.svg): Stacked rounded cards represent deferred layers that progressively reveal. A triangular cut creates intentional negative space to indicate a lazy "bite" or reveal.
+
+Design constraints followed:
+- No text; geometry only with intentional use of negative space
+- Limited palette per logo (2–3 colors), primarily Atlassian blues and one alternative green variant
+- Scales from favicon to banner via a square 128×128 viewBox
+- Clean, modern shapes inspired by Apple/Google design minimalism
+
 
 ## Installation
 ```sh

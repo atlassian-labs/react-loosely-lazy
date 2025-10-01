@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="react-loosely-lazy logo - phases">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4C9AFF"/>
+      <stop offset="100%" stop-color="#0052CC"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="24" fill="none"/>
+  <!-- Base subtle ring -->
+  <circle cx="64" cy="64" r="44" fill="none" stroke="#0052CC" stroke-opacity="0.18" stroke-width="14"/>
+  <!-- Primary loading arc -->
+  <circle cx="64" cy="64" r="44" fill="none" stroke="url(#g)" stroke-width="14" stroke-linecap="round"
+          transform="rotate(-90 64 64)"
+          stroke-dasharray="150 130" stroke-dashoffset="0"/>
+  <!-- Secondary arc to hint multi-phase -->
+  <circle cx="64" cy="64" r="44" fill="none" stroke="#4C9AFF" stroke-width="14" stroke-linecap="round"
+          transform="rotate(40 64 64)"
+          stroke-dasharray="70 210"/>
+  <!-- Seed / lazy placeholder dot -->
+  <circle cx="64" cy="64" r="6" fill="#0052CC"/>
+</svg>
