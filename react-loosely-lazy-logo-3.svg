@@ -1,0 +1,69 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FF9A9E;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FECFEF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FECFEF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="coreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667EEA;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764BA2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Performance wave pattern (representing loading phases) -->
+  <path d="M10 60 Q30 45 50 60 T90 60 L110 60" 
+        fill="none" 
+        stroke="url(#waveGradient)" 
+        stroke-width="4" 
+        opacity="0.7">
+    <animate attributeName="d" 
+             values="M10 60 Q30 45 50 60 T90 60 L110 60;M10 60 Q30 75 50 60 T90 60 L110 60;M10 60 Q30 45 50 60 T90 60 L110 60" 
+             dur="4s" 
+             repeatCount="indefinite"/>
+  </path>
+  
+  <path d="M10 50 Q30 35 50 50 T90 50 L110 50" 
+        fill="none" 
+        stroke="url(#waveGradient)" 
+        stroke-width="3" 
+        opacity="0.5">
+    <animate attributeName="d" 
+             values="M10 50 Q30 35 50 50 T90 50 L110 50;M10 50 Q30 65 50 50 T90 50 L110 50;M10 50 Q30 35 50 50 T90 50 L110 50" 
+             dur="4s" 
+             begin="0.5s"
+             repeatCount="indefinite"/>
+  </path>
+  
+  <path d="M10 70 Q30 55 50 70 T90 70 L110 70" 
+        fill="none" 
+        stroke="url(#waveGradient)" 
+        stroke-width="3" 
+        opacity="0.5">
+    <animate attributeName="d" 
+             values="M10 70 Q30 55 50 70 T90 70 L110 70;M10 70 Q30 85 50 70 T90 70 L110 70;M10 70 Q30 55 50 70 T90 70 L110 70" 
+             dur="4s" 
+             begin="1s"
+             repeatCount="indefinite"/>
+  </path>
+  
+  <!-- Central React component (triangle representing React) -->
+  <polygon points="60,35 75,65 45,65" fill="url(#coreGradient)"/>
+  
+  <!-- Lazy loading particles -->
+  <circle cx="25" cy="40" r="2" fill="url(#coreGradient)" opacity="0.6">
+    <animate attributeName="cx" values="25;95;25" dur="6s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.2;1;0.2" dur="6s" repeatCount="indefinite"/>
+  </circle>
+  
+  <circle cx="95" cy="80" r="2" fill="url(#coreGradient)" opacity="0.6">
+    <animate attributeName="cx" values="95;25;95" dur="6s" begin="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.2;1;0.2" dur="6s" begin="2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <circle cx="60" cy="90" r="2" fill="url(#coreGradient)" opacity="0.6">
+    <animate attributeName="cy" values="90;30;90" dur="6s" begin="4s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.2;1;0.2" dur="6s" begin="4s" repeatCount="indefinite"/>
+  </circle>
+</svg>

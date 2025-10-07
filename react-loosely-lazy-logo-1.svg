@@ -1,0 +1,38 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="reactGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#61DAFB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#21759B;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="lazyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B6B;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#4ECDC4;stop-opacity:0.8" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="60" cy="60" r="50" fill="none" stroke="#F0F0F0" stroke-width="2"/>
+  
+  <!-- React-inspired atomic orbit (main component) -->
+  <ellipse cx="60" cy="60" rx="35" ry="15" fill="none" stroke="url(#reactGradient)" stroke-width="3" transform="rotate(0 60 60)"/>
+  <ellipse cx="60" cy="60" rx="35" ry="15" fill="none" stroke="url(#reactGradient)" stroke-width="3" transform="rotate(60 60 60)" opacity="0.7"/>
+  <ellipse cx="60" cy="60" rx="35" ry="15" fill="none" stroke="url(#reactGradient)" stroke-width="3" transform="rotate(120 60 60)" opacity="0.4"/>
+  
+  <!-- Central loaded component -->
+  <circle cx="60" cy="60" r="6" fill="url(#reactGradient)"/>
+  
+  <!-- Lazy loading dots (representing async components) -->
+  <circle cx="85" cy="45" r="4" fill="url(#lazyGradient)" opacity="0.6">
+    <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="75" cy="75" r="4" fill="url(#lazyGradient)" opacity="0.6">
+    <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="35" cy="75" r="4" fill="url(#lazyGradient)" opacity="0.6">
+    <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" begin="1s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="45" cy="45" r="4" fill="url(#lazyGradient)" opacity="0.6">
+    <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" begin="1.5s" repeatCount="indefinite"/>
+  </circle>
+</svg>

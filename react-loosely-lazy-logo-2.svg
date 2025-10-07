@@ -1,0 +1,39 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="primaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667EEA;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764BA2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="secondaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F093FB;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#F5576C;stop-opacity:0.8" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Main container rectangle (representing the loaded component) -->
+  <rect x="35" y="35" width="50" height="50" rx="8" fill="url(#primaryGradient)"/>
+  
+  <!-- Lazy loading segments (performance phases) -->
+  <rect x="20" y="20" width="15" height="15" rx="3" fill="url(#secondaryGradient)" opacity="0.4">
+    <animate attributeName="opacity" values="0.2;0.8;0.2" dur="3s" repeatCount="indefinite"/>
+  </rect>
+  <rect x="85" y="20" width="15" height="15" rx="3" fill="url(#secondaryGradient)" opacity="0.4">
+    <animate attributeName="opacity" values="0.2;0.8;0.2" dur="3s" begin="0.5s" repeatCount="indefinite"/>
+  </rect>
+  <rect x="20" y="85" width="15" height="15" rx="3" fill="url(#secondaryGradient)" opacity="0.4">
+    <animate attributeName="opacity" values="0.2;0.8;0.2" dur="3s" begin="1s" repeatCount="indefinite"/>
+  </rect>
+  <rect x="85" y="85" width="15" height="15" rx="3" fill="url(#secondaryGradient)" opacity="0.4">
+    <animate attributeName="opacity" values="0.2;0.8;0.2" dur="3s" begin="1.5s" repeatCount="indefinite"/>
+  </rect>
+  
+  <!-- Connection lines (showing lazy relationships) -->
+  <line x1="35" y1="27.5" x2="45" y2="35" stroke="url(#secondaryGradient)" stroke-width="2" opacity="0.6"/>
+  <line x1="85" y1="35" x2="75" y2="45" stroke="url(#secondaryGradient)" stroke-width="2" opacity="0.6"/>
+  <line x1="85" y1="85" x2="75" y2="75" stroke="url(#secondaryGradient)" stroke-width="2" opacity="0.6"/>
+  <line x1="35" y1="85" x2="45" y2="75" stroke="url(#secondaryGradient)" stroke-width="2" opacity="0.6"/>
+  
+  <!-- Central loading indicator -->
+  <circle cx="60" cy="60" r="3" fill="#FFFFFF" opacity="0.9"/>
+</svg>
