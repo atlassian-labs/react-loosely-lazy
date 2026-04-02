@@ -1,5 +1,11 @@
 # @react-loosely-lazy/integration-app
 
+## 1.3.4
+
+### Patch Changes
+
+- 43e9617: Use NPM token directly in publish URL
+
 ## 1.3.3
 
 ### Patch Changes
