@@ -42,6 +42,12 @@ jobs:
         with:
           output-modes: npm
 
+      - name: Configure NPM for Public Packages
+        run: |
+          if [ -f .npmrc-public ]; then
+            echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> .npmrc-public
+          fi
+
       - name: Publish to npm
         id: changesets
         uses: changesets/action@v1
