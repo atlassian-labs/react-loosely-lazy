@@ -16,6 +16,9 @@
     "type": "git",
     "url": "git+https://git@github.com/atlassian-labs/react-loosely-lazy.git"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "license": "Apache-2.0",
   "author": "Alberto Gasparin",
   "main": "dist/cjs/index.js",
