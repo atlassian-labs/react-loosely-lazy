@@ -1,5 +1,11 @@
 # @react-loosely-lazy/integration-app
 
+## 1.3.2
+
+### Patch Changes
+
+- 287ed65: Fix NPM publishing
+
 ## 1.3.1
 
 ### Patch Changes
