@@ -1,5 +1,11 @@
 # react-loosely-lazy
 
+## 1.2.3
+
+### Patch Changes
+
+- 84d6888: Use NPM as publish registry
+
 ## 1.2.2
 
 ### Patch Changes
