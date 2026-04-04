@@ -52,6 +52,7 @@ describe('transformer', () => {
       [
         './ui/concatenated-module',
         './ui/external-assets',
+        './ui/import-with-query',
         './ui/lazy',
         './ui/lazy-after-paint',
         './ui/lazy-for-paint',
